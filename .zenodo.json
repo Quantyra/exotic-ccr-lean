@@ -1,20 +1,20 @@
-{
-  "title": "exotic-ccr-lean: Lean 4 Gate-0 certificates for the EXOTIC-CCR Jacobian counterexample anchor",
-  "upload_type": "software",
-  "creators": [
-    {
-      "name": "Fredriksen, Daniel"
-    }
-  ],
-  "license": "Apache-2.0",
-  "version": "0.1.0",
-  "keywords": [
-    "lean4",
-    "jacobian-conjecture",
-    "multivariate-polynomials",
-    "formal-verification",
-    "exotic-ccr",
-    "quantyra"
-  ],
-  "description": "<p><strong>exotic-ccr-lean v0.1.0</strong> — Lean 4 Gate-0 algebraic certificates for Project EXOTIC-CCR (Quantyra).</p><p>Proves finite exact identities for the Jacobian counterexample anchor map F : K³ → K³:</p><ul><li><strong>T0.1</strong> — jacobianDet F = C(-2)</li><li><strong>T0.2</strong> — three-point collision F(0,0,-1/4) = F(1,-3/2,13/2) = F(-1,3/2,13/2) = (-1/4,0,0)</li><li>det-1 normalization G with jacobianDet G = 1 and char-2 collision packaging</li><li>standard non-injectivity theorems: unit Jacobian determinant does not imply injectivity over any field</li></ul><p><strong>Non-claims:</strong> This deposit asserts exact algebraic checks only. It does not claim full Jacobian-conjecture literature status beyond the finite identities proved; does not claim physical, operator-algebraic, channel, gate, or computational-advantage results; and does not claim Poisson/Weyl endomorphism, self-adjointness, CCR realization, or CP/dilation theorems (later EXOTIC-CCR gates).</p><p>Independent Quantyra reimplementation. Provenance credits Alpöge announcement, Cureton Lean formalization, and Speyer note without claiming those works as Quantyra products. Apache-2.0.</p>"
+﻿{
+    "title":  "exotic-ccr-lean: Lean 4 Gate-0 certificates for the EXOTIC-CCR Jacobian counterexample anchor",
+    "upload_type":  "software",
+    "creators":  [
+                     {
+                         "name":  "Fredriksen, Daniel"
+                     }
+                 ],
+    "license":  "Apache-2.0",
+    "version":  "0.1.1",
+    "keywords":  [
+                     "lean4",
+                     "jacobian-conjecture",
+                     "multivariate-polynomials",
+                     "formal-verification",
+                     "exotic-ccr",
+                     "quantyra"
+                 ],
+    "description":  "\u003cp\u003e\u003cstrong\u003eexotic-ccr-lean v0.1.1\u003c/strong\u003e â€” Lean 4 Gate-0 algebraic certificates for Project EXOTIC-CCR (Quantyra).\u003c/p\u003e\u003cp\u003eProves finite exact identities for the Jacobian counterexample anchor map F : KÂ³ â†’ KÂ³:\u003c/p\u003e\u003cul\u003e\u003cli\u003e\u003cstrong\u003eT0.1\u003c/strong\u003e â€” jacobianDet F = C(-2)\u003c/li\u003e\u003cli\u003e\u003cstrong\u003eT0.2\u003c/strong\u003e â€” three-point collision F(0,0,-1/4) = F(1,-3/2,13/2) = F(-1,3/2,13/2) = (-1/4,0,0)\u003c/li\u003e\u003cli\u003edet-1 normalization G with jacobianDet G = 1 and char-2 collision packaging\u003c/li\u003e\u003cli\u003estandard non-injectivity theorems: unit Jacobian determinant does not imply injectivity over any field\u003c/li\u003e\u003c/ul\u003e\u003cp\u003e\u003cstrong\u003eNon-claims:\u003c/strong\u003e This deposit asserts exact algebraic checks only. It does not claim full Jacobian-conjecture literature status beyond the finite identities proved; does not claim physical, operator-algebraic, channel, gate, or computational-advantage results; and does not claim Poisson/Weyl endomorphism, self-adjointness, CCR realization, or CP/dilation theorems (later EXOTIC-CCR gates).\u003c/p\u003e\u003cp\u003eIndependent Quantyra reimplementation. Provenance credits AlpÃ¶ge announcement, Cureton Lean formalization, and Speyer note without claiming those works as Quantyra products. Apache-2.0.\u003c/p\u003e"
 }
