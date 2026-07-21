@@ -4,7 +4,9 @@ title: "exotic-ccr-lean: Lean 4 Gate-0 certificates for the EXOTIC-CCR Jacobian 
 type: software
 authors:
   - family-names: Fredriksen
-    given-names: Daniel Eric\nversion: 0.1.1
+    given-names: Daniel Eric
+    affiliation: "Quantyra Inc"
+version: 0.1.1
 date-released: 2026-07-21
 url: "https://github.com/Quantyra/exotic-ccr-lean"
 repository-code: "https://github.com/Quantyra/exotic-ccr-lean"
@@ -21,4 +23,4 @@ abstract: >-
   Jacobian determinant det DF = -2, three-point collision identities, and
   standard non-injectivity packaging for the announced polynomial map F
   (and det-1 form G). Exact algebraic identities only; no physical or
-  operator-algebraic claims.
+  operator-algebraic claims. Author: Daniel Eric Fredriksen.
