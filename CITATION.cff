@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata from this file."
+title: "exotic-ccr-lean: Lean 4 Gate-0 certificates for the EXOTIC-CCR Jacobian counterexample anchor"
+type: software
+authors:
+  - family-names: Fredriksen
+    given-names: Daniel
+version: 0.1.0
+date-released: 2026-07-20
+url: "https://github.com/Quantyra/exotic-ccr-lean"
+repository-code: "https://github.com/Quantyra/exotic-ccr-lean"
+license: Apache-2.0
+keywords:
+  - Lean 4
+  - Jacobian conjecture
+  - multivariate polynomials
+  - formal verification
+  - EXOTIC-CCR
+  - Quantyra
+abstract: >-
+  Machine-checked Lean 4 certificates for Gate 0 of Project EXOTIC-CCR:
+  Jacobian determinant det DF = -2, three-point collision identities, and
+  standard non-injectivity packaging for the announced polynomial map F
+  (and det-1 form G). Exact algebraic identities only; no physical or
+  operator-algebraic claims.
