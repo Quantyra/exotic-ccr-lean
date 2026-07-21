@@ -1,0 +1,376 @@
+         A COUNTEREXAMPLE TO THE JACOBIAN CONJECTURE
+
+       Abstract. We verify an explicit polynomial map F : C3 → C3 with constant Jacobian deter-
+       minant −2 and a fiber containing three points, thereby disproving the Jacobian conjecture in
+       dimension three and, by stabilization, in every dimension at least three. A projective coordinate
+       [x : 1+xy] reduces the inverse problem to a binary cubic whose simple roots are exactly the affine
+       preimages. This description determines every fiber, the image, and the nonproperness set. For a
+       Keller map we prove that polynomial invertibility, properness, emptiness of the nonproperness
+       set, and codimension at least two of that set are equivalent, whereas the complement of the
+       image always has codimension at least two. Finally, we construct families of nonproper Keller
+       maps, including examples of every generic degree at least three.
+
+
+
+
+                                            1. Introduction
+   A polynomial map G = (G1 , . . . , Gn ) : Cn → Cn is a Keller map if det Jac G is a nonzero
+constant. The classical Jacobian conjecture [4, 2] asserts that every Keller map is a polynomial
+automorphism. The explicit formula studied below was announced by Levent Alpöge [1]; the
+cited post credits Akhil Mathew for asking the question and Fable for the work leading to the
+example. We give an algebraic verification, determine its global geometry, and construct general
+families from its mechanism.
+   There are two different properness statements. The assertion that every Keller map is proper is
+equivalent to the Jacobian conjecture, and is therefore false in dimensions at least three. Adding
+properness as a hypothesis, however, gives a theorem: a proper Keller map is a polynomial
+automorphism. The example violates precisely this global condition. Its image is nevertheless
+Zariski open and dense, with complement of codimension two, while its nonproperness set is a
+hypersurface. Jelonek proved that the nonproperness set of a dominant polynomial self-map of
+affine space is either empty or a hypersurface [3].
+
+                                  2. The properness refinement
+  A continuous map between Euclidean spaces is called proper if the inverse image of every
+compact set is compact. For a polynomial map G : Cn → Cn , define
+              SG = {b ∈ Cn : there are uk ∈ Cn with ∥uk ∥ → ∞ and G(uk ) → b}.
+                / SG if and only if some neighborhood V of b has G−1 (V ) compact. Thus SG is
+Equivalently, b ∈
+the set where G is not locally proper.
+Proposition 2.1. Let G : Cn → Cn be a Keller map. Then G(Cn ) is Zariski open and dense,
+and
+                                      Cn \ G(Cn ) ⊆ SG .
+If the complement of the image is nonempty, then it has codimension at least two.
+Proof. The Jacobian criterion shows that G is an étale morphism, and an étale morphism is open
+in the Zariski topology. Hence U = G(Cn ) is Zariski open; it is dense because it is nonempty and
+Cn is irreducible. If an irreducible divisor D were contained in Cn \ U , then D = V (h) for an
+irreducible nonconstant h ∈ C[p1 , . . . , pn ]. The polynomial h ◦ G would have no zero and hence,
+by the weak Nullstellensatz, would be a nonzero constant, say c. Dominance makes the pullback
+G∗ injective, whereas G∗ (h − c) = 0; hence h = c, a contradiction.
+   Now let b ∈/ SG . Choose a connected Euclidean ball V about b such that G−1 (V ) is compact.
+The restriction G−1 (V ) → V is a proper local biholomorphism, so its image is both open and
+  Date: July 20, 2026.
+  2020 Mathematics Subject Classification. 14R15, 14E20, 32H02.
+  Key words and phrases. Jacobian conjecture, Keller map, properness, nonproperness set, polynomial map.
+                                                       1
+2                       A COUNTEREXAMPLE TO THE JACOBIAN CONJECTURE
+
+closed in V . Since the Zariski-open dense set U meets V , this image is nonempty and therefore
+equals V . Thus b ∈ U , proving the asserted inclusion.                                      □
+   For a dominant polynomial map G, its generic degree is µ(G) = [C(x1 , . . . , xn ) : C(G1 , . . . , Gn )];
+in characteristic zero this is the number of points in a general fiber.
+Theorem 2.2 (Properness refinement). For a Keller map G : Cn → Cn , the following are
+equivalent, where the empty set is assigned infinite codimension:
+    (1) G is a polynomial automorphism;
+    (2) G is proper;
+    (3) SG = ∅;
+    (4) codimCn SG ≥ 2.
+Proof. A polynomial automorphism is proper because its continuous inverse maps compact sets
+to compact sets. Properness implies SG = ∅. Conversely, if SG = ∅ and K ⊂ Cn is compact,
+then G−1 (K) cannot be unbounded: otherwise a sequence escaping to infinity would have images
+in K, and a convergent subsequence of those images would produce a point of SG . Since G−1 (K)
+is closed, it is compact. Thus (2) and (3) are equivalent. By Jelonek’s theorem [3, Theorem 15],
+SG is algebraic and is either empty or a hypersurface, so (3) and (4) are equivalent.
+   Assume that G is proper. Since G is a local biholomorphism, its image is open; since a proper
+map between locally compact Hausdorff spaces is closed, its image is also closed. The target is
+connected, so G is surjective. Every fiber is discrete and compact, hence finite. A proper local
+homeomorphism is a covering map: around a target point, take pairwise disjoint inverse-function
+neighborhoods of its finitely many preimages, and use properness to exclude further inverse
+branches after shrinking the target neighborhood. Because the source is connected and Cn is
+simply connected, this covering has one sheet. Hence G is bijective and its inverse is holomorphic.
+   The induced extension of rational function fields therefore has degree one, so the inverse
+coordinates are rational functions. They agree with the holomorphic inverse on a dense open set
+and hence everywhere. A rational function on Cn that is holomorphic everywhere is polynomial:
+in a reduced expression, a nonconstant irreducible factor of the denominator would give a pole at
+a general point of its zero set. Thus the inverse is polynomial.                                □
+Corollary 2.3 (Properness reformulation). For each n, the Jacobian conjecture in dimension n
+is equivalent to the assertion that every Keller map Cn → Cn is proper. The valid refined theorem
+is Theorem 2.2: properness, or equivalently the absence of a divisorial nonproperness set, forces
+polynomial invertibility.
+
+                                      3. The counterexample
+    Define F = (P, Q, R) : C3 → C3 by
+                               P = (1 + xy)3 z + y 2 (1 + xy)(4 + 3xy),
+(1)                            Q = y + 3x(1 + xy)2 z + 3xy 2 (4 + 3xy),
+                               R = 2x − 3x2 y − x3 z.
+Set A = 1 + xy and B = A2 z + y 2 (4 + 3xy), so that P = AB and Q = y + 3xB.
+Theorem 3.1. The map in (1) satisfies det Jac F = −2. Moreover,
+               F (0, 0, −1/4) = F (1, −3/2, 13/2) = F (−1, 3/2, 13/2) = (−1/4, 0, 0).
+Consequently F is a Keller map that is not a polynomial automorphism.
+Proof. On the dense open set A ̸= 0, put s = x/A. Then
+(2)                             Q = y + 3P s,        R = 2s − ys2 − P s3 .
+The first identity is immediate. After multiplying the second by A2 and writing t = xy, it reduces
+to the polynomial identity 2 + t − t2 (4 + 3t) = (1 + t)2 (2 − 3t). The two coordinate changes have
+                      A COUNTEREXAMPLE TO THE JACOBIAN CONJECTURE                                 3
+
+Jacobian determinants
+                 ∂(P, y, s)                                 ∂(P, Q, R)              2
+             det            = −Pz sx = −A,            det              = 2(1 − ys) = .
+                 ∂(x, y, z)                                 ∂(P, y, s)              A
+Their product is −2, and polynomiality extends the identity across A = 0.
+   At (0, 0, −1/4) one has (A, B) = (1, −1/4). At (1, −3/2, 13/2) one has (A, B) = (−1/2, 1/2),
+giving (P, Q, R) = (−1/4, 0, 0) in both cases. The involution (x, y, z) 7→ (−x, −y, z) fixes P and
+negates Q, R, so the third point has the same image.                                             □
+  All coefficients and all three witness points are rational, so the same counterexample works
+over every field of characteristic zero.
+Corollary 3.2. Let L(p, q, r) = (r/2, q, p) and Fe = L ◦ F . Then
+                        det Jac Fe = 1,        Fe(0) = 0,       Jac Fe(0) = I3 ,
+and the three points in Theorem 3.1 have common image (0, 0, −1/4) under Fe.
+
+                            4. Fibers and behavior at infinity
+  Write (p, q, r) for coordinates on the target and introduce the binary cubic
+(3)                        Φp,q,r (S, T ) = 2pS 3 − qS 2 T + 2ST 2 − rT 3 .
+Let I ⊂ C3 × P1 be the incidence variety Φp,q,r (S, T ) = 0, and let I simp be the open locus where
+[S : T ] is a simple root.
+Proposition 4.1. The map
+                     ι : C3 −→ I,
+                                                                                 
+                                          (x, y, z) 7−→ F (x, y, z), [x : 1 + xy] ,
+is an isomorphism from C3 onto I simp .
+Proof. The pair [x : A] is defined everywhere because x and A = 1 + xy cannot vanish simultane-
+ously. Homogenizing (2) gives the polynomial identity
+(4)                            2P x3 − Qx2 A + 2xA2 − RA3 = 0,
+so ι takes values in I. Its root is always simple. If A ̸= 0 and s = x/A, then 1 − Qs + 3P s2 = 1/A;
+if A = 0, then P = 0 and Q = −2y ̸= 0, so the root at infinity is simple.
+   On the chart T ̸= 0, write s = S/T . For a root set
+                              D = 1 − qs + 3ps2 = 12 ∂s Φp,q,r (s, 1).
+The root is simple exactly when D ̸= 0, and then the inverse formulas are
+                                           s
+(5)                  y = q − 3ps,     x= ,        z = pD3 − y 2 (4 − sy)D.
+                                           D
+Indeed, these equations give A = D−1 and B = pD, hence P = p, Q = q, and R = r.
+   On the chart S ̸= 0, put u = T /S and h(u) = Φp,q,r (1, u) = 2p − qu + 2u2 − ru3 . On h(u) = 0,
+define
+                     q         3                        q         3         1
+              y = − + 3u − ru2 ,         E = u − y = − 2u + ru2 = − h′ (u),
+                     2         2                        2         2         2
+(6)                           x = E −1 ,        z = 2E 2 − 3yE − rE 3 .
+A root is simple exactly when E ̸= 0. On the overlap u ̸= 0, one has s = u−1 , and h(u) = 0 gives
+                   qu − 2u2 + ru3            3p       q         3               E
+               p=                  ,     q−     = − + 3u − ru2 ,         D= .
+                          2                   u       2         2               u
+Hence the two charts give the same y and x = s/D = 1/E; their formulas for z then agree
+because both are the unique solution of r = 2x − 3x2 y − x3 z. When u = 0, the incidence equation
+gives p = 0, and the formulas reduce to x = 2/q, y = −q/2, and z = (5x − r)/x3 . Thus the
+formulas are regular on the simple-root locus and give a two-sided inverse to ι.                □
+4                      A COUNTEREXAMPLE TO THE JACOBIAN CONJECTURE
+
+    The normalized discriminant of (3) is
+(7)                        ∆(p, q, r) = q 2 − 16p − q 3 r + 18pqr − 27p2 r2 ,
+so the usual cubic discriminant is 4∆. Define Σ = V (∆) and Γ = V (12p − q 2 , 3qr − 4).
+Theorem 4.2. The map F has generic degree three and
+                               
+                               3, ∆(p, q, r) ̸= 0,
+                               
+                    −1
+                 #F (p, q, r) = 1, ∆(p, q, r) = 0 and (p, q, r) ∈
+                                                                / Γ,
+                               
+                                  0, (p, q, r) ∈ Γ.
+                               
+
+In particular, F (C3 ) = C3 \ Γ. The omitted set is the smooth curve
+                                                        
+                                       1 2 2t             ∗ ∼ ∗
+                               Γ=         , ,      :t∈C =C .
+                                      3t2 t 3
+Proof. By Proposition 4.1, the points of a fiber are exactly the simple projective roots of (3). A
+cubic with nonzero discriminant has three simple roots; a cubic with one double and one simple
+root contributes one point; a cubic with a triple root contributes none. The coefficient of ST 2 is
+nonzero, so a triple root is finite. Comparing 2ps3 − qs2 + 2s − r = 2p(s − t)3 gives p = 1/(3t2 ),
+q = 2/t, and r = 2t/3, equivalently the equations defining Γ. The displayed parametrization has
+inverse t = 2/q, proving smoothness and all remaining assertions.                                □
+
+  For the target (−1/4, 0, 0), the inverse cubic is −s3 /2 + 2s = −s(s − 2)(s + 2)/2. Formula (5)
+sends the roots 0, 2, −2 to the three points in Theorem 3.1.
+Theorem 4.3. The nonproperness set of F is SF = Σ = V (∆). If
+                                      J∆ = (∆, ∂p ∆, ∂q ∆, ∂r ∆),
+then
+                                                        p
+                  J∆ = (16p − q 3 r, (3qr − 4)2 ),       J∆ = (12p − q 2 , 3qr − 4).
+Consequently the underlying reduced singular locus of Σ is Γ, while the Jacobian singular subscheme
+is nonreduced along that curve. Thus the complement of the image has codimension two, whereas
+nonproperness occurs along a hypersurface.
+Proof. The projection π : I → C3 is proper because I is closed in C3 × P1 . The coefficient of ST 2
+in (3) is the fixed nonzero number 2, so the cubic is never the zero polynomial and every fiber of
+π is finite. Thus π is quasi-finite. A proper quasi-finite morphism is finite [5, Lemma 37.44.1,
+Tag 0F2P]; hence π is finite. Over C3 \ Σ, every root is simple, so Proposition 4.1 identifies F
+with the finite map π. Hence F is proper over C3 \ Σ, and SF ⊆ Σ.
+   Let (p, q, r) ∈ Σ have a finite multiple root t. Since ∂s Φ(0, 1) = 2, one has t ̸= 0, and the
+equations Φ(t, 1) = ∂s Φ(t, 1) = 0 are equivalent to q = 3pt + t−1 and r = t − pt3 . For ε ̸= 0, put
+                           t                1−ε
+                       xε = ,        yε =       ,      zε = pε3 − yε2 (4 − tyε )ε.
+                           ε                 t
+Then ∥(xε , yε , zε )∥ → ∞ and (2) gives F (xε , yε , zε ) = (p, q − ε/t, r + εt) → (p, q, r). A multiple
+root at infinity occurs exactly when p = q = 0. For any r ∈ C, set xε = 2/ε, yε = −ε/2, and
+zε = (5xε − r)/x3ε . Then F (xε , yε , zε ) = (0, ε, r) → (0, 0, r) while the source points escape to
+infinity. These cases exhaust Σ, so SF = Σ.
+   For the scheme-theoretic singular locus, set
+                                   g = 16p − q 3 r,     h = 3qr − 4.
+The identities
+                           g = p∆p + q∆q − 2∆,           h2 = −∆p − 3r∆q
+                        A COUNTEREXAMPLE TO THE JACOBIAN CONJECTURE                                  5
+
+show that (g, h2 ) ⊆ J∆ . Conversely, direct expansion gives
+                            
+          27 2            3                 9      1
+  ∆p = − r g − 1 + qr h2 , ∆q = rg + qh2 ,
+           8              8                 8      8
+                                                                                   
+        1                                     9    27       27 3 2      1 3     3 4
+                                                                                   q r h2 .
+                           
+   ∆ = p∆p + q∆q − g ,               ∆r =       q − pr −       q r g−      q +
+        2                                     8     8      128          16     128
+Thus J∆ = (g, h2 ). Since
+                                           4                1
+                                      g = (12p − q 2 ) − q 2 h,
+                                           3                3                                      √
+the prime ideal (12p − q 2 , h) contains J∆ ; its quotient is isomorphic to C[q, q −1 ]. Since h ∈   J∆
+                                                       √                 √
+and the displayed identity then gives 12p − q 2 ∈ J∆ , we obtain J∆ = (12p − q 2 , h). Along
+this curve q and r are nonzero, and dg, dh are linearly independent, so g, h form part of a regular
+system of parameters in every local ring of the ambient space along the curve. Hence (g, h2 )
+is nonradical at every point of its support. This proves both assertions about the singular
+subscheme.                                                                                            □
+  On the dense chart A ̸= 0, the function fields satisfy
+                        C(x, y, z) = C(p, q, r)(s),   2ps3 − qs2 + 2s − r = 0.
+Together with Theorem 4.2, this gives [C(x, y, z) : C(p, q, r)] = 3; in particular, the displayed
+cubic is the minimal polynomial of s over the target function field.
+Remark 4.4. The restriction F −1 (C3 \ Σ) → C3 \ Σ is finite étale of degree three. On Σ \ Γ,
+the unique affine preimage remains nonsingular while the other two inverse sheets escape to
+infinity; on Γ, all three projective roots coalesce and no affine preimage remains. Hence Σ is not
+a critical-value locus: F has no critical points.
+
+                                              5. Families
+  The construction admits coordinate deformations preserving the cubic geometry and polynomial
+deformations of arbitrary generic degree.
+Theorem 5.1. Fix λ, a, c ∈ C∗ and H ∈ C[x, y]. Set
+                                                                        3 2
+             A = λ + xy,         W = cz + H(x, y),      B = A2 W +         y (4λ + 3xy),
+                                                                       aλ2
+and define
+                                                              
+                                                2   3 2    a 3
+(8)                     Fλ,a,c,H = AB, y + axB, x − 2 x y − x W .
+                                               λ   λ       3
+Then det Jac Fλ,a,c,H = −2cλ2 . Its generic degree is three, its fiber equation is
+                                      2a 3
+(9)                                      ps − qs2 + 2s − r = 0,
+                                       3
+and
+                          Fλ,a,c,H (C3 ) = C3 \ Γa ,      SFλ,a,c,H = V (∆a ),
+where
+                       16a
+           ∆a = q 2 −      p − q 3 r + 6apqr − 3a2 p2 r2 ,      Γa = V (q 2 − 4ap, 3qr − 4).
+                        3
+The fibers have cardinalities 3, 1, and 0 according as ∆a ̸= 0, ∆a = 0 off Γa , and the target lies
+on Γa .
+Proof. On A ̸= 0, put s = x/A and P = AB. The same polynomial identity used in Theorem 3.1
+gives Q = y + aP s and R = 2s − ys2 − (a/3)P s3 . Moreover,
+                        ∂(P, y, s)                 ∂(P, Q, R)               2λ
+                  det              = −cλA,     det            = 2(1 − ys) =    ,
+                        ∂(x, y, z)                 ∂(P, y, s)                A
+which proves the determinant formula on A ̸= 0. Since both sides are polynomial functions of
+(x, y, z), the identity extends across A = 0. Eliminating y = q − aps gives (9).
+6                     A COUNTEREXAMPLE TO THE JACOBIAN CONJECTURE
+
+    For a finite simple root, put y = q − aps and D = 1 − sy. The corresponding source point is
+                      λs             pD3 3y 2 (4 − sy)D              W − H(x, y)
+                 x=      ,     W = 3 −                   ,     z=                .
+                       D              λ         aλ3                      c
+The root at infinity occurs when p = 0 and is simple exactly when q ̸= 0; it gives y = −q/2,
+x = 2λ/q, and W = 3(5x/λ − r)/(ax3 ). Thus the simple projective roots of the homogenization
+of (9) are in bijection with affine preimages. Its discriminant is 4∆a , and comparison with a
+triple cube gives q 2 = 4ap and 3qr = 4. This proves the fiber count and the image formula.
+   The same finite-incidence argument as in Theorem 4.3 gives properness away from V (∆a ). If t
+is a finite multiple root, then q = apt + t−1 and r = t − (a/3)pt3 . Put
+          λt            1−ε              pε3 3y 2 (4 − tyε )ε                                     Wε − H(xε , yε )
+       xε =  ,    yε =      ,      Wε = 3 − ε                 ,                            zε =                    .
+           ε              t              λ           aλ3                                                c
+Here A = λ/ε, s = t, and D = ε; direct substitution gives
+                               Fλ,a,c,H (xε , yε , zε ) = (p, q − ε/t, r + εt).
+Thus the source points escape to infinity while their images converge to (p, q, r). A multiple
+root at infinity occurs exactly when p = q = 0. In that case take xε = 2λ/ε, yε = −ε/2,
+Wε = 3(5xε /λ − r)/(ax3ε ), and zε = (Wε − H(xε , yε ))/c. Then A = 0 and
+                                           Fλ,a,c,H (xε , yε , zε ) = (0, ε, r).
+Hence the nonproperness set is exactly V (∆a ).                                                                        □
+
+   The original map is F1,3,1,0 , and taking c = −1/(2λ2 ) gives determinant one. For fixed λ and
+a, the parameters c and H arise by precomposition with the triangular source automorphism
+(x, y, z) 7→ (x, y, cz + H(x, y)).
+   For the next construction, retain A = 1 + xy, B = A2 z + y 2 (4 + 3xy), P = AB, and the
+coordinates Q, R from (1).
+Theorem 5.2. Let N ≥ 1 and choose polynomials ηj (T ) ∈ C[T ] for 1 ≤ j ≤ N . Define
+                             N                                             N
+                             X                                             X        j
+              Qη = Q + A2          xj B j+2 ηj (P ),         Rη = R −                  xj+2 B j+2 ηj (P ),
+                                                                                   j+2
+                             j=1                                           j=1
+
+and Fη = (P, Qη , Rη ). Then det Jac Fη = −2. Its finite inverse branches are governed by
+                                                                 N
+                                       3        2
+                                                                 X      2 j+2
+(10)              Ωp,q,r (s) = 2ps − qs + 2s − r +                         p ηj (p)sj+2 = 0.
+                                                                       j+2
+                                                                 j=1
+                                           
+If d = max {3} ∪ {j + 2 : ηj ̸= 0} , then Fη has generic degree d.
+Proof. On A ̸= 0, write s = x/A and set
+                             N                                                   N
+                             X
+                                    j+2             j                     3
+                                                                                 X        j
+           φ(p, s) = 3ps +         p       ηj (p)s ,       θ(p, s) = ps +                    pj+2 ηj (p)sj+2 .
+                                                                                         j+2
+                             j=1                                                   j=1
+
+The displayed polynomial formulas are the pullbacks of Qη = y + φ(P, s) and Rη = 2s − ys2 −
+θ(P, s), because P j+2 sj = A2 xj B j+2 and P j+2 sj+2 = xj+2 B j+2 . Since θs = s2 φs ,
+                         ∂(P, Qη , Rη )                                     2
+                   det                  = 2 − 2ys − θs + s2 φs = 2(1 − ys) = .
+                           ∂(P, y, s)                                       A
+Multiplication by det ∂(P, y, s)/∂(x, y, z) = −A gives −2 on A ̸= 0. Since both the determinant
+and −2 are polynomial functions of (x, y, z), the equality extends to all of C3 .
+  Eliminating y = q − φ(p, s) gives (10), and
+                                                                    
+                                ∂s Ωp,q,r (s) = 2 1 − s(q − φ(p, s)) .
+                        A COUNTEREXAMPLE TO THE JACOBIAN CONJECTURE                                         7
+
+Thus a finite root yields an affine preimage exactly when it is simple. With y = q − φ(p, s) and
+D = 1 − sy, that point is x = s/D and z = pD3 − y 2 (4 − sy)D. These reconstruction formulas
+give the equality of function fields
+                                         C(x, y, z) = C(p, q, r)(s).
+Let K = C(p, q) and write (10) as r = fp,q (s). The polynomial fp,q (S) has degree d over
+K: when d > 3 its leading coefficient is a nonzero multiple of pd ηd−2 (p), while for d = 3 it
+is 2p(1 + p2 η1 (p)/3) if η1 is present. Since Fη is dominant, r is transcendental over K. The
+polynomial fp,q (S) − r is irreducible in K(r)[S]: indeed, T − fp,q (S) generates a prime ideal in
+K[S, T ], because the quotient is K[S], and Gauss’s lemma applies. Therefore
+                                        [C(x, y, z) : C(p, q, r)] = d,
+which is the asserted generic degree.                                                                      □
+Corollary 5.3. For every integer d ≥ 3, there is a nonproper Keller map C3 → C3 of generic
+degree d having the three-point collision in Theorem 3.1.
+Proof. For d = 3, use F . For d ≥ 4, take N = d − 2, set ηd−2 (T ) = c(4T + 1) with c ∈ C∗ , and set
+all other ηj equal to zero. The added terms vanish at the three source points because their common
+first target coordinate is P = −1/4. The collision is therefore unchanged, while Theorem 5.2
+gives determinant −2 and generic degree d. The map is not proper by Theorem 2.2.                  □
+  For every n ≥ 3, stabilization gives the Keller counterexample
+                                                                                       
+                           (x, y, z, u4 , . . . , un ) 7−→ F (x, y, z), u4 , . . . , un .
+The construction does not settle the two-dimensional statement. The surviving global theorem is
+exact: proper Keller maps are automorphisms, and by Jelonek’s theorem it is enough to prove
+that the asymptotic-value set has codimension at least two. The codimension-two size of the
+omitted set is not enough; for (1), one has C3 \ F (C3 ) = Γ but SF = Σ.
+
+                                                References
+[1] L. Alpöge, Hello there the Jacobian conjecture is false, X post, July 20, 2026, https://x.com/__alpoge__/
+    status/2079028340955197566.
+[2] H. Bass, E. H. Connell, and D. Wright, The Jacobian conjecture: reduction of degree and formal expan-
+    sion of the inverse, Bull. Amer. Math. Soc. (N.S.) 7 (1982), no. 2, 287–330, https://doi.org/10.1090/
+    S0273-0979-1982-15032-7.
+[3] Z. Jelonek, The set of points at which a polynomial map is not proper, Ann. Polon. Math. 58 (1993), no. 3,
+    259–266, https://doi.org/10.4064/ap-58-3-259-266.
+[4] O.-H. Keller, Ganze Cremona-Transformationen, Monatsh. Math. Phys. 47 (1939), 299–306, https://doi.
+    org/10.1007/BF01695502.
+[5] The Stacks Project Authors, The Stacks Project, Lemma 37.44.1, Tag 0F2P, https://stacks.math.columbia.
+    edu/tag/0F2P.
+

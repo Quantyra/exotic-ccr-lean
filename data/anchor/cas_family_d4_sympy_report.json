@@ -1,0 +1,68 @@
+{
+  "engine": "sympy",
+  "sympy_version": "1.14.0",
+  "pilot": "Cor5.3_d4_psi2_c1",
+  "d_claimed": 4,
+  "collisions": [
+    {
+      "input": [
+        "0",
+        "0",
+        "-1/4"
+      ],
+      "P": "-1/4",
+      "psi2_P": "0",
+      "output": [
+        "-1/4",
+        "0",
+        "0"
+      ],
+      "ok": true
+    },
+    {
+      "input": [
+        "1",
+        "-3/2",
+        "13/2"
+      ],
+      "P": "-1/4",
+      "psi2_P": "0",
+      "output": [
+        "-1/4",
+        "0",
+        "0"
+      ],
+      "ok": true
+    },
+    {
+      "input": [
+        "-1",
+        "3/2",
+        "13/2"
+      ],
+      "P": "-1/4",
+      "psi2_P": "0",
+      "output": [
+        "-1/4",
+        "0",
+        "0"
+      ],
+      "ok": true
+    }
+  ],
+  "collisions_all_pass": true,
+  "chain_rule": {
+    "pullback_Q_ok": true,
+    "pullback_R_ok": true,
+    "det_pys_ok": true,
+    "det_chart_ok": true,
+    "chain_ok": true,
+    "note": "det Jac F = -2 on A!=0 by chart product; extends by polynomial identity (Thm 5.2)"
+  },
+  "fiber": {
+    "degree": 4,
+    "lead": "2*p**5 + p**4/2",
+    "ok": true
+  },
+  "pass_pilot_algebraic": true
+}
