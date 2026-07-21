@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2026 Daniel Fredriksen, Quantyra. All rights reserved.
+Copyright (c) 2026 Daniel Eric Fredriksen, Quantyra. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Daniel Fredriksen
+Authors: Daniel Eric Fredriksen
 -/
 import ExoticCCR.Basic
 

@@ -1,11 +1,10 @@
-﻿cff-version: 1.2.0
+cff-version: 1.2.0
 message: "If you use this software, please cite it using the metadata from this file."
 title: "exotic-ccr-lean: Lean 4 Gate-0 certificates for the EXOTIC-CCR Jacobian counterexample anchor"
 type: software
 authors:
   - family-names: Fredriksen
-    given-names: Daniel
-version: 0.1.1
+    given-names: Daniel Eric\nversion: 0.1.1
 date-released: 2026-07-21
 url: "https://github.com/Quantyra/exotic-ccr-lean"
 repository-code: "https://github.com/Quantyra/exotic-ccr-lean"

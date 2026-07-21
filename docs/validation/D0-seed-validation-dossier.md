@@ -75,5 +75,5 @@ See [`docs/provenance/G0-seed-provenance-ledger.md`](../provenance/G0-seed-prove
 ## 9. Sign-off
 | Role | Action |
 |------|--------|
-| VP Research (AI) | Dual CAS executed; freeze written; dossier filed 2026-07-21 |
-| Chief Scientist | Review optional; G0 remains incomplete until S015 |
+| Daniel Eric Fredriksen (author) | Dual CAS executed; freeze written; dossier filed 2026-07-21 |
+

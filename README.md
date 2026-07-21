@@ -73,4 +73,4 @@ See [CITATION.cff](CITATION.cff). Zenodo DOI: pending GitHub–Zenodo integratio
 
 ## License
 
-Copyright 2026 Quantyra / Daniel Fredriksen. Apache-2.0. See [LICENSE](LICENSE).
+Copyright 2026 Quantyra / Daniel Eric Fredriksen. Apache-2.0. See [LICENSE](LICENSE).
