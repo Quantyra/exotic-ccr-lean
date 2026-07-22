@@ -16,6 +16,7 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 | T0.1 | `jacobianDet F = C (-2)` | `ExoticCCR.AnchorF` |
 | T0.2 | Three collision identities for F | `ExoticCCR.AnchorF` |
 | T0.B | `J * adj(J) = det(J) • I` for Jacobian of F (dual-matrix algebra) | `ExoticCCR.DualFields` |
+| T0.C | Three-point collision packaging + gate0 algebra bundle | `ExoticCCR.Collision` |
 | — | `jacobianDet G = 1` and G collisions / char-2 case | `ExoticCCR.AnchorG` |
 | — | Unit-Jacobian non-injectivity packaging (char ≠ 2 via F; all char via G) | `ExoticCCR.Counterexample` |
 
