@@ -1,6 +1,6 @@
 # exotic-ccr-lean
 
-Lean 4 Gate-0 certificates for the **EXOTIC-CCR** Jacobian counterexample anchor (Quantyra).
+Lean 4 algebraic certificates for the **EXOTIC-CCR** program (Quantyra).
 
 This repository formalizes finite exact algebraic identities used as the frozen anchor object for Project EXOTIC-CCR (Exotic Endomorphisms of the Canonical Commutation Relations): Jacobian determinant certificates and three-point collision witnesses for an explicit polynomial map \(F\colon K^3\to K^3\), plus standard non-injectivity packaging.
 
@@ -9,7 +9,7 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 **License:** Apache-2.0  
 **Version:** 0.1.0
 
-## What is proved (v0.1.0)
+## What is proved
 
 | ID | Statement | Module |
 |----|-----------|--------|
@@ -17,6 +17,9 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 | T0.2 | Three collision identities for F | `ExoticCCR.AnchorF` |
 | T0.B | `J * adj(J) = det(J) • I` for Jacobian of F (dual-matrix algebra) | `ExoticCCR.DualFields` |
 | T0.C | Three-point collision packaging + gate0 algebra bundle | `ExoticCCR.Collision` |
+| T0.B5.2 | A real polynomial with nowhere-zero derivative is strictly monotone in one orientation, injective, surjective, and bijective | `ExoticCCR.PolyDiffeo1D` |
+| T0.B5.3 | The coordinatewise product map is bijective; its diagonal polynomial Jacobian has determinant `p'(x) * q'(y)`, nonzero under the derivative hypotheses | `ExoticCCR.PolyDiffeo1D` |
+| T0.B5.7 | Vertical and horizontal elementary polynomial shears over a commutative ring are bijective, with explicit polynomial inverses | `ExoticCCR.PolyDiffeo1D` |
 | — | `jacobianDet G = 1` and G collisions / char-2 case | `ExoticCCR.AnchorG` |
 | — | Unit-Jacobian non-injectivity packaging (char ≠ 2 via F; all char via G) | `ExoticCCR.Counterexample` |
 
@@ -38,10 +41,10 @@ Collisions (char ≠ 2 as needed):
 
 See [INTEGRITY.md](INTEGRITY.md). In short:
 
-- These are **exact algebraic certificates only** (finite polynomial identities).
+- These are bounded algebraic and real-polynomial analysis certificates only.
 - This repo does **not** claim full status of the Jacobian conjecture literature beyond the identities proved here.
 - This repo does **not** claim physical, operator-algebraic, channel, gate, or computational-advantage results.
-- Downstream EXOTIC-CCR gates (Poisson/Weyl endomorphisms, self-adjointness, CCR realization, CP maps) are **out of scope** for this artifact.
+- Full Program B, B6/B7 analysis, and downstream EXOTIC-CCR gates (Poisson/Weyl endomorphisms, self-adjointness, CCR realization, CP maps) are **out of scope** for this artifact.
 
 ## Build
 
