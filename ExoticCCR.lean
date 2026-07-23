@@ -17,3 +17,5 @@ import ExoticCCR.TheoremCWeyl
 import ExoticCCR.VectorFieldCompleteness
 import ExoticCCR.TheoremD
 import ExoticCCR.PolyDiffeo1D
+import ExoticCCR.TransportOperator
+import ExoticCCR.TheoremE

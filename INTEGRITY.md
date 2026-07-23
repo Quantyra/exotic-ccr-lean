@@ -30,6 +30,14 @@ the historical B5 algebraic core.
 10. **T0.D.** The parameterized algebraic curve identity is proved, and over `ℝ` the explicit
     curve `gamma` is an integral curve of the smooth evaluated dual field `X1` on `(0,1/2)`.
     Its norm tends to infinity as `t → (1/2)⁻`, so `X1` is incomplete.
+11. **T0.E infrastructure (bounded claim).** The artifact defines `L²(ℝ³)`, compactly supported
+    smooth test functions, the pointwise expression `-iX`, and essential self-adjointness as
+    closability plus self-adjointness of the closure. It proves the pointwise polynomial
+    divergence identity and packages `X1` as smooth, divergence-free, and incomplete.
+12. **T0.E conditional only.** Given a supplied analytic realization and the explicit proposition
+    `TransportNecessityStatement`, `theoremE_of_transportNecessity` concludes that the realization
+    is not essentially self-adjoint. The proposition is a definition/hypothesis, not an axiom or
+    an unconditional theorem.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
 one-dimensional real-analysis consequences. They do not constitute all of Program B.
@@ -41,8 +49,9 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - Physical significance, quantum channels, gates, continuous-variable protocols, or computational advantage.
 - Poisson-bracket theorems, analytic/operator CCR realizations, or exponentiated Weyl relations.
 - Essential self-adjointness, strong CCR/Weyl relations, C*-extension, complete positivity, or dilations.
-- A001 Theorems E–F, including `Dom H*`, deficiency vectors, or deficiency indices; these are
-  blocked on analytic operator-domain infrastructure.
+- Unconditional A001 Theorem E. The repository does not construct the `L²` realization of
+  `-iX1`, prove transport necessity, or construct a nonzero vector in `ker(H† ± i)`.
+- A001 Theorem F, `Dom H*`, and all deficiency-index values. No deficiency indices are claimed.
 - Full B001, B6/B7 analytic classification, von Neumann algebra (`vNa`) conclusions, or any
   operator realization derived from the B5 algebraic slice.
 - Experimental, hardware, or metrology claims.
