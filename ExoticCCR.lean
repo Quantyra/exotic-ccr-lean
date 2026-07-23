@@ -8,5 +8,9 @@ import ExoticCCR.AnchorF
 import ExoticCCR.AnchorG
 import ExoticCCR.Counterexample
 import ExoticCCR.DualFields
+import ExoticCCR.DualMatrix
 import ExoticCCR.Collision
+import ExoticCCR.TheoremB
+import ExoticCCR.TheoremC
+import ExoticCCR.TheoremD
 import ExoticCCR.PolyDiffeo1D
