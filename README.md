@@ -21,7 +21,7 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 | T0.C.2 | Every row of the polynomial dual matrix has zero coefficient divergence | `ExoticCCR.TheoremC` |
 | T0.C.3 | The dual fields commute as derivations on every multivariate polynomial | `ExoticCCR.TheoremC` |
 | T0.C.4 | The left-coefficient formulas `q_i ↦ F_i(q)`, `p_j ↦ ∑_k B_jk(q)p_k` define a unital endomorphism of the abstract polynomial Weyl algebra and preserve its generator CCR | `ExoticCCR.TheoremCWeyl` |
-| T0.D.alg partial | Exact rational specialization of the proposed radical-cleared curve | `ExoticCCR.TheoremD` |
+| T0.D | The explicit curve `gamma` satisfies `evalMap F (gamma t) = ![0,t,2]`, is an integral curve of the smooth dual field `X1` on `(0,1/2)`, escapes every norm ball at `1/2`, and proves `X1` incomplete | `ExoticCCR.TheoremD` |
 | T0.Collision | Three-point collision packaging + gate0 algebra bundle | `ExoticCCR.Collision` |
 | T0.B5.2 | A real polynomial with nowhere-zero derivative is strictly monotone in one orientation, injective, surjective, and bijective | `ExoticCCR.PolyDiffeo1D` |
 | T0.B5.3 | The coordinatewise product map is bijective; its diagonal polynomial Jacobian has determinant `p'(x) * q'(y)`, nonzero under the derivative hypotheses | `ExoticCCR.PolyDiffeo1D` |
@@ -50,7 +50,7 @@ See [INTEGRITY.md](INTEGRITY.md). In short:
 - These are bounded algebraic and real-polynomial analysis certificates only.
 - This repo does **not** claim full status of the Jacobian conjecture literature beyond the identities proved here.
 - This repo does **not** claim physical, operator-algebraic, channel, gate, or computational-advantage results.
-- Poisson brackets, analytic/operator CCR realizations, exponentiated Weyl relations, incompleteness, self-adjointness, deficiency indices, and CP maps are **not proved** by these algebraic slices. T0.C.4 is only an abstract polynomial-algebra endomorphism.
+- Poisson brackets, analytic/operator CCR realizations, exponentiated Weyl relations, self-adjointness, deficiency indices, and CP maps are **not proved**. T0.C.4 is only an abstract polynomial-algebra endomorphism; T0.D proves only smooth-vector-field incompleteness.
 - A001 Theorems E–F remain **blocked** on adjoint-domain and deficiency-index infrastructure.
 
 ## Build

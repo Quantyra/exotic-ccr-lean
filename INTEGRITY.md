@@ -27,8 +27,9 @@ the historical B5 algebraic core.
 9. **T0.C.4.** The left-coefficient formulas `q_i ↦ F_i(q)` and
    `p_j ↦ ∑_k B_jk(q)p_k` define a unital algebra endomorphism of the abstract polynomial
    Weyl algebra presented by generator CCR, when `2 ≠ 0`.
-10. **T0.D.alg (partial).** The proposed rational curve formula is checked at the exact sample
-   `t = 3/8`, `s = 1/2`; no parameterized curve theorem follows from this sample.
+10. **T0.D.** The parameterized algebraic curve identity is proved, and over `ℝ` the explicit
+    curve `gamma` is an integral curve of the smooth evaluated dual field `X1` on `(0,1/2)`.
+    Its norm tends to infinity as `t → (1/2)⁻`, so `X1` is incomplete.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
 one-dimensional real-analysis consequences. They do not constitute all of Program B.
@@ -39,8 +40,6 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - That any particular public announcement is the definitive historical priority record (see PROVENANCE.md for citations only).
 - Physical significance, quantum channels, gates, continuous-variable protocols, or computational advantage.
 - Poisson-bracket theorems, analytic/operator CCR realizations, or exponentiated Weyl relations.
-- The parameterized blow-up-curve identity.
-- Incompleteness of a vector field or any ODE/escape-limit conclusion.
 - Essential self-adjointness, strong CCR/Weyl relations, C*-extension, complete positivity, or dilations.
 - A001 Theorems E–F, including `Dom H*`, deficiency vectors, or deficiency indices; these are
   blocked on analytic operator-domain infrastructure.

@@ -14,5 +14,6 @@ import ExoticCCR.TheoremB
 import ExoticCCR.TheoremC
 import ExoticCCR.PolynomialWeylAlgebra
 import ExoticCCR.TheoremCWeyl
+import ExoticCCR.VectorFieldCompleteness
 import ExoticCCR.TheoremD
 import ExoticCCR.PolyDiffeo1D
