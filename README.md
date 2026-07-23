@@ -18,7 +18,8 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 | T0.B.1 | Polynomial `B = -(adj J)ᵀ/2` and `J * Bᵀ = I` (when `2 ≠ 0`) | `ExoticCCR.DualMatrix` |
 | T0.B.2–3 | Cotangent-lift evaluation; three zero-covector collisions and non-injectivity | `ExoticCCR.TheoremB` |
 | T0.C.1 | Directional dual fields satisfy `X_j(F_i) = δ_ij` | `ExoticCCR.TheoremC` |
-| T0.C.2 partial | Their algebraic bracket vanishes on each anchor coordinate `F_k` | `ExoticCCR.TheoremC` |
+| T0.C.2 | Every row of the polynomial dual matrix has zero coefficient divergence | `ExoticCCR.TheoremC` |
+| T0.C.3 | The dual fields commute as derivations on every multivariate polynomial | `ExoticCCR.TheoremC` |
 | T0.D.alg partial | Exact rational specialization of the proposed radical-cleared curve | `ExoticCCR.TheoremD` |
 | T0.Collision | Three-point collision packaging + gate0 algebra bundle | `ExoticCCR.Collision` |
 | T0.B5.2 | A real polynomial with nowhere-zero derivative is strictly monotone in one orientation, injective, surjective, and bijective | `ExoticCCR.PolyDiffeo1D` |
@@ -48,7 +49,7 @@ See [INTEGRITY.md](INTEGRITY.md). In short:
 - These are bounded algebraic and real-polynomial analysis certificates only.
 - This repo does **not** claim full status of the Jacobian conjecture literature beyond the identities proved here.
 - This repo does **not** claim physical, operator-algebraic, channel, gate, or computational-advantage results.
-- Poisson brackets, the full Lie-bracket and Piola identities, Weyl endomorphisms, incompleteness, self-adjointness, deficiency indices, CCR realization, and CP maps are **not proved** by these algebraic slices.
+- Poisson brackets, Weyl endomorphisms, incompleteness, self-adjointness, deficiency indices, CCR realization, and CP maps are **not proved** by these algebraic slices.
 - A001 Theorems E–F remain **blocked** on adjoint-domain and deficiency-index infrastructure.
 
 ## Build
