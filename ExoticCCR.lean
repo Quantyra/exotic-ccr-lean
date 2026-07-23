@@ -12,5 +12,7 @@ import ExoticCCR.DualMatrix
 import ExoticCCR.Collision
 import ExoticCCR.TheoremB
 import ExoticCCR.TheoremC
+import ExoticCCR.PolynomialWeylAlgebra
+import ExoticCCR.TheoremCWeyl
 import ExoticCCR.TheoremD
 import ExoticCCR.PolyDiffeo1D

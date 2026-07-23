@@ -22,9 +22,12 @@ the historical B5 algebraic core.
 7. **T0.B.1–3.** The polynomial adjugate formula gives `J Bᵀ = I`; the evaluated algebraic
    cotangent-lift formula has the displayed three zero-covector collisions and is not injective.
 8. **T0.C.1–3.** The directional dual fields send `F_i` to Kronecker deltas, every row of
-   the polynomial dual matrix has zero coefficient divergence, and the fields commute as
-   derivations on every multivariate polynomial.
-9. **T0.D.alg (partial).** The proposed rational curve formula is checked at the exact sample
+    the polynomial dual matrix has zero coefficient divergence, and the fields commute as
+    derivations on every multivariate polynomial.
+9. **T0.C.4.** The left-coefficient formulas `q_i ↦ F_i(q)` and
+   `p_j ↦ ∑_k B_jk(q)p_k` define a unital algebra endomorphism of the abstract polynomial
+   Weyl algebra presented by generator CCR, when `2 ≠ 0`.
+10. **T0.D.alg (partial).** The proposed rational curve formula is checked at the exact sample
    `t = 3/8`, `s = 1/2`; no parameterized curve theorem follows from this sample.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
@@ -35,7 +38,7 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - Full resolution or literature status of the Jacobian conjecture beyond the finite identities proved in this tree.
 - That any particular public announcement is the definitive historical priority record (see PROVENANCE.md for citations only).
 - Physical significance, quantum channels, gates, continuous-variable protocols, or computational advantage.
-- Poisson-bracket or Weyl-endomorphism theorems (EXOTIC-CCR Gate 1+).
+- Poisson-bracket theorems, analytic/operator CCR realizations, or exponentiated Weyl relations.
 - The parameterized blow-up-curve identity.
 - Incompleteness of a vector field or any ODE/escape-limit conclusion.
 - Essential self-adjointness, strong CCR/Weyl relations, C*-extension, complete positivity, or dilations.

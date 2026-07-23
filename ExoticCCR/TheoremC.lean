@@ -11,7 +11,8 @@ import ExoticCCR.DualMatrix
 The rows of the polynomial dual matrix define directional polynomial
 derivations.  This file proves their action on the anchor coordinates, the
 Piola row-divergence identity, and full commutation on all multivariate
-polynomials.  Analytic operators and a Weyl-algebra endomorphism remain open.
+polynomials.  The associated abstract polynomial Weyl-algebra endomorphism is
+constructed in `ExoticCCR.TheoremCWeyl`; analytic operators remain open.
 -/
 
 noncomputable section

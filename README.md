@@ -20,6 +20,7 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 | T0.C.1 | Directional dual fields satisfy `X_j(F_i) = δ_ij` | `ExoticCCR.TheoremC` |
 | T0.C.2 | Every row of the polynomial dual matrix has zero coefficient divergence | `ExoticCCR.TheoremC` |
 | T0.C.3 | The dual fields commute as derivations on every multivariate polynomial | `ExoticCCR.TheoremC` |
+| T0.C.4 | The left-coefficient formulas `q_i ↦ F_i(q)`, `p_j ↦ ∑_k B_jk(q)p_k` define a unital endomorphism of the abstract polynomial Weyl algebra and preserve its generator CCR | `ExoticCCR.TheoremCWeyl` |
 | T0.D.alg partial | Exact rational specialization of the proposed radical-cleared curve | `ExoticCCR.TheoremD` |
 | T0.Collision | Three-point collision packaging + gate0 algebra bundle | `ExoticCCR.Collision` |
 | T0.B5.2 | A real polynomial with nowhere-zero derivative is strictly monotone in one orientation, injective, surjective, and bijective | `ExoticCCR.PolyDiffeo1D` |
@@ -49,7 +50,7 @@ See [INTEGRITY.md](INTEGRITY.md). In short:
 - These are bounded algebraic and real-polynomial analysis certificates only.
 - This repo does **not** claim full status of the Jacobian conjecture literature beyond the identities proved here.
 - This repo does **not** claim physical, operator-algebraic, channel, gate, or computational-advantage results.
-- Poisson brackets, Weyl endomorphisms, incompleteness, self-adjointness, deficiency indices, CCR realization, and CP maps are **not proved** by these algebraic slices.
+- Poisson brackets, analytic/operator CCR realizations, exponentiated Weyl relations, incompleteness, self-adjointness, deficiency indices, and CP maps are **not proved** by these algebraic slices. T0.C.4 is only an abstract polynomial-algebra endomorphism.
 - A001 Theorems E–F remain **blocked** on adjoint-domain and deficiency-index infrastructure.
 
 ## Build
