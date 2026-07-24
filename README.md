@@ -30,7 +30,7 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 | T0.E-conditional | For any supplied `MinimalTransportRealization X1`, `theoremE_of_transportNecessity` derives failure of essential self-adjointness from the explicit hypothesis `TransportNecessityStatement` | `ExoticCCR.TheoremE` |
 | T0.F-wall-base | The forward-wall cubic vanishes at `(a,s,c) = (0,1/2,2)`, while its formal `s`-derivative expression equals `-1/2` there | `ExoticCCR.TheoremFForwardWall` |
 | T0.F-wall-reconstruction | A root of the displayed wall cubic reconstructs an explicit preimage of `(a,s,c)` under `F` whenever the reconstruction denominators are nonzero | `ExoticCCR.TheoremFForwardWall` |
-| T0.F-forward-branch | The polynomial divided-difference extension has a smooth fixed-height local `r+` germ at `√2`; its nonzero wall points reconstruct preimages under the stated denominator hypotheses | `ExoticCCR.TheoremFForwardBranch` |
+| T0.F-forward-branch | The polynomial divided-difference extension has a smooth local varying-`β` `r+` germ at `√2`; sufficiently near the base, every punctured point of its domain has nonzero reconstruction denominator and reconstructs a preimage | `ExoticCCR.TheoremFForwardBranch` |
 | T0.Collision | Three-point collision packaging + gate0 algebra bundle | `ExoticCCR.Collision` |
 | T0.B5.2 | A real polynomial with nowhere-zero derivative is strictly monotone in one orientation, injective, surjective, and bijective | `ExoticCCR.PolyDiffeo1D` |
 | T0.B5.3 | The coordinatewise product map is bijective; its diagonal polynomial Jacobian has determinant `p'(x) * q'(y)`, nonzero under the derivative hypotheses | `ExoticCCR.PolyDiffeo1D` |
@@ -62,7 +62,7 @@ See [INTEGRITY.md](INTEGRITY.md). In short:
 - The canonical Poisson brackets of the transformed polynomial generators are proved. Exponentiated Weyl relations, unconditional essential-self-adjointness failure, deficiency indices, and CP maps are **not proved**. T0.C.4 is only an abstract polynomial-algebra endomorphism.
 - The transport layer constructs the canonical minimal core, proves its test-function domain dense, and proves the generic deficiency-to-not-essentially-self-adjoint bridge.
 - `X1ForwardWeakDeficiencyStatement` and the legacy `TransportNecessityStatement` are definitions used as explicit hypotheses, not axioms or unconditional theorems. No nonzero vector in `Dom(H*)` at eigenvalue `±i` has been constructed.
-- Full unconditional A001 Theorem E remains open in Lean. Incompleteness alone is not used to claim it. The wall module proves base-point algebra and a conditional algebraic reconstruction identity; it does not prove an open wall family, A001 Theorem F, a deficiency vector, or deficiency indices such as `(∞,∞)`.
+- Full unconditional A001 Theorem E remains open in Lean. Incompleteness alone is not used to claim it. The forward-branch module proves only a local varying-wall germ and sufficiently local punctured reconstruction; it does not prove a sheet/immersion or measure theorem, a deficiency vector, `u_-`, or deficiency indices such as `(∞,∞)`.
 
 ## Build
 

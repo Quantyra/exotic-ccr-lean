@@ -48,10 +48,11 @@ the historical B5 algebraic core.
     an axiom or unconditional theorem. The legacy route through `TransportNecessityStatement` is
     likewise conditional.
 14. **T0.F bounded local branch.** The forward-wall divided difference has a polynomial smooth
-    extension, and at fixed wall height `β = 1/2` its extended `G+` equation has a smooth local
-    nonzero root germ through `√2`. Nonzero germ points that also satisfy the wall equation give
-    explicit reconstructed preimages under the displayed denominator hypotheses; no varying-wall
-    branch or operator conclusion is asserted.
+    extension. The local smooth wall germ `β(a,c)` composes with a second implicit-function
+    construction to give a smooth nonzero `r+` germ through `√2`. The reconstruction denominator
+    is nonzero at every punctured branch-domain point sufficiently near the base, and the packaged
+    reconstruction map gives explicit preimages there. No sheet,
+    immersion, measure, or operator conclusion is asserted.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
 one-dimensional real-analysis consequences. They do not constitute all of Program B.
@@ -68,7 +69,8 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
   test-function domain is proved dense, the repository does not prove transport necessity or
   construct a nonzero vector in `Dom(H*)` satisfying `H* u = ±i u`. Incompleteness alone is not
   claimed to imply the operator conclusion.
-- A001 Theorem F, an open forward-wall family, a concrete `Dom(H*)` vector, and all
+- A global A001 Theorem F sheet, local immersion or measure conclusions, a concrete `Dom(H*)`
+  vector or `u_-`, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
 - Full B001, B6/B7 analytic classification, von Neumann algebra (`vNa`) conclusions, or any
   operator realization derived from the B5 algebraic slice.
