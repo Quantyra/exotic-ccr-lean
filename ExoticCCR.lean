@@ -19,3 +19,7 @@ import ExoticCCR.TheoremD
 import ExoticCCR.PolyDiffeo1D
 import ExoticCCR.TransportOperator
 import ExoticCCR.TheoremE
+import ExoticCCR.TransportCore
+import ExoticCCR.LinearPMapDeficiency
+import ExoticCCR.TheoremEDeficiency
+import ExoticCCR.TheoremFForwardWall

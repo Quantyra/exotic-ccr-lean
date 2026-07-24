@@ -34,10 +34,18 @@ the historical B5 algebraic core.
     smooth test functions, the pointwise expression `-iX`, and essential self-adjointness as
     closability plus self-adjointness of the closure. It proves the pointwise polynomial
     divergence identity and packages `X1` as smooth, divergence-free, and incomplete.
-12. **T0.E conditional only.** Given a supplied analytic realization and the explicit proposition
-    `TransportNecessityStatement`, `theoremE_of_transportNecessity` concludes that the realization
-    is not essentially self-adjoint. The proposition is a definition/hypothesis, not an axiom or
-    an unconditional theorem.
+12. **T0.E operator infrastructure.** The canonical minimal transport core on embedded compactly
+    supported smooth functions is constructed without analytic existence assumptions. For a
+    densely defined partial operator, a supplied nonzero adjoint eigenvector at either `i` or
+    `-i` unconditionally obstructs essential self-adjointness.
+13. **T0.E conditional only.** Given `TestFunctionL2DensityStatement` and
+    `X1ForwardWeakDeficiencyStatement`, `theoremE_of_forwardWeakDeficiency` packages the weak
+    eigenvector into adjoint deficiency and concludes that the canonical `X1` core is not
+    essentially self-adjoint. Both named statements are definitions/hypotheses, not axioms or
+    unconditional theorems. The legacy route through `TransportNecessityStatement` is likewise
+    conditional.
+14. **T0.F algebraic starter only.** The forward-wall cubic vanishes at `(0,1/2,2)`, and its
+    formal `s`-derivative expression is nonzero there. No open wall family is asserted.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
 one-dimensional real-analysis consequences. They do not constitute all of Program B.
@@ -49,9 +57,12 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - Physical significance, quantum channels, gates, continuous-variable protocols, or computational advantage.
 - Poisson-bracket theorems, analytic/operator CCR realizations, or exponentiated Weyl relations.
 - Essential self-adjointness, strong CCR/Weyl relations, C*-extension, complete positivity, or dilations.
-- Unconditional A001 Theorem E. The repository does not construct the `L²` realization of
-  `-iX1`, prove transport necessity, or construct a nonzero vector in `ker(H† ± i)`.
-- A001 Theorem F, `Dom H*`, and all deficiency-index values. No deficiency indices are claimed.
+- Unconditional A001 Theorem E. Although the canonical minimal `L²` core is now constructed, the
+  repository does not prove test-function density, prove transport necessity, or construct a
+  nonzero vector in `Dom(H*)` satisfying `H* u = ±i u`. Incompleteness alone is not claimed to
+  imply the operator conclusion.
+- A001 Theorem F, an open forward-wall family, a concrete `Dom(H*)` vector, and all
+  deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
 - Full B001, B6/B7 analytic classification, von Neumann algebra (`vNa`) conclusions, or any
   operator realization derived from the B5 algebraic slice.
 - Experimental, hardware, or metrology claims.

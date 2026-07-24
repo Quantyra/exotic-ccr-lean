@@ -7,7 +7,7 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 **Organization:** Quantyra Inc.  
 **Program:** EXOTIC-CCR research charter (Gate G0 / WP0)  
 **License:** Apache-2.0  
-**Version:** 0.1.5 (conditional Theorem E infrastructure)
+**Version:** 0.1.5 (conditional Theorem E deficiency infrastructure)
 
 ## What is proved
 
@@ -23,7 +23,10 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 | T0.C.4 | The left-coefficient formulas `q_i ↦ F_i(q)`, `p_j ↦ ∑_k B_jk(q)p_k` define a unital endomorphism of the abstract polynomial Weyl algebra and preserve its generator CCR | `ExoticCCR.TheoremCWeyl` |
 | T0.D | The explicit curve `gamma` satisfies `evalMap F (gamma t) = ![0,t,2]`, is an integral curve of the smooth dual field `X1` on `(0,1/2)`, escapes every norm ball at `1/2`, and proves `X1` incomplete | `ExoticCCR.TheoremD` |
 | T0.E-infra | `L²(ℝ³)`, the compactly supported smooth core, the pointwise expression `-iX`, and `IsEssentiallySelfAdjoint := IsClosable ∧ IsSelfAdjoint closure` are defined; `divergence_X1_eq_zero` and `X1_smooth_divergenceFree_incomplete` are unconditional | `ExoticCCR.TransportOperator`, `ExoticCCR.TheoremE` |
+| T0.E-core | The canonical minimal transport core on embedded compactly supported smooth functions is constructed unconditionally. A nonzero adjoint eigenvector at `±i` unconditionally obstructs essential self-adjointness for any densely defined partial operator | `ExoticCCR.TransportCore`, `ExoticCCR.LinearPMapDeficiency`, `ExoticCCR.TheoremE` |
+| T0.E-deficiency-conditional | Given the named test-function density proposition and a nonzero weak `-i` eigenvector for the canonical `X1` core, `theoremE_of_forwardWeakDeficiency` proves that core is not essentially self-adjoint | `ExoticCCR.TheoremEDeficiency` |
 | T0.E-conditional | For any supplied `MinimalTransportRealization X1`, `theoremE_of_transportNecessity` derives failure of essential self-adjointness from the explicit hypothesis `TransportNecessityStatement` | `ExoticCCR.TheoremE` |
+| T0.F-wall-base | The forward-wall cubic vanishes at `(a,s,c) = (0,1/2,2)`, while its formal `s`-derivative expression equals `-1/2` there | `ExoticCCR.TheoremFForwardWall` |
 | T0.Collision | Three-point collision packaging + gate0 algebra bundle | `ExoticCCR.Collision` |
 | T0.B5.2 | A real polynomial with nowhere-zero derivative is strictly monotone in one orientation, injective, surjective, and bijective | `ExoticCCR.PolyDiffeo1D` |
 | T0.B5.3 | The coordinatewise product map is bijective; its diagonal polynomial Jacobian has determinant `p'(x) * q'(y)`, nonzero under the derivative hypotheses | `ExoticCCR.PolyDiffeo1D` |
@@ -53,8 +56,9 @@ See [INTEGRITY.md](INTEGRITY.md). In short:
 - This repo does **not** claim full status of the Jacobian conjecture literature beyond the identities proved here.
 - This repo does **not** claim physical, operator-algebraic, channel, gate, or computational-advantage results.
 - Poisson brackets, exponentiated Weyl relations, unconditional essential-self-adjointness failure, deficiency indices, and CP maps are **not proved**. T0.C.4 is only an abstract polynomial-algebra endomorphism.
-- The new transport layer defines the `L²` ambient space, test-function differential expression, and a structure for an analytic realization. It does **not** construct a `MinimalTransportRealization X1` or prove transport necessity.
-- Full unconditional A001 Theorem E remains open in Lean pending transport-necessity formalization or explicit deficiency vectors. A001 Theorem F and deficiency-index values are not formalized.
+- The transport layer now constructs the canonical minimal core and proves the generic deficiency-to-not-essentially-self-adjoint bridge. The density assertion remains a named `Prop`, not a proved theorem.
+- `X1ForwardWeakDeficiencyStatement` and the legacy `TransportNecessityStatement` are definitions used as explicit hypotheses, not axioms or unconditional theorems. No nonzero vector in `Dom(H*)` at eigenvalue `±i` has been constructed.
+- Full unconditional A001 Theorem E remains open in Lean. Incompleteness alone is not used to claim it. The wall module proves only base-point algebra: it does not prove an open wall family, A001 Theorem F, or deficiency indices such as `(∞,∞)`.
 
 ## Build
 
