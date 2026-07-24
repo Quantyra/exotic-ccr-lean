@@ -38,12 +38,11 @@ def X1ForwardWeakDeficiencyStatement : Prop :=
 /-- An explicit weak forward-deficiency witness supplies adjoint deficiency for
 the canonical minimal transport core. -/
 theorem hasAdjointDeficiency_of_forwardWeakDeficiency
-    (hDens : TestFunctionL2DensityStatement)
     (h : X1ForwardWeakDeficiencyStatement) :
     HasAdjointDeficiency H_X1_min := by
   obtain ⟨u, hu0, hu⟩ := h
   have hDense : Dense (H_X1_min.domain : Set L2R3) :=
-    minimalTransportCore_dense_domain X1 contDiff_X1.continuous hDens
+    minimalTransportCore_dense_domain X1 contDiff_X1.continuous
   have huDom : u ∈ ((H_X1_min)†).domain :=
     mem_adjoint_domain_of_weakAdjointEigenvector hu
   refine Or.inr ⟨⟨u, huDom⟩, hu0, ?_⟩
@@ -53,11 +52,10 @@ theorem hasAdjointDeficiency_of_forwardWeakDeficiency
 over `TransportNecessityStatement`). Still conditional until the wall
 construction lands. -/
 theorem theoremE_of_forwardWeakDeficiency
-    (hDens : TestFunctionL2DensityStatement)
     (h : X1ForwardWeakDeficiencyStatement) :
     ¬(minimalTransportCore X1 contDiff_X1.continuous).IsEssentiallySelfAdjoint := by
   apply not_ess_of_deficiency
-    (minimalTransportCore_dense_domain X1 contDiff_X1.continuous hDens)
-  exact hasAdjointDeficiency_of_forwardWeakDeficiency hDens h
+    (minimalTransportCore_dense_domain X1 contDiff_X1.continuous)
+  exact hasAdjointDeficiency_of_forwardWeakDeficiency h
 
 end ExoticCCR

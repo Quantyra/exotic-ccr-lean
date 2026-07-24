@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Eric Fredriksen
 -/
 import ExoticCCR.TransportOperator
+import Mathlib.Analysis.Normed.Lp.SmoothApprox
 import Mathlib.MeasureTheory.Function.LpSpace.Indicator
 
 /-!
@@ -155,24 +156,33 @@ theorem minimalTransportCore_apply (X : R3 → R3) (hX : Continuous X) (φ : Cci
   rw [Submodule.toLinearPMap_graph_eq _ (minimalTransportGraph_functional X hX)]
   exact LinearMap.mem_range_self (minimalTransportGraphMap X hX) φ
 
-/-- The standard density assertion for the canonical test-function embedding.
-
-This is a named proposition, not an axiom.  It records the remaining analytic
-density input independently of the graph construction above.
--/
+/-- The standard density assertion for the canonical test-function embedding. -/
 def TestFunctionL2DensityStatement : Prop :=
   Dense (LinearMap.range testFunctionToL2 : Set L2R3)
 
-/-- The named density statement gives density of the test-function embedding. -/
-theorem dense_range_testFunctionToL2 (h : TestFunctionL2DensityStatement) :
-    Dense (LinearMap.range testFunctionToL2 : Set L2R3) :=
-  h
+/-- Compactly supported smooth functions are dense in `L²(ℝ³)`. -/
+theorem testFunctionL2_dense : TestFunctionL2DensityStatement := by
+  apply Dense.mono ?_ (MeasureTheory.Lp.dense_hasCompactSupport_contDiff (p := 2) (by norm_num))
+  rintro f ⟨g, hfg, hg_compact, hg_smooth⟩
+  let φ : CcinftyR3 := ⟨g, hg_smooth, hg_compact, Set.subset_univ _⟩
+  refine ⟨φ, ?_⟩
+  rw [testFunctionToL2_apply]
+  calc
+    _ = (MeasureTheory.Lp.memLp f).toLp f :=
+      MemLp.toLp_congr _ _ (by
+        change g =ᵐ[volume] (f : R3 → ℂ)
+        exact hfg.symm)
+    _ = f := MeasureTheory.Lp.toLp_coeFn f (MeasureTheory.Lp.memLp f)
 
-/-- Conditional density of the domain of the canonical minimal transport core. -/
-theorem minimalTransportCore_dense_domain (X : R3 → R3) (hX : Continuous X)
-    (hDensity : TestFunctionL2DensityStatement) :
+/-- The named density theorem gives density of the test-function embedding. -/
+theorem dense_range_testFunctionToL2 :
+    Dense (LinearMap.range testFunctionToL2 : Set L2R3) :=
+  testFunctionL2_dense
+
+/-- The domain of the canonical minimal transport core is dense. -/
+theorem minimalTransportCore_dense_domain (X : R3 → R3) (hX : Continuous X) :
     Dense ((minimalTransportCore X hX).domain : Set L2R3) := by
   rw [minimalTransportCore_domain]
-  exact hDensity
+  exact testFunctionL2_dense
 
 end ExoticCCR
