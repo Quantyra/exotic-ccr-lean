@@ -48,9 +48,10 @@ the historical B5 algebraic core.
     an axiom or unconditional theorem. The legacy route through `TransportNecessityStatement` is
     likewise conditional.
 14. **T0.F algebraic starter only.** The forward-wall cubic vanishes at `(0,1/2,2)`, its formal
-    `s`-derivative expression is nonzero there, and any cubic root satisfying the displayed
-    denominator hypotheses gives an explicit reconstructed preimage under `F`. No open wall
-    family is asserted.
+    `s`-derivative expression is nonzero there, the extended `G+` wall cubic has the positive
+    base root `√2` with nonzero root derivative, and any cubic root satisfying the displayed
+    denominator hypotheses gives an explicit reconstructed preimage under `F`. No open wall or
+    branch family is asserted.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
 one-dimensional real-analysis consequences. They do not constitute all of Program B.
