@@ -1,0 +1,178 @@
+/-
+Copyright (c) 2026 Daniel Eric Fredriksen, Quantyra. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Daniel Eric Fredriksen
+-/
+import ExoticCCR.TransportOperator
+import Mathlib.MeasureTheory.Function.LpSpace.Indicator
+
+/-!
+# The canonical minimal transport core
+
+This module realizes the pointwise expression `-i Xφ` on compactly supported
+smooth functions as a partially defined operator on `L²(ℝ³)`.  Density of the
+test-function embedding is isolated as an explicit statement rather than
+silently imported as an analytic axiom.
+-/
+
+noncomputable section
+
+open MeasureTheory Set TopologicalSpace
+open scoped Distributions ENNReal
+
+namespace ExoticCCR
+
+/-- A compactly supported smooth function belongs to `L²(ℝ³)`. -/
+theorem testFunctionMemLp (φ : CcinftyR3) :
+    MemLp (φ : R3 → ℂ) 2 (volume : Measure R3) :=
+  φ.continuous.memLp_of_hasCompactSupport φ.hasCompactSupport
+
+/-- The canonical linear embedding of test functions into `L²(ℝ³)`. -/
+def testFunctionToL2 : CcinftyR3 →ₗ[ℂ] L2R3 where
+  toFun φ := (testFunctionMemLp φ).toLp (φ : R3 → ℂ)
+  map_add' φ ψ := by
+    rw [← MemLp.toLp_add (testFunctionMemLp φ) (testFunctionMemLp ψ)]
+    apply MemLp.toLp_congr
+    exact Filter.Eventually.of_forall fun _ ↦ rfl
+  map_smul' c φ := by
+    change (testFunctionMemLp (c • φ)).toLp (c • (φ : R3 → ℂ)) =
+      c • (testFunctionMemLp φ).toLp (φ : R3 → ℂ)
+    rw [← MemLp.toLp_const_smul c (testFunctionMemLp φ)]
+
+/-- The test-function embedding is represented by the original function almost everywhere. -/
+theorem testFunctionToL2_apply (φ : CcinftyR3) :
+    testFunctionToL2 φ = (testFunctionMemLp φ).toLp (φ : R3 → ℂ) :=
+  rfl
+
+/-- The canonical test-function embedding into `L²(ℝ³)` is injective. -/
+theorem testFunctionToL2_injective : Function.Injective testFunctionToL2 :=
+  fun φ ψ h ↦ by
+    have heq := (Continuous.ae_eq_iff_eq (volume : Measure R3) φ.continuous ψ.continuous).mp
+      ((MemLp.toLp_eq_toLp_iff (testFunctionMemLp φ) (testFunctionMemLp ψ)).mp h)
+    ext q
+    exact congrFun heq q
+
+/-- For continuous `X`, the pointwise transport expression is continuous. -/
+theorem continuous_minimalTransportExpression (X : R3 → R3) (hX : Continuous X)
+    (φ : CcinftyR3) : Continuous (minimalTransportExpression X φ) := by
+  have hderiv : Continuous fun q : R3 ↦ fderiv ℝ (φ : R3 → ℂ) q (X q) :=
+    φ.contDiff.continuous_fderiv_apply (by simp) |>.comp (continuous_id.prodMk hX)
+  change Continuous fun q : R3 ↦ -Complex.I * fderiv ℝ (φ : R3 → ℂ) q (X q)
+  exact continuous_const.mul hderiv
+
+/-- For continuous `X`, the pointwise transport expression has compact support. -/
+theorem hasCompactSupport_minimalTransportExpression (X : R3 → R3) (φ : CcinftyR3) :
+    HasCompactSupport (minimalTransportExpression X φ) := by
+  apply (φ.hasCompactSupport.fderiv ℝ).mono'
+  intro q hq
+  change minimalTransportExpression X φ q ≠ 0 at hq
+  apply subset_tsupport
+  change fderiv ℝ (φ : R3 → ℂ) q ≠ 0
+  intro hzero
+  apply hq
+  simp [minimalTransportExpression, hzero]
+
+/-- The pointwise transport expression of a test function belongs to `L²(ℝ³)`. -/
+theorem transportExpressionMemLp (X : R3 → R3) (hX : Continuous X) (φ : CcinftyR3) :
+    MemLp (minimalTransportExpression X φ) 2 (volume : Measure R3) :=
+  (continuous_minimalTransportExpression X hX φ).memLp_of_hasCompactSupport
+    (hasCompactSupport_minimalTransportExpression X φ)
+
+/-- The transport expression is additive in its test-function argument. -/
+theorem minimalTransportExpression_add (X : R3 → R3) (φ ψ : CcinftyR3) :
+    minimalTransportExpression X (φ + ψ) =
+      minimalTransportExpression X φ + minimalTransportExpression X ψ := by
+  funext q
+  simp only [minimalTransportExpression, Pi.add_apply]
+  rw [show ((φ + ψ : CcinftyR3) : R3 → ℂ) =
+    (φ : R3 → ℂ) + (ψ : R3 → ℂ) by rfl]
+  rw [fderiv_add (φ.contDiff.differentiable (by simp)).differentiableAt
+    (ψ.contDiff.differentiable (by simp)).differentiableAt]
+  simp [mul_add]
+
+/-- The transport expression is complex-linear in its test-function argument. -/
+theorem minimalTransportExpression_smul (X : R3 → R3) (c : ℂ) (φ : CcinftyR3) :
+    minimalTransportExpression X (c • φ) = c • minimalTransportExpression X φ := by
+  funext q
+  simp only [minimalTransportExpression, Pi.smul_apply]
+  rw [show ((c • φ : CcinftyR3) : R3 → ℂ) = c • (φ : R3 → ℂ) by rfl]
+  rw [fderiv_const_smul (φ.contDiff.differentiable (by simp)).differentiableAt c]
+  change -Complex.I * (c * fderiv ℝ (φ : R3 → ℂ) q (X q)) =
+    c * (-Complex.I * fderiv ℝ (φ : R3 → ℂ) q (X q))
+  ring
+
+/-- The `L²` action of the transport expression on test functions. -/
+def transportAction (X : R3 → R3) (hX : Continuous X) : CcinftyR3 →ₗ[ℂ] L2R3 where
+  toFun φ := (transportExpressionMemLp X hX φ).toLp (minimalTransportExpression X φ)
+  map_add' φ ψ := by
+    rw [← MemLp.toLp_add (transportExpressionMemLp X hX φ)
+      (transportExpressionMemLp X hX ψ)]
+    apply MemLp.toLp_congr
+    exact Filter.Eventually.of_forall fun q ↦ congrFun (minimalTransportExpression_add X φ ψ) q
+  map_smul' c φ := by
+    change (transportExpressionMemLp X hX (c • φ)).toLp
+        (minimalTransportExpression X (c • φ)) =
+      c • (transportExpressionMemLp X hX φ).toLp (minimalTransportExpression X φ)
+    rw [← MemLp.toLp_const_smul c (transportExpressionMemLp X hX φ)]
+    apply MemLp.toLp_congr
+    exact Filter.Eventually.of_forall fun q ↦ congrFun (minimalTransportExpression_smul X c φ) q
+
+/-- The linear map whose range is the graph of the minimal transport core. -/
+def minimalTransportGraphMap (X : R3 → R3) (hX : Continuous X) :
+    CcinftyR3 →ₗ[ℂ] L2R3 × L2R3 :=
+  testFunctionToL2.prod (transportAction X hX)
+
+/-- The proposed graph of the minimal transport core is single-valued. -/
+theorem minimalTransportGraph_functional (X : R3 → R3) (hX : Continuous X) :
+    ∀ (x : L2R3 × L2R3), x ∈ LinearMap.range (minimalTransportGraphMap X hX) →
+      x.fst = 0 → x.snd = 0 := by
+  rintro _ ⟨φ, rfl⟩ hφ
+  have : φ = 0 := testFunctionToL2_injective (by simpa [minimalTransportGraphMap] using hφ)
+  subst φ
+  simp [minimalTransportGraphMap]
+
+/-- The canonical minimal transport operator with domain the embedded test functions. -/
+def minimalTransportCore (X : R3 → R3) (hX : Continuous X) : L2R3 →ₗ.[ℂ] L2R3 :=
+  (LinearMap.range (minimalTransportGraphMap X hX)).toLinearPMap
+
+/-- The domain of the minimal transport core is exactly the range of the test-function embedding. -/
+theorem minimalTransportCore_domain (X : R3 → R3) (hX : Continuous X) :
+    (minimalTransportCore X hX).domain = LinearMap.range testFunctionToL2 := by
+  ext u
+  simp [minimalTransportCore, minimalTransportGraphMap, Submodule.toLinearPMap_domain,
+    LinearMap.mem_range]
+
+/-- On an embedded test function, the minimal transport core has the expected `L²` action. -/
+theorem minimalTransportCore_apply (X : R3 → R3) (hX : Continuous X) (φ : CcinftyR3) :
+    minimalTransportCore X hX
+        ⟨testFunctionToL2 φ, by
+          rw [minimalTransportCore_domain]
+          exact LinearMap.mem_range_self testFunctionToL2 φ⟩ =
+      transportAction X hX φ := by
+  symm
+  rw [LinearPMap.image_iff]
+  unfold minimalTransportCore
+  rw [Submodule.toLinearPMap_graph_eq _ (minimalTransportGraph_functional X hX)]
+  exact LinearMap.mem_range_self (minimalTransportGraphMap X hX) φ
+
+/-- The standard density assertion for the canonical test-function embedding.
+
+This is a named proposition, not an axiom.  It records the remaining analytic
+density input independently of the graph construction above.
+-/
+def TestFunctionL2DensityStatement : Prop :=
+  Dense (LinearMap.range testFunctionToL2 : Set L2R3)
+
+/-- The named density statement gives density of the test-function embedding. -/
+theorem dense_range_testFunctionToL2 (h : TestFunctionL2DensityStatement) :
+    Dense (LinearMap.range testFunctionToL2 : Set L2R3) :=
+  h
+
+/-- Conditional density of the domain of the canonical minimal transport core. -/
+theorem minimalTransportCore_dense_domain (X : R3 → R3) (hX : Continuous X)
+    (hDensity : TestFunctionL2DensityStatement) :
+    Dense ((minimalTransportCore X hX).domain : Set L2R3) := by
+  rw [minimalTransportCore_domain]
+  exact hDensity
+
+end ExoticCCR
