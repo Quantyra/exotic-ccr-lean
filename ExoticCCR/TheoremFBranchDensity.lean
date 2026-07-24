@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Eric Fredriksen
 -/
 import ExoticCCR.TheoremFForwardBranch
+import ExoticCCR.TheoremFJacobianFDeriv
 
 /-!
 # Algebraic density and branch-supported deficiency data
@@ -55,6 +56,46 @@ theorem ForwardBranchOpen.sCoord_sub_beta (O : ForwardBranchOpen)
     (p : (ℝ × ℝ) × ℝ) :
     O.germ.sCoord p - O.germ.β p.1 = -p.2 ^ 2 := by
   simp [ForwardBranchGerm.sCoord]
+
+/-- On the open branch domain, the branch reconstruction is differentiable in
+the ambient finite-dimensional real spaces. -/
+theorem ForwardBranchOpen.differentiableAt_branchMap (O : ForwardBranchOpen)
+    {p : (ℝ × ℝ) × ℝ} (hp : p ∈ O.W) :
+    DifferentiableAt ℝ O.germ.branchMap p := by
+  exact ((O.contDiff_branchMap p hp).differentiableWithinAt (by simp)).differentiableAt
+    (O.isOpen_W.mem_nhds hp)
+
+/-- Chain rule for the polynomial anchor evaluated on the local branch. -/
+theorem ForwardBranchOpen.hasFDerivAt_evalMap_comp_branchMap
+    (O : ForwardBranchOpen) {p : (ℝ × ℝ) × ℝ} (hp : p ∈ O.W) :
+    HasFDerivAt (evalMap (F ℝ) ∘ O.germ.branchMap)
+      ((evalJacobianF (O.germ.branchMap p)).comp
+        (fderiv ℝ O.germ.branchMap p)) p := by
+  exact (hasFDerivAt_evalMap_F (O.germ.branchMap p)).comp p
+    (O.differentiableAt_branchMap hp).hasFDerivAt
+
+/-- The derivative of the anchor after the branch map is the composition of
+the two derivatives. -/
+theorem ForwardBranchOpen.hasFDerivAt_comp (O : ForwardBranchOpen)
+    {p : (ℝ × ℝ) × ℝ} (hp : p ∈ O.W) :
+    fderiv ℝ (evalMap (F ℝ) ∘ O.germ.branchMap) p =
+      (fderiv ℝ (evalMap (F ℝ)) (O.germ.branchMap p)).comp
+        (fderiv ℝ O.germ.branchMap p) := by
+  rw [fderiv_evalMap_F]
+  exact (O.hasFDerivAt_evalMap_comp_branchMap hp).fderiv
+
+/-- Local analytic chain identity: differentiating the branch reconstruction
+identity on the open domain gives the derivative of the displayed target map. -/
+theorem ForwardBranchOpen.fderiv_F_comp_branchMap_eq_fderiv_targetMap
+    (O : ForwardBranchOpen) {p : (ℝ × ℝ) × ℝ} (hp : p ∈ O.W) :
+    (fderiv ℝ (evalMap (F ℝ)) (O.germ.branchMap p)).comp
+        (fderiv ℝ O.germ.branchMap p) =
+      fderiv ℝ O.targetMap p := by
+  rw [← O.hasFDerivAt_comp hp]
+  apply Filter.EventuallyEq.fderiv_eq
+  exact Set.EqOn.eventuallyEq_of_mem
+    (fun x hx => O.evalMap_branch_eq_targetMap hx)
+    (O.isOpen_W.mem_nhds hp)
 
 /-- Candidate deficiency density in branch parameters. -/
 def ForwardBranchOpen.deficiencyDensity (_O : ForwardBranchOpen)

@@ -54,11 +54,10 @@ the historical B5 algebraic core.
     is smooth and evaluates under `F` to `(a, β(a,c)-τ², c)`; it is injective on the positive
     sheet, while its divided-root first coordinate and norm tend to infinity on approach to the
     base within that sheet.
-15. **T0.F branch density data (bounded claim).** Evaluation of the polynomial Jacobian
-    determinant has absolute value `2`, so its displayed reciprocal algebraic factor is `1/2`.
-    The candidate parameter density `χ(a,c) exp(-τ²)` and its pointwise extension over the
-    injective positive branch image (zero off-image) are defined, with on-image and off-image
-    evaluation lemmas. No derivative determinant, immersion, change-of-variables, `MemLp`,
+15. **T0.F branch density data (bounded claim).** The Fréchet derivative of real `evalMap F` is
+    the evaluated polynomial Jacobian with determinant `-2`, and on the open branch domain the
+    derivative of `F ∘ branchMap` equals the derivative of `targetMap`. The reciprocal algebraic
+    factor is `1/2`; no determinant-level or measure-theoretic change-of-variables, `MemLp`,
     adjoint-domain, or operator conclusion is asserted.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
@@ -76,7 +75,7 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
   test-function domain is proved dense, the repository does not prove transport necessity or
   construct a nonzero vector in `Dom(H*)` satisfying `H* u = ±i u`. Incompleteness alone is not
   claimed to imply the operator conclusion.
-- A global A001 Theorem F sheet, local immersion, change-of-variables or measure-`1/2`
+- A global A001 Theorem F sheet, local immersion, determinant-level or measure-`1/2`
   conclusions, ambient `MemLp` for the defined candidate `uMinus`, a concrete `Dom(H*)`
   vector, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
