@@ -40,14 +40,17 @@ the historical B5 algebraic core.
     supported smooth functions is constructed without analytic existence assumptions. For a
     densely defined partial operator, a supplied nonzero adjoint eigenvector at either `i` or
     `-i` unconditionally obstructs essential self-adjointness.
-13. **T0.E conditional only.** Given `TestFunctionL2DensityStatement` and
-    `X1ForwardWeakDeficiencyStatement`, `theoremE_of_forwardWeakDeficiency` packages the weak
-    eigenvector into adjoint deficiency and concludes that the canonical `X1` core is not
-    essentially self-adjoint. Both named statements are definitions/hypotheses, not axioms or
-    unconditional theorems. The legacy route through `TransportNecessityStatement` is likewise
-    conditional.
-14. **T0.F algebraic starter only.** The forward-wall cubic vanishes at `(0,1/2,2)`, and its
-    formal `s`-derivative expression is nonzero there. No open wall family is asserted.
+13. **T0.E density and conditional bridge.** Compactly supported smooth test functions are dense
+    in `L²(ℝ³)`, so the canonical minimal transport core has dense domain. Given
+    `X1ForwardWeakDeficiencyStatement`, `theoremE_of_forwardWeakDeficiency` packages the supplied
+    weak eigenvector into adjoint deficiency and concludes that the canonical `X1` core is not
+    essentially self-adjoint. The weak-deficiency statement remains a definition/hypothesis, not
+    an axiom or unconditional theorem. The legacy route through `TransportNecessityStatement` is
+    likewise conditional.
+14. **T0.F algebraic starter only.** The forward-wall cubic vanishes at `(0,1/2,2)`, its formal
+    `s`-derivative expression is nonzero there, and any cubic root satisfying the displayed
+    denominator hypotheses gives an explicit reconstructed preimage under `F`. No open wall
+    family is asserted.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
 one-dimensional real-analysis consequences. They do not constitute all of Program B.
@@ -60,10 +63,10 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - Analytic/operator CCR realizations or exponentiated Weyl relations beyond the proved
   polynomial generator Poisson brackets and abstract polynomial Weyl-algebra endomorphism.
 - Essential self-adjointness, strong CCR/Weyl relations, C*-extension, complete positivity, or dilations.
-- Unconditional A001 Theorem E. Although the canonical minimal `L²` core is now constructed, the
-  repository does not prove test-function density, prove transport necessity, or construct a
-  nonzero vector in `Dom(H*)` satisfying `H* u = ±i u`. Incompleteness alone is not claimed to
-  imply the operator conclusion.
+- Unconditional A001 Theorem E. Although the canonical minimal `L²` core is constructed and its
+  test-function domain is proved dense, the repository does not prove transport necessity or
+  construct a nonzero vector in `Dom(H*)` satisfying `H* u = ±i u`. Incompleteness alone is not
+  claimed to imply the operator conclusion.
 - A001 Theorem F, an open forward-wall family, a concrete `Dom(H*)` vector, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
 - Full B001, B6/B7 analytic classification, von Neumann algebra (`vNa`) conclusions, or any
