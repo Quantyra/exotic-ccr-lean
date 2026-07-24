@@ -7,7 +7,7 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 **Organization:** Quantyra Inc.  
 **Program:** EXOTIC-CCR research charter (Gate G0 / WP0)  
 **License:** Apache-2.0  
-**Version:** 0.1.6 (Theorem E deficiency bridge; E still conditional)
+**Version:** 0.1.7 (full algebraic Theorem B, including canonical Poisson generator brackets)
 
 ## What is proved
 
@@ -17,6 +17,7 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 | T0.2 | Three collision identities for F | `ExoticCCR.AnchorF` |
 | T0.B.1 | Polynomial `B = -(adj J)ᵀ/2` and `J * Bᵀ = I` (when `2 ≠ 0`) | `ExoticCCR.DualMatrix` |
 | T0.B.2–3 | Cotangent-lift evaluation; three zero-covector collisions and non-injectivity | `ExoticCCR.TheoremB` |
+| T0.B.4 | The transformed polynomial phase-space generators satisfy `{Q_i,Q_j}=0`, `{P_i,P_j}=0`, and `{Q_i,P_j}=δ_ij` for the canonical Poisson bracket (when `2 ≠ 0`) | `ExoticCCR.Poisson` |
 | T0.C.1 | Directional dual fields satisfy `X_j(F_i) = δ_ij` | `ExoticCCR.TheoremC` |
 | T0.C.2 | Every row of the polynomial dual matrix has zero coefficient divergence | `ExoticCCR.TheoremC` |
 | T0.C.3 | The dual fields commute as derivations on every multivariate polynomial | `ExoticCCR.TheoremC` |
@@ -55,7 +56,7 @@ See [INTEGRITY.md](INTEGRITY.md). In short:
 - These are bounded algebraic and real-polynomial analysis certificates only.
 - This repo does **not** claim full status of the Jacobian conjecture literature beyond the identities proved here.
 - This repo does **not** claim physical, operator-algebraic, channel, gate, or computational-advantage results.
-- Poisson brackets, exponentiated Weyl relations, unconditional essential-self-adjointness failure, deficiency indices, and CP maps are **not proved**. T0.C.4 is only an abstract polynomial-algebra endomorphism.
+- The canonical Poisson brackets of the transformed polynomial generators are proved. Exponentiated Weyl relations, unconditional essential-self-adjointness failure, deficiency indices, and CP maps are **not proved**. T0.C.4 is only an abstract polynomial-algebra endomorphism.
 - The transport layer now constructs the canonical minimal core and proves the generic deficiency-to-not-essentially-self-adjoint bridge. The density assertion remains a named `Prop`, not a proved theorem.
 - `X1ForwardWeakDeficiencyStatement` and the legacy `TransportNecessityStatement` are definitions used as explicit hypotheses, not axioms or unconditional theorems. No nonzero vector in `Dom(H*)` at eigenvalue `±i` has been constructed.
 - Full unconditional A001 Theorem E remains open in Lean. Incompleteness alone is not used to claim it. The wall module proves only base-point algebra: it does not prove an open wall family, A001 Theorem F, or deficiency indices such as `(∞,∞)`.

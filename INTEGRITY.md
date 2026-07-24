@@ -19,8 +19,10 @@ the historical B5 algebraic core.
    diagonal polynomial Jacobian has nonzero determinant.
 6. **T0.B5.7.** Vertical and horizontal elementary polynomial shears are bijective over a
    commutative ring, with the displayed subtraction shears as explicit inverses.
-7. **T0.B.1–3.** The polynomial adjugate formula gives `J Bᵀ = I`; the evaluated algebraic
+7. **T0.B.1–4.** The polynomial adjugate formula gives `J Bᵀ = I`; the evaluated algebraic
    cotangent-lift formula has the displayed three zero-covector collisions and is not injective.
+   For the canonical polynomial Poisson bracket, its transformed generators satisfy
+   `{Q_i,Q_j}=0`, `{P_i,P_j}=0`, and `{Q_i,P_j}=δ_ij` when `2 ≠ 0`.
 8. **T0.C.1–3.** The directional dual fields send `F_i` to Kronecker deltas, every row of
     the polynomial dual matrix has zero coefficient divergence, and the fields commute as
     derivations on every multivariate polynomial.
@@ -55,7 +57,8 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - Full resolution or literature status of the Jacobian conjecture beyond the finite identities proved in this tree.
 - That any particular public announcement is the definitive historical priority record (see PROVENANCE.md for citations only).
 - Physical significance, quantum channels, gates, continuous-variable protocols, or computational advantage.
-- Poisson-bracket theorems, analytic/operator CCR realizations, or exponentiated Weyl relations.
+- Analytic/operator CCR realizations or exponentiated Weyl relations beyond the proved
+  polynomial generator Poisson brackets and abstract polynomial Weyl-algebra endomorphism.
 - Essential self-adjointness, strong CCR/Weyl relations, C*-extension, complete positivity, or dilations.
 - Unconditional A001 Theorem E. Although the canonical minimal `L²` core is now constructed, the
   repository does not prove test-function density, prove transport necessity, or construct a
