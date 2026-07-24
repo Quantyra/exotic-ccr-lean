@@ -30,7 +30,7 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 | T0.E-conditional | For any supplied `MinimalTransportRealization X1`, `theoremE_of_transportNecessity` derives failure of essential self-adjointness from the explicit hypothesis `TransportNecessityStatement` | `ExoticCCR.TheoremE` |
 | T0.F-wall-base | The forward-wall cubic vanishes at `(a,s,c) = (0,1/2,2)`, while its formal `s`-derivative expression equals `-1/2` there | `ExoticCCR.TheoremFForwardWall` |
 | T0.F-wall-reconstruction | A root of the displayed wall cubic reconstructs an explicit preimage of `(a,s,c)` under `F` whenever the reconstruction denominators are nonzero | `ExoticCCR.TheoremFForwardWall` |
-| T0.F-forward-branch-base | The extended `G+` wall cubic has the positive root `√2` at the base coefficients, with nonzero root derivative there | `ExoticCCR.TheoremFForwardBranch` |
+| T0.F-forward-branch | The polynomial divided-difference extension has a smooth fixed-height local `r+` germ at `√2`; its nonzero wall points reconstruct preimages under the stated denominator hypotheses | `ExoticCCR.TheoremFForwardBranch` |
 | T0.Collision | Three-point collision packaging + gate0 algebra bundle | `ExoticCCR.Collision` |
 | T0.B5.2 | A real polynomial with nowhere-zero derivative is strictly monotone in one orientation, injective, surjective, and bijective | `ExoticCCR.PolyDiffeo1D` |
 | T0.B5.3 | The coordinatewise product map is bijective; its diagonal polynomial Jacobian has determinant `p'(x) * q'(y)`, nonzero under the derivative hypotheses | `ExoticCCR.PolyDiffeo1D` |
