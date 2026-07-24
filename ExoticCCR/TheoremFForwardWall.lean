@@ -4,18 +4,20 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Eric Fredriksen
 -/
 import ExoticCCR.AnchorF
+import Mathlib.Analysis.Calculus.ImplicitContDiff
 
 /-!
 # Algebraic base point for the A001 forward wall
 
-Only the cubic and its base-point identities are recorded here.  In
-particular, this module does not construct an open wall family or a deficiency
-vector.
+This module records the cubic and its base-point identities, constructs the
+local smooth forward-wall germ, and proves the algebraic wall reconstruction.
+It does not construct a deficiency vector.
 -/
 
 noncomputable section
 
 open MvPolynomial
+open scoped ContDiff Topology
 
 namespace ExoticCCR
 
@@ -68,6 +70,84 @@ theorem wallADerivS_basePoint : wallADerivS 0 (1 / 2) 2 = -(1 / 2) := by
 theorem wallADerivS_basePoint_ne_zero : wallADerivS 0 (1 / 2) 2 ≠ 0 := by
   rw [wallADerivS_basePoint]
   norm_num
+
+/-- The forward-wall polynomial is smooth in all three variables. -/
+theorem contDiff_wallA :
+    ContDiff ℝ ⊤ (fun p : (ℝ × ℝ) × ℝ => wallA p.1.1 p.2 p.1.2) := by
+  unfold wallA
+  fun_prop
+
+/-- Local smooth wall function near `(0, 2)`. -/
+theorem exists_forwardWallBeta_germ :
+    ∃ (U : Set (ℝ × ℝ)) (β : ℝ × ℝ → ℝ),
+      IsOpen U ∧
+      (0, 2) ∈ U ∧
+      ContDiffOn ℝ ⊤ β U ∧
+      β (0, 2) = (1 / 2 : ℝ) ∧
+      (∀ p ∈ U, wallA p.1 (β p) p.2 = 0) ∧
+      (∀ p ∈ U, wallADerivS p.1 (β p) p.2 ≠ 0) := by
+  let f : (ℝ × ℝ) × ℝ → ℝ := fun p => wallA p.1.1 p.2 p.1.2
+  let u : (ℝ × ℝ) × ℝ := ((0, 2), 1 / 2)
+  have hf : ContDiffAt ℝ ω f u := by
+    apply contDiff_wallA.contDiffAt
+  have hpartial : (fderiv ℝ f u ∘L ContinuousLinearMap.inr ℝ (ℝ × ℝ) ℝ).IsInvertible := by
+    have hpoly : HasDerivAt (fun s : ℝ => -2 * s ^ 3 + s ^ 2) (-(1 / 2)) (1 / 2) := by
+      convert (((hasDerivAt_id (𝕜 := ℝ) (1 / 2)).pow 3).const_mul (-2)).add
+        ((hasDerivAt_id (𝕜 := ℝ) (1 / 2)).pow 2) using 1 <;> try rfl
+      norm_num
+    have hderiv : HasDerivAt (fun s : ℝ => f ((0, 2), s)) (-(1 / 2)) (1 / 2) := by
+      simpa [f, wallA] using hpoly
+    have hcomp :
+        fderiv ℝ f u ∘L ContinuousLinearMap.inr ℝ (ℝ × ℝ) ℝ =
+          (-(1 / 2 : ℝ)) • ContinuousLinearMap.id ℝ ℝ := by
+      have hline : HasFDerivAt (fun s : ℝ => ((0, 2), s))
+          (ContinuousLinearMap.inr ℝ (ℝ × ℝ) ℝ) (1 / 2) := by
+        fun_prop
+      have hderiv' : HasFDerivAt (f ∘ fun s : ℝ => ((0, 2), s))
+          ((-(1 / 2 : ℝ)) • ContinuousLinearMap.id ℝ ℝ) (1 / 2) := by
+        apply hderiv.hasFDerivAt.congr_fderiv
+        apply ContinuousLinearMap.ext
+        intro x
+        simp
+        ring
+      exact (((hf.differentiableAt (by simp)).hasFDerivAt.comp (1 / 2) hline).unique
+        hderiv')
+    rw [hcomp]
+    exact ⟨ContinuousLinearEquiv.smulLeft (Units.mk0 (-(1 / 2 : ℝ)) (by norm_num)), by
+      apply ContinuousLinearMap.ext
+      intro x
+      simp⟩
+  let β : ℝ × ℝ → ℝ := hf.implicitFunction (by simp) hpartial
+  have hβbase : β (0, 2) = (1 / 2 : ℝ) := by
+    exact hf.implicitFunction_apply_self (by simp) hpartial
+  have hβanalytic : AnalyticAt ℝ β (0, 2) := by
+    exact (hf.contDiffAt_implicitFunction (by simp) hpartial).analyticAt
+  have hwall : ∀ᶠ p in 𝓝 (0, 2), wallA p.1 (β p) p.2 = 0 := by
+    filter_upwards [hf.eventually_apply_implicitFunction (by simp) hpartial] with p hp
+    change wallA p.1 (β p) p.2 = wallA 0 (1 / 2) 2 at hp
+    simpa only [wallA_basePoint] using hp
+  have hderivCont : ContinuousAt (fun p => wallADerivS p.1 (β p) p.2) (0, 2) := by
+    unfold wallADerivS
+    fun_prop
+  have hderiv : ∀ᶠ p in 𝓝 (0, 2), wallADerivS p.1 (β p) p.2 ≠ 0 := by
+    apply hderivCont.eventually_ne
+    simpa [hβbase] using wallADerivS_basePoint_ne_zero
+  let good : Set (ℝ × ℝ) :=
+    {p | wallA p.1 (β p) p.2 = 0 ∧ wallADerivS p.1 (β p) p.2 ≠ 0}
+  let U : Set (ℝ × ℝ) := interior good ∩ {p | AnalyticAt ℝ β p}
+  have hgood : ∀ᶠ p in 𝓝 (0, 2), p ∈ good := by
+    filter_upwards [hwall, hderiv] with p hp hdp
+    exact ⟨hp, hdp⟩
+  refine ⟨U, β, ?_, ?_, ?_, hβbase, ?_, ?_⟩
+  · exact isOpen_interior.inter (isOpen_analyticAt ℝ β)
+  · refine ⟨mem_interior_iff_mem_nhds.2 ?_, hβanalytic⟩
+    exact hgood
+  · intro p hp
+    exact hp.2.contDiffAt.contDiffWithinAt
+  · intro p hp
+    exact (interior_subset hp.1).1
+  · intro p hp
+    exact (interior_subset hp.1).2
 
 /-- The linear cubic coefficient has value `-1` at the base point. -/
 theorem wallB_basePoint : wallB (1 / 2) 2 = -1 := by
