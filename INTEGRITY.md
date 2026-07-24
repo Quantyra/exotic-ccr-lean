@@ -54,14 +54,16 @@ the historical B5 algebraic core.
     is smooth and evaluates under `F` to `(a, β(a,c)-τ², c)`; it is injective on the positive
     sheet, while its divided-root first coordinate and norm tend to infinity on approach to the
     base within that sheet.
-15. **T0.F branch density data (bounded claim).** The Fréchet derivative of real `evalMap F` is
+15. **T0.F branch density and change-of-variables data (bounded claim).** The Fréchet derivative of real `evalMap F` is
     the evaluated polynomial Jacobian with determinant `-2`, and on the open branch domain the
     derivative of `F ∘ branchMap` equals the derivative of `targetMap`. The reciprocal algebraic
     factor is `1/2`, as is the proved absolute local derivative-determinant ratio in fixed coordinates.
-    For continuous compactly supported `χ`, the squared norm of `deficiencyDensity` is integrable
-    on the full parameter space and on `Wpos`, and the density is `MemLp` at exponent 2 on the full
-    parameter space. No measure-theoretic change-of-variables, ambient `MemLp` for `uMinus`,
-    adjoint-domain, or operator conclusion is asserted.
+    The positive branch domain and its image are measurable, the standard-coordinate branch
+    Jacobian is exactly `|τ|`, and mathlib's Jacobian theorem gives the displayed change-of-variables
+    identity for the squared norm of `uMinus` on the image. For continuous compactly supported `χ`,
+    the squared norm of `deficiencyDensity` is integrable on the full parameter space and on `Wpos`,
+    and the density is `MemLp` at exponent 2 on the full parameter space. Ambient `MemLp` for
+    `uMinus`, adjoint-domain, and operator conclusions are not asserted.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
 one-dimensional real-analysis consequences. They do not constitute all of Program B.
@@ -78,8 +80,8 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
   test-function domain is proved dense, the repository does not prove transport necessity or
   construct a nonzero vector in `Dom(H*)` satisfying `H* u = ±i u`. Incompleteness alone is not
   claimed to imply the operator conclusion.
-- A global A001 Theorem F sheet, local immersion, global determinant, or measure-`1/2`
-  conclusions, ambient `MemLp` for the defined candidate `uMinus`, a concrete `Dom(H*)`
+- A global A001 Theorem F sheet or measure-`1/2` conclusion, ambient `MemLp` for the defined
+  candidate `uMinus`, a concrete `Dom(H*)`
   vector, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
 - Full B001, B6/B7 analytic classification, von Neumann algebra (`vNa`) conclusions, or any

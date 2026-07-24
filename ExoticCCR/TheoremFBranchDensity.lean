@@ -6,6 +6,7 @@ Authors: Daniel Eric Fredriksen
 import ExoticCCR.TheoremFForwardBranch
 import ExoticCCR.TheoremFJacobianFDeriv
 import Mathlib.Analysis.SpecialFunctions.Gaussian.GaussianIntegral
+import Mathlib.MeasureTheory.Function.Jacobian
 import Mathlib.MeasureTheory.Function.L2Space
 import Mathlib.MeasureTheory.Integral.Prod
 
@@ -21,6 +22,7 @@ adjoint-domain statement.
 noncomputable section
 
 open Function MeasureTheory MvPolynomial Set
+open scoped ENNReal
 
 namespace ExoticCCR
 
@@ -50,6 +52,29 @@ def paramToFin3 : ((ℝ × ℝ) × ℝ) ≃L[ℝ] (Fin 3 → ℝ) :=
 def asFin3Map (g : ((ℝ × ℝ) × ℝ) → Fin 3 → ℝ) :
     (Fin 3 → ℝ) → Fin 3 → ℝ :=
   g ∘ paramToFin3.symm
+
+/-- The positive branch domain in standard `Fin 3` coordinates. -/
+def ForwardBranchOpen.WposFin3 (O : ForwardBranchOpen) : Set (Fin 3 → ℝ) :=
+  paramToFin3.symm ⁻¹' O.Wpos
+
+/-- The positive branch domain is open. -/
+theorem ForwardBranchOpen.isOpen_Wpos (O : ForwardBranchOpen) : IsOpen O.Wpos := by
+  exact O.isOpen_W.inter (isOpen_lt continuous_const continuous_snd)
+
+/-- The positive branch domain is measurable. -/
+theorem ForwardBranchOpen.measurableSet_Wpos (O : ForwardBranchOpen) :
+    MeasurableSet O.Wpos :=
+  O.isOpen_Wpos.measurableSet
+
+/-- The positive branch domain remains open in standard `Fin 3` coordinates. -/
+theorem ForwardBranchOpen.isOpen_WposFin3 (O : ForwardBranchOpen) :
+    IsOpen O.WposFin3 := by
+  exact O.isOpen_Wpos.preimage paramToFin3.symm.continuous
+
+/-- The positive branch domain is measurable in standard `Fin 3` coordinates. -/
+theorem ForwardBranchOpen.measurableSet_WposFin3 (O : ForwardBranchOpen) :
+    MeasurableSet O.WposFin3 :=
+  O.isOpen_WposFin3.measurableSet
 
 /-- The evaluated algebraic Jacobian determinant of `F` has absolute value `2`
 at every real point. -/
@@ -94,6 +119,50 @@ theorem ForwardBranchOpen.differentiableAt_branchMap (O : ForwardBranchOpen)
     DifferentiableAt ℝ O.germ.branchMap p := by
   exact ((O.contDiff_branchMap p hp).differentiableWithinAt (by simp)).differentiableAt
     (O.isOpen_W.mem_nhds hp)
+
+/-- The branch reconstruction has its ambient derivative as a derivative within
+the positive branch domain. -/
+theorem ForwardBranchOpen.hasFDerivWithinAt_branchMap_Wpos
+    (O : ForwardBranchOpen) {p : (ℝ × ℝ) × ℝ} (hp : p ∈ O.Wpos) :
+    HasFDerivWithinAt O.germ.branchMap (fderiv ℝ O.germ.branchMap p) O.Wpos p :=
+  (O.differentiableAt_branchMap hp.1).hasFDerivAt.hasFDerivWithinAt
+
+/-- In standard coordinates, the branch derivative is obtained by composing
+with the inverse parameter-coordinate equivalence. -/
+theorem ForwardBranchOpen.hasFDerivWithinAt_asFin3Map_WposFin3
+    (O : ForwardBranchOpen) {v : Fin 3 → ℝ} (hv : v ∈ O.WposFin3) :
+    HasFDerivWithinAt (asFin3Map O.germ.branchMap)
+      ((fderiv ℝ O.germ.branchMap (paramToFin3.symm v)).comp
+        paramToFin3.symm.toContinuousLinearMap) O.WposFin3 v := by
+  have hp : paramToFin3.symm v ∈ O.Wpos := hv
+  exact ((O.differentiableAt_branchMap hp.1).hasFDerivAt.comp v
+    paramToFin3.symm.toContinuousLinearMap.hasFDerivAt).hasFDerivWithinAt
+
+/-- The standard-coordinate branch map is injective on its positive domain. -/
+theorem ForwardBranchOpen.asFin3Map_injOn_WposFin3 (O : ForwardBranchOpen) :
+    Set.InjOn (asFin3Map O.germ.branchMap) O.WposFin3 := by
+  intro v hv w hw hvw
+  apply paramToFin3.symm.injective
+  exact O.branchMap_injOn_Wpos hv hw hvw
+
+/-- The image in standard coordinates is exactly the original positive branch image. -/
+theorem ForwardBranchOpen.image_asFin3Map_WposFin3 (O : ForwardBranchOpen) :
+    asFin3Map O.germ.branchMap '' O.WposFin3 = O.germ.branchMap '' O.Wpos := by
+  ext q
+  constructor
+  · rintro ⟨v, hv, rfl⟩
+    exact ⟨paramToFin3.symm v, hv, rfl⟩
+  · rintro ⟨p, hp, rfl⟩
+    exact ⟨paramToFin3 p, by simpa [ForwardBranchOpen.WposFin3], by
+      simp [asFin3Map]⟩
+
+/-- The positive branch image is measurable. -/
+theorem ForwardBranchOpen.measurableSet_image_branchMap_Wpos (O : ForwardBranchOpen) :
+    MeasurableSet (O.germ.branchMap '' O.Wpos) := by
+  rw [← O.image_asFin3Map_WposFin3]
+  exact measurable_image_of_fderivWithin O.measurableSet_WposFin3
+    (fun v hv => O.hasFDerivWithinAt_asFin3Map_WposFin3 hv)
+    O.asFin3Map_injOn_WposFin3
 
 /-- Chain rule for the polynomial anchor evaluated on the local branch. -/
 theorem ForwardBranchOpen.hasFDerivAt_evalMap_comp_branchMap
@@ -151,6 +220,145 @@ theorem ForwardBranchOpen.abs_det_fderiv_branchMap_eq
       rw [abs_mul, abs_neg]
       norm_num
     _ = _ := by rw [hdet]
+
+/-- The target map in standard coordinates is differentiable on the branch domain. -/
+theorem ForwardBranchOpen.differentiableAt_asFin3Map_targetMap
+    (O : ForwardBranchOpen) {v : Fin 3 → ℝ} (hv : v ∈ O.WposFin3) :
+    DifferentiableAt ℝ (asFin3Map O.targetMap) v := by
+  have hp : paramToFin3.symm v ∈ O.Wpos := hv
+  have ht : DifferentiableAt ℝ O.targetMap (paramToFin3.symm v) := by
+    apply (O.hasFDerivAt_evalMap_comp_branchMap hp.1).differentiableAt.congr_of_eventuallyEq
+    exact (Set.EqOn.eventuallyEq_of_mem
+      (fun x hx => (O.evalMap_branch_eq_targetMap hx).symm)
+      (O.isOpen_W.mem_nhds hp.1))
+  exact ht.comp v paramToFin3.symm.differentiableAt
+
+/-- The first target coordinate has derivative `h ↦ h 0`. -/
+theorem ForwardBranchOpen.fderiv_asFin3Map_targetMap_apply_zero
+    (O : ForwardBranchOpen) {v : Fin 3 → ℝ} (hv : v ∈ O.WposFin3) (h : Fin 3 → ℝ) :
+    fderiv ℝ (asFin3Map O.targetMap) v h 0 = h 0 := by
+  have hd := O.differentiableAt_asFin3Map_targetMap hv
+  have hc := congrArg (fun L : (Fin 3 → ℝ) →L[ℝ] ℝ => L h) (fderiv_apply hd 0)
+  have hc' : fderiv ℝ (asFin3Map O.targetMap) v h 0 =
+      fderiv ℝ (fun x => asFin3Map O.targetMap x 0) v h := by
+    simpa using hc.symm
+  rw [hc']
+  let e0 : (Fin 3 → ℝ) →L[ℝ] ℝ := ContinuousLinearMap.proj 0
+  have hp : HasFDerivAt (fun x : Fin 3 → ℝ => x 0) e0 v := e0.hasFDerivAt
+  simpa [asFin3Map, ForwardBranchOpen.targetMap, paramToFin3, e0] using
+    congrArg (fun L => L h) hp.fderiv
+
+/-- The third target coordinate has derivative `h ↦ h 1`. -/
+theorem ForwardBranchOpen.fderiv_asFin3Map_targetMap_apply_two
+    (O : ForwardBranchOpen) {v : Fin 3 → ℝ} (hv : v ∈ O.WposFin3) (h : Fin 3 → ℝ) :
+    fderiv ℝ (asFin3Map O.targetMap) v h 2 = h 1 := by
+  have hd := O.differentiableAt_asFin3Map_targetMap hv
+  have hc := congrArg (fun L : (Fin 3 → ℝ) →L[ℝ] ℝ => L h) (fderiv_apply hd 2)
+  have hc' : fderiv ℝ (asFin3Map O.targetMap) v h 2 =
+      fderiv ℝ (fun x => asFin3Map O.targetMap x 2) v h := by
+    simpa using hc.symm
+  rw [hc']
+  let e1 : (Fin 3 → ℝ) →L[ℝ] ℝ := ContinuousLinearMap.proj 1
+  have hp : HasFDerivAt (fun x : Fin 3 → ℝ => x 1) e1 v := e1.hasFDerivAt
+  simpa [asFin3Map, ForwardBranchOpen.targetMap, paramToFin3, e1] using
+    congrArg (fun L => L h) hp.fderiv
+
+/-- In the pure `τ` direction, the middle target coordinate has derivative `-2τ`. -/
+theorem ForwardBranchOpen.fderiv_asFin3Map_targetMap_apply_one_basis_two
+    (O : ForwardBranchOpen) {v : Fin 3 → ℝ} (hv : v ∈ O.WposFin3) :
+    fderiv ℝ (asFin3Map O.targetMap) v (Pi.single 2 1) 1 = -2 * v 2 := by
+  have hd := O.differentiableAt_asFin3Map_targetMap hv
+  have hc := congrArg (fun L : (Fin 3 → ℝ) →L[ℝ] ℝ => L (Pi.single 2 1))
+    (fderiv_apply hd 1)
+  have hc' : fderiv ℝ (asFin3Map O.targetMap) v (Pi.single 2 1) 1 =
+      fderiv ℝ (fun x => asFin3Map O.targetMap x 1) v (Pi.single 2 1) := by
+    simpa using hc.symm
+  rw [hc']
+  have hp : paramToFin3.symm v ∈ O.Wpos := hv
+  have hβ : HasFDerivAt O.germ.β (fderiv ℝ O.germ.β (v 0, v 1)) (v 0, v 1) :=
+    ((O.germ.contDiff_β.contDiffAt
+      (O.germ.isOpen_U.mem_nhds (O.germ.proj_mem _ (O.subset_V hp.1)))).differentiableAt
+        (by simp)).hasFDerivAt
+  let e0 : (Fin 3 → ℝ) →L[ℝ] ℝ := ContinuousLinearMap.proj 0
+  let e1 : (Fin 3 → ℝ) →L[ℝ] ℝ := ContinuousLinearMap.proj 1
+  let e2 : (Fin 3 → ℝ) →L[ℝ] ℝ := ContinuousLinearMap.proj 2
+  have hpair : HasFDerivAt (fun x : Fin 3 → ℝ => (x 0, x 1))
+      (e0.prod e1) v := e0.hasFDerivAt.prodMk e1.hasFDerivAt
+  have hmiddle := (hβ.comp v hpair).sub (e2.hasFDerivAt.pow 2)
+  change fderiv ℝ (fun x : Fin 3 → ℝ => O.germ.β (x 0, x 1) - x 2 ^ 2) v
+      (Pi.single 2 1) = -2 * v 2
+  have hfun : (fun x : Fin 3 → ℝ => O.germ.β (x 0, x 1) - x 2 ^ 2) =
+      ((O.germ.β ∘ fun x : Fin 3 → ℝ => (x 0, x 1)) - fun x => e2 x ^ 2) := by
+    funext x
+    rfl
+  rw [hfun, hmiddle.fderiv]
+  simp [e0, e1, e2]
+  exact (fderiv ℝ O.germ.β (v 0, v 1)).map_zero
+
+/-- The absolute target Jacobian in standard coordinates is `2 |τ|`. -/
+theorem ForwardBranchOpen.abs_det_fderiv_asFin3Map_targetMap
+    (O : ForwardBranchOpen) {v : Fin 3 → ℝ} (hv : v ∈ O.WposFin3) :
+    |(fderiv ℝ (asFin3Map O.targetMap) v).det| = 2 * |v 2| := by
+  rw [ContinuousLinearMap.det, ← LinearMap.det_toMatrix (Pi.basisFun ℝ (Fin 3)),
+    Matrix.det_fin_three]
+  simp only [LinearMap.toMatrix_apply, Pi.basisFun_apply, Pi.basisFun_repr]
+  norm_cast
+  simp_rw [O.fderiv_asFin3Map_targetMap_apply_zero hv,
+    O.fderiv_asFin3Map_targetMap_apply_two hv]
+  rw [O.fderiv_asFin3Map_targetMap_apply_one_basis_two hv]
+  simp
+
+/-- The derivative of the standard-coordinate branch map is the coordinate
+transport of the original branch derivative. -/
+theorem ForwardBranchOpen.fderiv_asFin3Map_branchMap
+    (O : ForwardBranchOpen) {v : Fin 3 → ℝ} (hv : v ∈ O.WposFin3) :
+    fderiv ℝ (asFin3Map O.germ.branchMap) v =
+      (fderiv ℝ O.germ.branchMap (paramToFin3.symm v)).comp
+        paramToFin3.symm.toContinuousLinearMap := by
+  have hp : paramToFin3.symm v ∈ O.Wpos := hv
+  exact ((O.differentiableAt_branchMap hp.1).hasFDerivAt.comp v
+    paramToFin3.symm.toContinuousLinearMap.hasFDerivAt).fderiv
+
+/-- The derivative of the standard-coordinate target map is the coordinate
+transport of the original target derivative. -/
+theorem ForwardBranchOpen.fderiv_asFin3Map_targetMap
+    (O : ForwardBranchOpen) {v : Fin 3 → ℝ} (hv : v ∈ O.WposFin3) :
+    fderiv ℝ (asFin3Map O.targetMap) v =
+      (fderiv ℝ O.targetMap (paramToFin3.symm v)).comp
+        paramToFin3.symm.toContinuousLinearMap := by
+  have hp : paramToFin3.symm v ∈ O.Wpos := hv
+  have ht : DifferentiableAt ℝ O.targetMap (paramToFin3.symm v) := by
+    apply (O.hasFDerivAt_evalMap_comp_branchMap hp.1).differentiableAt.congr_of_eventuallyEq
+    exact (Set.EqOn.eventuallyEq_of_mem
+      (fun x hx => (O.evalMap_branch_eq_targetMap hx).symm)
+      (O.isOpen_W.mem_nhds hp.1))
+  exact (ht.hasFDerivAt.comp v paramToFin3.symm.toContinuousLinearMap.hasFDerivAt).fderiv
+
+/-- The standard-coordinate branch Jacobian is exactly `|τ|` on the positive sheet. -/
+theorem ForwardBranchOpen.abs_det_fderiv_asFin3Map_branchMap
+    (O : ForwardBranchOpen) {v : Fin 3 → ℝ} (hv : v ∈ O.WposFin3) :
+    |(fderiv ℝ (asFin3Map O.germ.branchMap) v).det| = |v 2| := by
+  have hp : paramToFin3.symm v ∈ O.Wpos := hv
+  rw [O.fderiv_asFin3Map_branchMap hv, O.abs_det_fderiv_branchMap_eq hp.1,
+    ← O.fderiv_asFin3Map_targetMap hv, O.abs_det_fderiv_asFin3Map_targetMap hv]
+  ring
+
+/-- Mathlib's Jacobian change-of-variables formula for the positive branch,
+expressed in standard `Fin 3` coordinates. -/
+theorem ForwardBranchOpen.lintegral_image_branchMap_eq
+    (O : ForwardBranchOpen) (g : (Fin 3 → ℝ) → ℝ≥0∞) :
+    ∫⁻ q in O.germ.branchMap '' O.Wpos, g q ∂volume =
+      ∫⁻ v in O.WposFin3,
+        ENNReal.ofReal |(fderiv ℝ (asFin3Map O.germ.branchMap) v).det| *
+          g (asFin3Map O.germ.branchMap v) ∂volume := by
+  rw [← O.image_asFin3Map_WposFin3]
+  exact lintegral_image_eq_lintegral_abs_det_fderiv_mul (f' := fun v =>
+      fderiv ℝ (asFin3Map O.germ.branchMap) v) volume
+    O.measurableSet_WposFin3
+    (fun v hv => by
+      rw [O.fderiv_asFin3Map_branchMap hv]
+      exact O.hasFDerivWithinAt_asFin3Map_WposFin3 hv)
+    O.asFin3Map_injOn_WposFin3 g
 
 /-- Candidate deficiency density in branch parameters. -/
 def ForwardBranchOpen.deficiencyDensity (_O : ForwardBranchOpen)
@@ -228,5 +436,26 @@ theorem ForwardBranchOpen.uMinus_off_image (O : ForwardBranchOpen)
     (hq : q ∉ O.germ.branchMap '' O.Wpos) :
     O.uMinus χ q = 0 := by
   simp [uMinus, hq]
+
+/-- Change of variables for the squared norm of the branch-supported candidate.
+The right-hand side displays the exact branch Jacobian `|τ|`. -/
+theorem ForwardBranchOpen.lintegral_sq_norm_uMinus_image_eq
+    (O : ForwardBranchOpen) (χ : ℝ × ℝ → ℂ) :
+    ∫⁻ q in O.germ.branchMap '' O.Wpos,
+        ENNReal.ofReal (‖O.uMinus χ q‖ ^ 2) ∂volume =
+      ∫⁻ v in O.WposFin3, ENNReal.ofReal |v 2| *
+        ENNReal.ofReal (‖O.deficiencyDensity χ (paramToFin3.symm v)‖ ^ 2) ∂volume := by
+  rw [O.lintegral_image_branchMap_eq]
+  apply setLIntegral_congr_fun O.measurableSet_WposFin3
+  intro v hv
+  change ENNReal.ofReal |(fderiv ℝ (asFin3Map O.germ.branchMap) v).det| *
+      ENNReal.ofReal (‖O.uMinus χ (asFin3Map O.germ.branchMap v)‖ ^ 2) =
+    ENNReal.ofReal |v 2| *
+      ENNReal.ofReal (‖O.deficiencyDensity χ (paramToFin3.symm v)‖ ^ 2)
+  rw [O.abs_det_fderiv_asFin3Map_branchMap hv]
+  have hp : paramToFin3.symm v ∈ O.Wpos := hv
+  congr 1
+  simpa [asFin3Map] using congrArg (fun z => ‖z‖ₑ ^ 2)
+    (O.uMinus_on_image χ hp)
 
 end ExoticCCR
