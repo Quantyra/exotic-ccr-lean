@@ -57,7 +57,10 @@ the historical B5 algebraic core.
 15. **T0.F branch density data (bounded claim).** The Fréchet derivative of real `evalMap F` is
     the evaluated polynomial Jacobian with determinant `-2`, and on the open branch domain the
     derivative of `F ∘ branchMap` equals the derivative of `targetMap`. The reciprocal algebraic
-    factor is `1/2`, as is the proved absolute local derivative-determinant ratio in fixed coordinates; no measure-theoretic change-of-variables, `MemLp`,
+    factor is `1/2`, as is the proved absolute local derivative-determinant ratio in fixed coordinates.
+    For continuous compactly supported `χ`, the squared norm of `deficiencyDensity` is integrable
+    on the full parameter space and on `Wpos`, and the density is `MemLp` at exponent 2 on the full
+    parameter space. No measure-theoretic change-of-variables, ambient `MemLp` for `uMinus`,
     adjoint-domain, or operator conclusion is asserted.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated

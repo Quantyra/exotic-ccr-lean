@@ -5,6 +5,9 @@ Authors: Daniel Eric Fredriksen
 -/
 import ExoticCCR.TheoremFForwardBranch
 import ExoticCCR.TheoremFJacobianFDeriv
+import Mathlib.Analysis.SpecialFunctions.Gaussian.GaussianIntegral
+import Mathlib.MeasureTheory.Function.L2Space
+import Mathlib.MeasureTheory.Integral.Prod
 
 /-!
 # Algebraic density and branch-supported deficiency data
@@ -17,7 +20,7 @@ adjoint-domain statement.
 
 noncomputable section
 
-open Function MvPolynomial Set
+open Function MeasureTheory MvPolynomial Set
 
 namespace ExoticCCR
 
@@ -153,6 +156,52 @@ theorem ForwardBranchOpen.abs_det_fderiv_branchMap_eq
 def ForwardBranchOpen.deficiencyDensity (_O : ForwardBranchOpen)
     (χ : ℝ × ℝ → ℂ) (p : (ℝ × ℝ) × ℝ) : ℂ :=
   χ p.1 * Complex.exp (-p.2 ^ 2)
+
+/-- The squared norm of the parameter-space deficiency density is integrable.
+This is an ambient parameter-space estimate; restricting it to `Wpos` is an
+immediate corollary below and requires no change of variables. -/
+theorem ForwardBranchOpen.integrable_deficiencyDensity (O : ForwardBranchOpen)
+    (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ) (hχc : HasCompactSupport χ) :
+    Integrable (fun p : (ℝ × ℝ) × ℝ => ‖O.deficiencyDensity χ p‖ ^ 2)
+      (volume : Measure ((ℝ × ℝ) × ℝ)) := by
+  have hχ2 : Integrable (fun x : ℝ × ℝ => ‖χ x‖ ^ 2)
+      (volume : Measure (ℝ × ℝ)) :=
+    (memLp_two_iff_integrable_sq_norm hχ.aestronglyMeasurable).mp
+      (hχ.memLp_of_hasCompactSupport hχc)
+  have hgauss : Integrable
+      (fun τ : ℝ => ‖Complex.exp (-(τ : ℂ) ^ 2)‖ ^ 2) := by
+    convert integrable_exp_neg_mul_sq (b := 2) (by norm_num) using 1
+    ext τ
+    rw [Complex.norm_exp]
+    rw [pow_two, ← Real.exp_add]
+    congr 1
+    have hre : ((τ : ℂ) ^ 2).re = τ ^ 2 := by
+      norm_num [pow_two, Complex.mul_re]
+    rw [Complex.neg_re, hre]
+    ring
+  rw [Measure.volume_eq_prod]
+  simpa [ForwardBranchOpen.deficiencyDensity, norm_mul, mul_pow] using
+    hχ2.mul_prod hgauss
+
+/-- The parameter-space deficiency density remains square-integrable after
+restriction to the positive branch domain. -/
+theorem ForwardBranchOpen.integrableOn_deficiencyDensity_Wpos (O : ForwardBranchOpen)
+    (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ) (hχc : HasCompactSupport χ) :
+    IntegrableOn (fun p : (ℝ × ℝ) × ℝ => ‖O.deficiencyDensity χ p‖ ^ 2) O.Wpos
+      (volume : Measure ((ℝ × ℝ) × ℝ)) :=
+  (O.integrable_deficiencyDensity χ hχ hχc).integrableOn
+
+/-- The candidate density is in `L²` on the full parameter space.  This does
+not imply `L²` membership of its branch-image pushforward without a
+measure-theoretic change-of-variables theorem. -/
+theorem ForwardBranchOpen.memLp_deficiencyDensity (O : ForwardBranchOpen)
+    (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ) (hχc : HasCompactSupport χ) :
+    MemLp (O.deficiencyDensity χ) 2 (volume : Measure ((ℝ × ℝ) × ℝ)) := by
+  apply (memLp_two_iff_integrable_sq_norm ?_).mpr
+    (O.integrable_deficiencyDensity χ hχ hχc)
+  apply Continuous.aestronglyMeasurable
+  unfold ForwardBranchOpen.deficiencyDensity
+  fun_prop
 
 /-- The branch-supported candidate function, extended by zero away from the
 positive branch image.  Injectivity on `Wpos` makes the selected value
