@@ -21,6 +21,33 @@ open Function MvPolynomial Set
 
 namespace ExoticCCR
 
+/-- Coordinates `((a, c), τ)` as a function on `Fin 3`, in the order
+`0 ↦ a`, `1 ↦ c`, `2 ↦ τ`. -/
+def paramToFin3 : ((ℝ × ℝ) × ℝ) ≃L[ℝ] (Fin 3 → ℝ) :=
+  LinearEquiv.toContinuousLinearEquiv
+    { toFun := fun p => ![p.1.1, p.1.2, p.2]
+      invFun := fun v => ((v 0, v 1), v 2)
+      left_inv := by
+        rintro ⟨⟨a, c⟩, τ⟩
+        rfl
+      right_inv := by
+        intro v
+        funext i
+        fin_cases i <;> rfl
+      map_add' := by
+        intro p q
+        funext i
+        fin_cases i <;> rfl
+      map_smul' := by
+        intro r p
+        funext i
+        fin_cases i <;> rfl }
+
+/-- A parameter-space map transported to standard `Fin 3` coordinates. -/
+def asFin3Map (g : ((ℝ × ℝ) × ℝ) → Fin 3 → ℝ) :
+    (Fin 3 → ℝ) → Fin 3 → ℝ :=
+  g ∘ paramToFin3.symm
+
 /-- The evaluated algebraic Jacobian determinant of `F` has absolute value `2`
 at every real point. -/
 theorem abs_eval_jacobianDet_F (q : Fin 3 → ℝ) :
@@ -96,6 +123,31 @@ theorem ForwardBranchOpen.fderiv_F_comp_branchMap_eq_fderiv_targetMap
   exact Set.EqOn.eventuallyEq_of_mem
     (fun x hx => O.evalMap_branch_eq_targetMap hx)
     (O.isOpen_W.mem_nhds hp)
+
+/-- Absolute local Jacobian identity in the standard `Fin 3` coordinates.
+This is a determinant consequence of the local chain identity and
+`det D F = -2`; it is not a measure change-of-variables theorem. -/
+theorem ForwardBranchOpen.abs_det_fderiv_branchMap_eq
+    (O : ForwardBranchOpen) {p : (ℝ × ℝ) × ℝ} (hp : p ∈ O.W) :
+    |((fderiv ℝ O.germ.branchMap p).comp paramToFin3.symm.toContinuousLinearMap).det| =
+      |((fderiv ℝ O.targetMap p).comp paramToFin3.symm.toContinuousLinearMap).det| / 2 := by
+  have hchain := O.fderiv_F_comp_branchMap_eq_fderiv_targetMap hp
+  have hcomp :
+      (fderiv ℝ (evalMap (F ℝ)) (O.germ.branchMap p)).comp
+          ((fderiv ℝ O.germ.branchMap p).comp paramToFin3.symm.toContinuousLinearMap) =
+        (fderiv ℝ O.targetMap p).comp paramToFin3.symm.toContinuousLinearMap := by
+    ext v i
+    exact congrFun (congrArg (fun L => L (paramToFin3.symm v)) hchain) i
+  have hdet := congrArg ContinuousLinearMap.det hcomp
+  rw [ContinuousLinearMap.det, ContinuousLinearMap.toLinearMap_comp,
+    LinearMap.det_comp, ← ContinuousLinearMap.det] at hdet
+  rw [det_fderiv_evalMap_F] at hdet
+  calc
+    _ = |-2 * ((fderiv ℝ O.germ.branchMap p).comp
+        paramToFin3.symm.toContinuousLinearMap).det| / 2 := by
+      rw [abs_mul, abs_neg]
+      norm_num
+    _ = _ := by rw [hdet]
 
 /-- Candidate deficiency density in branch parameters. -/
 def ForwardBranchOpen.deficiencyDensity (_O : ForwardBranchOpen)

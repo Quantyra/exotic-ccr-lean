@@ -63,7 +63,7 @@ See [INTEGRITY.md](INTEGRITY.md). In short:
 - The canonical Poisson brackets of the transformed polynomial generators are proved. Exponentiated Weyl relations, unconditional essential-self-adjointness failure, deficiency indices, and CP maps are **not proved**. T0.C.4 is only an abstract polynomial-algebra endomorphism.
 - The transport layer constructs the canonical minimal core, proves its test-function domain dense, and proves the generic deficiency-to-not-essentially-self-adjoint bridge.
 - `X1ForwardWeakDeficiencyStatement` and the legacy `TransportNecessityStatement` are definitions used as explicit hypotheses, not axioms or unconditional theorems. No nonzero vector in `Dom(H*)` at eigenvalue `±i` has been constructed.
-- Full unconditional A001 Theorem E remains open in Lean. Incompleteness alone is not used to claim it. The forward-branch modules prove the derivative/Jacobian identity and local chain identity, but not a determinant-level or measure-theoretic change-of-variables theorem, ambient `MemLp`, weak-adjoint deficiency, or deficiency indices such as `(∞,∞)`.
+- Full unconditional A001 Theorem E remains open in Lean. Incompleteness alone is not used to claim it. The forward-branch modules prove the local chain identity and the resulting absolute derivative-determinant ratio `1/2` in fixed `Fin 3` coordinates, but not a measure-theoretic change-of-variables theorem, ambient `MemLp`, weak-adjoint deficiency, or deficiency indices such as `(∞,∞)`.
 
 ## Build
 

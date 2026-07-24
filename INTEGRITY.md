@@ -57,7 +57,7 @@ the historical B5 algebraic core.
 15. **T0.F branch density data (bounded claim).** The Fréchet derivative of real `evalMap F` is
     the evaluated polynomial Jacobian with determinant `-2`, and on the open branch domain the
     derivative of `F ∘ branchMap` equals the derivative of `targetMap`. The reciprocal algebraic
-    factor is `1/2`; no determinant-level or measure-theoretic change-of-variables, `MemLp`,
+    factor is `1/2`, as is the proved absolute local derivative-determinant ratio in fixed coordinates; no measure-theoretic change-of-variables, `MemLp`,
     adjoint-domain, or operator conclusion is asserted.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
@@ -75,7 +75,7 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
   test-function domain is proved dense, the repository does not prove transport necessity or
   construct a nonzero vector in `Dom(H*)` satisfying `H* u = ±i u`. Incompleteness alone is not
   claimed to imply the operator conclusion.
-- A global A001 Theorem F sheet, local immersion, determinant-level or measure-`1/2`
+- A global A001 Theorem F sheet, local immersion, global determinant, or measure-`1/2`
   conclusions, ambient `MemLp` for the defined candidate `uMinus`, a concrete `Dom(H*)`
   vector, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
