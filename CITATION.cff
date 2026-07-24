@@ -6,7 +6,7 @@ authors:
   - family-names: Fredriksen
     given-names: Daniel Eric
     affiliation: "Quantyra Inc"
-version: 0.1.5
+version: 0.1.6
 date-released: 2026-07-23
 url: "https://github.com/Quantyra/exotic-ccr-lean"
 repository-code: "https://github.com/Quantyra/exotic-ccr-lean"
@@ -22,7 +22,7 @@ abstract: >-
   Machine-checked Lean 4 certificates for Gate 0 of Project EXOTIC-CCR:
   Jacobian determinant det DF = -2, three-point collision identities, and
   standard non-injectivity packaging for the announced polynomial map F
-  (and det-1 form G), real-vector-field incompleteness, and conditional
-  Theorem E transport-operator infrastructure. Essential-self-adjointness
-  failure remains conditional; no deficiency indices or physical claims.
-  Author: Daniel Eric Fredriksen.
+  (and det-1 form G), real-vector-field incompleteness, canonical minimal
+  transport core, and a deficiency-to-not-ESS operator bridge. Unconditional
+  Theorem E remains open (needs density + Dom(H*) deficiency vector); no
+  deficiency indices or physical claims. Author: Daniel Eric Fredriksen.

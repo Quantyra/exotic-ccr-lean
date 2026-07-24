@@ -7,7 +7,7 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 **Organization:** Quantyra Inc.  
 **Program:** EXOTIC-CCR research charter (Gate G0 / WP0)  
 **License:** Apache-2.0  
-**Version:** 0.1.5 (conditional Theorem E deficiency infrastructure)
+**Version:** 0.1.6 (Theorem E deficiency bridge; E still conditional)
 
 ## What is proved
 
