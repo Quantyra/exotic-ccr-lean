@@ -15,7 +15,7 @@ nonzero germ points satisfying the wall equation to algebraic reconstruction.
 
 noncomputable section
 
-open MvPolynomial
+open Filter MvPolynomial Set
 open scoped ContDiff Topology
 
 namespace ExoticCCR
@@ -404,5 +404,190 @@ theorem ForwardBranchGerm.eventually_den_ne (G : ForwardBranchGerm) :
     apply hkp
     rw [hkrel, hz, mul_zero]
   exact mul_ne_zero hx hfactor
+
+/-- An open punctured domain on which the forward reconstruction formulas are
+defined, together with the fact that it accumulates at the wall base. -/
+structure ForwardBranchOpen where
+  germ : ForwardBranchGerm
+  W : Set ((ℝ × ℝ) × ℝ)
+  isOpen_W : IsOpen W
+  subset_V : W ⊆ germ.V
+  tau_ne : ∀ p ∈ W, p.2 ≠ 0
+  den_ne : ∀ p ∈ W,
+    wallReconstructionDenom (germ.sCoord p) p.1.2 (germ.q0 p) ≠ 0
+  nonempty_W : W.Nonempty
+  accumulates_base : ∀ U ∈ 𝓝 (((0, 2), 0) : (ℝ × ℝ) × ℝ), (U ∩ W).Nonempty
+
+/-- The forward branch germ admits an open positive punctured domain accumulating
+at the wall base. -/
+theorem exists_forwardBranchOpen : Nonempty ForwardBranchOpen := by
+  obtain ⟨G⟩ := exists_forwardBranchGerm
+  have hden := G.eventually_den_ne
+  have hdenMem : {p : (ℝ × ℝ) × ℝ | p ∈ G.V → p.2 ≠ 0 →
+      wallReconstructionDenom (G.sCoord p) p.1.2 (G.q0 p) ≠ 0} ∈
+      𝓝 (((0, 2), 0) : (ℝ × ℝ) × ℝ) := hden
+  obtain ⟨N, hNsub, hNopen, hbaseN⟩ := mem_nhds_iff.mp hdenMem
+  let W : Set ((ℝ × ℝ) × ℝ) := G.V ∩ N ∩ {p | 0 < p.2}
+  have hWopen : IsOpen W := by
+    exact (G.isOpen_V.inter hNopen).inter (isOpen_lt continuous_const continuous_snd)
+  have hacc : ∀ U ∈ 𝓝 (((0, 2), 0) : (ℝ × ℝ) × ℝ), (U ∩ W).Nonempty := by
+    intro U hU
+    have hnbhd : U ∩ (G.V ∩ N) ∈ 𝓝 (((0, 2), 0) : (ℝ × ℝ) × ℝ) :=
+      inter_mem hU ((G.isOpen_V.inter hNopen).mem_nhds ⟨G.base_tau_mem, hbaseN⟩)
+    obtain ⟨ε, hε, hball⟩ := Metric.mem_nhds_iff.mp hnbhd
+    let p : (ℝ × ℝ) × ℝ := ((0, 2), ε / 2)
+    have hpball : p ∈ Metric.ball (((0, 2), 0) : (ℝ × ℝ) × ℝ) ε := by
+      rw [Metric.mem_ball, Prod.dist_eq]
+      simp [p, abs_of_pos hε]
+      linarith
+    have hpUN : p ∈ U ∩ (G.V ∩ N) := hball hpball
+    refine ⟨p, hpUN.1, hpUN.2, ?_⟩
+    dsimp [p]
+    linarith
+  refine ⟨⟨G, W, hWopen, ?_, ?_, ?_, ?_, hacc⟩⟩
+  · intro p hp
+    exact hp.1.1
+  · intro p hp
+    exact ne_of_gt hp.2
+  · intro p hp
+    exact hNsub hp.1.2 hp.1.1 (ne_of_gt hp.2)
+  · exact hacc Set.univ univ_mem |>.mono fun _ hp ↦ hp.2
+
+/-- The branch reconstruction is smooth on its open punctured domain. -/
+theorem ForwardBranchOpen.contDiff_branchMap (O : ForwardBranchOpen) :
+    ContDiffOn ℝ ⊤ (fun p => O.germ.branchMap p) O.W := by
+  intro p hp
+  have hpV := O.subset_V hp
+  have hpU := O.germ.proj_mem p hpV
+  have hβ : ContDiffAt ℝ ⊤ O.germ.β p.1 :=
+    O.germ.contDiff_β.contDiffAt (O.germ.isOpen_U.mem_nhds hpU)
+  have hr : ContDiffAt ℝ ⊤ O.germ.rPlus p :=
+    O.germ.contDiff_rPlus.contDiffAt (O.germ.isOpen_V.mem_nhds hpV)
+  have hτ := O.tau_ne p hp
+  have hden := O.den_ne p hp
+  have hq0 : O.germ.q0 p ≠ 0 := div_ne_zero (O.germ.rPlus_ne p hpV) hτ
+  have hs : ContDiffAt ℝ ⊤ (fun p => O.germ.sCoord p) p := by
+    unfold ForwardBranchGerm.sCoord
+    fun_prop
+  have hq : ContDiffAt ℝ ⊤ (fun p => O.germ.q0 p) p := by
+    unfold ForwardBranchGerm.q0
+    fun_prop
+  have hq1 : ContDiffAt ℝ ⊤ (fun p => wallReconstructQ1 p.1.1
+      (O.germ.sCoord p) p.1.2 (O.germ.q0 p)) p := by
+    have hden' : O.germ.q0 p *
+        ((3 * p.1.2 * O.germ.sCoord p - 4) * O.germ.q0 p + 3 * p.1.2) ≠ 0 := by
+      simpa [wallReconstructionDenom, wallB] using hden
+    unfold wallReconstructQ1 wallReconstructionDenom wallB
+    apply ContDiffAt.div
+    · fun_prop
+    · fun_prop
+    · exact hden'
+  have hq2 : ContDiffAt ℝ ⊤ (fun p => wallReconstructQ2 p.1.1
+      (O.germ.sCoord p) p.1.2 (O.germ.q0 p)) p := by
+    unfold wallReconstructQ2
+    apply ContDiffAt.div
+    · fun_prop
+    · fun_prop
+    · exact pow_ne_zero 3 hq0
+  apply ContDiffAt.contDiffWithinAt
+  rw [contDiffAt_pi]
+  intro i
+  fin_cases i
+  · simpa [ForwardBranchGerm.branchMap, wallReconstruction] using hq
+  · simpa [ForwardBranchGerm.branchMap, wallReconstruction] using hq1
+  · simpa [ForwardBranchGerm.branchMap, wallReconstruction] using hq2
+
+/-- Evaluation of the polynomial anchor recovers the branch target coordinates. -/
+theorem ForwardBranchOpen.evalMap_branch (O : ForwardBranchOpen)
+    {p : (ℝ × ℝ) × ℝ} (hp : p ∈ O.W) :
+    evalMap (F ℝ) (O.germ.branchMap p) =
+      ![p.1.1, O.germ.sCoord p, p.1.2] :=
+  O.germ.evalMap_branch (O.subset_V hp) (O.tau_ne p hp) (O.den_ne p hp)
+
+/-- The positive part of a punctured branch domain. -/
+def ForwardBranchOpen.Wpos (O : ForwardBranchOpen) : Set ((ℝ × ℝ) × ℝ) :=
+  O.W ∩ {p | 0 < p.2}
+
+/-- The first coordinate of the reconstruction is the divided branch root. -/
+theorem ForwardBranchOpen.branchMap_coord0_eq_q0 (O : ForwardBranchOpen)
+    (p : (ℝ × ℝ) × ℝ) : O.germ.branchMap p 0 = O.germ.q0 p := by
+  rfl
+
+/-- The forward reconstruction is injective on the positive punctured sheet. -/
+theorem ForwardBranchOpen.branchMap_injOn_Wpos (O : ForwardBranchOpen) :
+    Set.InjOn O.germ.branchMap O.Wpos := by
+  intro p hp q hq hpq
+  have htargets := congrArg (evalMap (F ℝ)) hpq
+  rw [O.evalMap_branch hp.1, O.evalMap_branch hq.1] at htargets
+  have ha : p.1.1 = q.1.1 := by
+    simpa using congrFun htargets (0 : Fin 3)
+  have hs : O.germ.sCoord p = O.germ.sCoord q := by
+    simpa using congrFun htargets (1 : Fin 3)
+  have hc : p.1.2 = q.1.2 := by
+    simpa using congrFun htargets (2 : Fin 3)
+  have hpq1 : p.1 = q.1 := Prod.ext ha hc
+  have hτ : p.2 = q.2 := by
+    have hppos : 0 < p.2 := hp.2
+    have hqpos : 0 < q.2 := hq.2
+    unfold ForwardBranchGerm.sCoord at hs
+    rw [hpq1] at hs
+    have hsq : p.2 ^ 2 = q.2 ^ 2 := by linarith
+    have hfac : (p.2 - q.2) * (p.2 + q.2) = 0 := by nlinarith
+    rcases mul_eq_zero.mp hfac with h | h
+    · linarith
+    · nlinarith [hppos, hqpos]
+  exact Prod.ext hpq1 hτ
+
+/-- Along the positive sheet, the first reconstruction coordinate diverges as
+the wall base is approached. -/
+theorem ForwardBranchOpen.tendsto_q0_atTop (O : ForwardBranchOpen) :
+    Tendsto O.germ.q0 (𝓝[O.Wpos] (((0, 2), 0) : (ℝ × ℝ) × ℝ)) atTop := by
+  have hτ0 : Tendsto (fun p : (ℝ × ℝ) × ℝ => p.2)
+      (𝓝[O.Wpos] (((0, 2), 0) : (ℝ × ℝ) × ℝ)) (𝓝 0) :=
+    continuousAt_snd.tendsto.mono_left inf_le_left
+  have hτpos : ∀ᶠ p in 𝓝[O.Wpos] (((0, 2), 0) : (ℝ × ℝ) × ℝ), 0 < p.2 := by
+    filter_upwards [self_mem_nhdsWithin] with p hp
+    exact hp.2
+  have hτGT : Tendsto (fun p : (ℝ × ℝ) × ℝ => p.2)
+      (𝓝[O.Wpos] (((0, 2), 0) : (ℝ × ℝ) × ℝ)) (𝓝[>] 0) := by
+    rw [tendsto_nhdsWithin_iff]
+    exact ⟨hτ0, hτpos⟩
+  have hinv : Tendsto (fun p : (ℝ × ℝ) × ℝ => (p.2)⁻¹)
+      (𝓝[O.Wpos] (((0, 2), 0) : (ℝ × ℝ) × ℝ)) atTop :=
+    hτGT.inv_tendsto_nhdsGT_zero
+  have hr : Tendsto O.germ.rPlus
+      (𝓝[O.Wpos] (((0, 2), 0) : (ℝ × ℝ) × ℝ)) (𝓝 (Real.sqrt 2)) := by
+    simpa [O.germ.rPlus_base] using
+      (O.germ.contDiff_rPlus.contDiffAt
+        (O.germ.isOpen_V.mem_nhds O.germ.base_tau_mem)).continuousAt.tendsto.mono_left
+          (show 𝓝[O.Wpos] (((0, 2), 0) : (ℝ × ℝ) × ℝ) ≤ 𝓝 ((0, 2), 0) from inf_le_left)
+  have hrge : ∀ᶠ p in 𝓝[O.Wpos] (((0, 2), 0) : (ℝ × ℝ) × ℝ), 1 ≤ O.germ.rPlus p := by
+    have hsqrt : 1 < Real.sqrt 2 := by
+      nlinarith [Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ 2), Real.sqrt_nonneg 2]
+    apply hr
+    exact Ici_mem_nhds hsqrt
+  apply tendsto_atTop_mono' _ _ hinv
+  filter_upwards [hτpos, hrge] with p hp hpr
+  rw [ForwardBranchGerm.q0, div_eq_mul_inv]
+  have hi : 0 ≤ (p.2)⁻¹ := le_of_lt (inv_pos.2 hp)
+  nlinarith
+
+/-- The absolute first coordinate also diverges on approach to the wall. -/
+theorem ForwardBranchOpen.tendsto_abs_q0_atTop (O : ForwardBranchOpen) :
+    Tendsto (fun p => |O.germ.q0 p|)
+      (𝓝[O.Wpos] (((0, 2), 0) : (ℝ × ℝ) × ℝ)) atTop := by
+  apply tendsto_atTop_mono' _ _ O.tendsto_q0_atTop
+  filter_upwards with p
+  exact le_abs_self (O.germ.q0 p)
+
+/-- The reconstructed branch escapes every norm ball at the wall base. -/
+theorem ForwardBranchOpen.tendsto_norm_branchMap_at_base (O : ForwardBranchOpen) :
+    Tendsto (fun p => ‖O.germ.branchMap p‖)
+      (𝓝[O.Wpos] (((0, 2), 0) : (ℝ × ℝ) × ℝ)) atTop := by
+  apply tendsto_atTop_mono' _ _ O.tendsto_abs_q0_atTop
+  filter_upwards with p
+  rw [← O.branchMap_coord0_eq_q0 p, Pi.norm_def]
+  exact_mod_cast Finset.le_sup (f := fun b ↦ ‖O.germ.branchMap p b‖₊)
+    (Finset.mem_univ (0 : Fin 3))
 
 end ExoticCCR
