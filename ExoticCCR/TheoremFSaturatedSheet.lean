@@ -118,6 +118,71 @@ theorem ForwardBranchCrossSection.exists_localFlowLine
   simpa only [zero_sub, zero_add] using
     hX.exists_forall_mem_closedBall_exists_eq_forall_mem_Ioo_hasDerivAt₀ 0
 
+/-- A compact transverse core carrying one common local existence time.
+
+This is the uniform local collar that follows directly from the cross-section:
+the trajectories are not yet packaged as a jointly smooth flow map, but their
+lifetimes have a common positive lower bound on the compact set `W₀`. -/
+structure UniformLocalFlowCollar where
+  S : ForwardBranchCrossSection
+  x₀ : ℝ × ℝ
+  ρ : ℝ
+  ρ_pos : 0 < ρ
+  W₀ : Set (ℝ × ℝ)
+  W₀_eq : W₀ = Metric.closedBall x₀ ρ
+  isCompact_W₀ : IsCompact W₀
+  W₀_subset : W₀ ⊆ S.W
+  δ : ℝ
+  δ_pos : 0 < δ
+  exists_flowLine : ∀ x ∈ W₀, ∃ α : ℝ → R3,
+    α 0 = S.qSigma x ∧
+      ∀ t ∈ Ioo (-δ) δ, HasDerivAt α (X1 (α t)) t
+
+/-- Every positive branch cross-section contains a compact transverse ball on
+which Picard--Lindelöf gives a uniform local lifetime. -/
+theorem ForwardBranchCrossSection.exists_uniformLocalFlowCollar
+    (S : ForwardBranchCrossSection) : Nonempty UniformLocalFlowCollar := by
+  obtain ⟨x₀, hx₀⟩ := S.nonempty_W
+  have hX : ContDiffAt ℝ 1 X1 (S.qSigma x₀) :=
+    (contDiff_X1.of_le (by simp : (1 : WithTop ℕ∞) ≤ ⊤)).contDiffAt
+  obtain ⟨r, hr, δ, hδ, hflow⟩ :=
+    hX.exists_forall_mem_closedBall_exists_eq_forall_mem_Ioo_hasDerivAt 0
+  have hqcd : ContDiffAt ℝ ⊤ S.qSigma x₀ :=
+    (S.contDiffOn_qSigma x₀ hx₀).contDiffAt (S.isOpen_W.mem_nhds hx₀)
+  have hq : ContinuousAt S.qSigma x₀ := hqcd.continuousAt
+  have hpre : S.qSigma ⁻¹' Metric.ball (S.qSigma x₀) r ∈ 𝓝 x₀ :=
+    hq (Metric.ball_mem_nhds _ hr)
+  have hgood : S.W ∩ S.qSigma ⁻¹' Metric.ball (S.qSigma x₀) r ∈ 𝓝 x₀ :=
+    inter_mem (S.isOpen_W.mem_nhds hx₀) hpre
+  obtain ⟨ε, hε, hball⟩ := Metric.mem_nhds_iff.mp hgood
+  let ρ := ε / 2
+  let W₀ : Set (ℝ × ℝ) := Metric.closedBall x₀ ρ
+  have hρ : 0 < ρ := by dsimp [ρ]; linarith
+  have hWsub : W₀ ⊆ S.W ∩ S.qSigma ⁻¹' Metric.ball (S.qSigma x₀) r := by
+    intro x hx
+    apply hball
+    rw [Metric.mem_ball]
+    have hx' : dist x x₀ ≤ ρ := by
+      simpa [W₀, dist_comm] using hx
+    dsimp [ρ] at hx'
+    linarith
+  refine ⟨⟨S, x₀, ρ, hρ, W₀, rfl, ?_, ?_, δ, hδ, ?_⟩⟩
+  · simpa [W₀] using (isCompact_closedBall x₀ ρ)
+  · intro x hx
+    exact (hWsub hx).1
+  · intro x hx
+    have hqball : S.qSigma x ∈ Metric.closedBall (S.qSigma x₀) r :=
+      Metric.ball_subset_closedBall (hWsub hx).2
+    obtain ⟨α, hα0, hα⟩ := hflow (S.qSigma x) hqball
+    exact ⟨α, hα0, by simpa only [zero_sub, zero_add] using hα⟩
+
+/-- Every local forward branch therefore carries a compact uniform local flow
+collar.  This still makes no maximal-time or endpoint-escape assertion. -/
+theorem ForwardBranchOpen.exists_uniformLocalFlowCollar (O : ForwardBranchOpen) :
+    Nonempty UniformLocalFlowCollar := by
+  obtain ⟨S⟩ := O.exists_crossSection
+  exact S.exists_uniformLocalFlowCollar
+
 /-- A full forward flow sheet, including the endpoint data needed to account
 for every boundary term in a future integration-by-parts proof.
 
