@@ -5,13 +5,15 @@ Authors: Daniel Eric Fredriksen
 -/
 import ExoticCCR.TheoremFForwardBranch
 import ExoticCCR.TheoremEDeficiency
+import Mathlib.Analysis.ODE.ExistUnique
 import Mathlib.Data.EReal.Basic
 
 /-!
 # Forward saturated sheets
 
-This module records the geometric data that a full forward sheet would have to
-provide before an integration-by-parts argument can be attempted.  In
+This module first extracts an honest positive cross-section from the local
+forward branch, and records the geometric data that a full forward sheet would
+have to provide before an integration-by-parts argument can be attempted.  In
 particular, both ends of every flow interval are explicit: the upper end
 escapes, while the lower end is either `-∞` or a finite escaping end.
 
@@ -27,6 +29,94 @@ open Filter MvPolynomial Set
 open scoped ContDiff EReal Topology
 
 namespace ExoticCCR
+
+/-- A positive constant-`τ` cross-section cut out of a local forward branch.
+
+Its transverse set is the slice on which `(x, τ₀)` remains in the branch
+domain.  The associated positive number `ε₀ = τ₀²` is the distance in the
+anchor `s` coordinate from the wall. -/
+structure ForwardBranchCrossSection where
+  O : ForwardBranchOpen
+  τ₀ : ℝ
+  τ₀_pos : 0 < τ₀
+  W : Set (ℝ × ℝ)
+  W_eq : W = {x | (x, τ₀) ∈ O.W}
+  isOpen_W : IsOpen W
+  nonempty_W : W.Nonempty
+
+namespace ForwardBranchCrossSection
+
+/-- The positive wall offset of a branch cross-section. -/
+def ε₀ (S : ForwardBranchCrossSection) : ℝ := S.τ₀ ^ 2
+
+/-- The branch point over a transverse cross-section parameter. -/
+def qSigma (S : ForwardBranchCrossSection) (x : ℝ × ℝ) : R3 :=
+  S.O.germ.branchMap (x, S.τ₀)
+
+/-- The cross-section offset is strictly positive. -/
+theorem ε₀_pos (S : ForwardBranchCrossSection) : 0 < S.ε₀ := by
+  exact sq_pos_of_pos S.τ₀_pos
+
+/-- The chosen positive branch parameter is the square root of its offset. -/
+theorem sqrt_ε₀ (S : ForwardBranchCrossSection) : Real.sqrt S.ε₀ = S.τ₀ := by
+  rw [ε₀, Real.sqrt_sq_eq_abs, abs_of_pos S.τ₀_pos]
+
+/-- The anchor map takes the cross-section to `s = β - ε₀`. -/
+theorem evalMap_qSigma (S : ForwardBranchCrossSection) {x : ℝ × ℝ}
+    (hx : x ∈ S.W) :
+    evalMap (F ℝ) (S.qSigma x) =
+      ![x.1, S.O.germ.β x - S.ε₀, x.2] := by
+  have hx' : (x, S.τ₀) ∈ S.O.W := by simpa [S.W_eq] using hx
+  simpa [qSigma, ε₀, ForwardBranchGerm.sCoord] using S.O.evalMap_branch hx'
+
+/-- The cross-section map is smooth on its transverse open set. -/
+theorem contDiffOn_qSigma (S : ForwardBranchCrossSection) :
+    ContDiffOn ℝ ⊤ S.qSigma S.W := by
+  intro x hx
+  have hx' : (x, S.τ₀) ∈ S.O.W := by simpa [S.W_eq] using hx
+  have hb : ContDiffAt ℝ ⊤ S.O.germ.branchMap (x, S.τ₀) :=
+    (S.O.contDiff_branchMap (x, S.τ₀) hx').contDiffAt
+      (S.O.isOpen_W.mem_nhds hx')
+  have hi : ContDiffAt ℝ ⊤ (fun y : ℝ × ℝ => (y, S.τ₀)) x := by fun_prop
+  exact (hb.comp x hi).contDiffWithinAt
+
+/-- Distinct transverse parameters give distinct cross-section points. -/
+theorem injOn_qSigma (S : ForwardBranchCrossSection) :
+    Set.InjOn S.qSigma S.W := by
+  intro x hx y hy hxy
+  have hx' : (x, S.τ₀) ∈ S.O.W := by simpa [S.W_eq] using hx
+  have hy' : (y, S.τ₀) ∈ S.O.W := by simpa [S.W_eq] using hy
+  have hp := S.O.branchMap_injOn_Wpos
+    (show (x, S.τ₀) ∈ S.O.Wpos from ⟨hx', S.τ₀_pos⟩)
+    (show (y, S.τ₀) ∈ S.O.Wpos from ⟨hy', S.τ₀_pos⟩) hxy
+  exact congrArg Prod.fst hp
+
+end ForwardBranchCrossSection
+
+/-- Every local forward branch contains a nonempty positive constant-`τ`
+cross-section.  This is the rigorous cross-section step; it does not assert a
+maximal flow extension or either lower-end alternative. -/
+theorem ForwardBranchOpen.exists_crossSection (O : ForwardBranchOpen) :
+    Nonempty ForwardBranchCrossSection := by
+  obtain ⟨p, hpW, hpτ⟩ := O.nonempty_Wpos
+  let W : Set (ℝ × ℝ) := {x | (x, p.2) ∈ O.W}
+  have hWopen : IsOpen W := by
+    exact O.isOpen_W.preimage (by fun_prop : Continuous fun x : ℝ × ℝ => (x, p.2))
+  have hp1 : p.1 ∈ W := by simpa [W] using hpW
+  exact ⟨⟨O, p.2, hpτ, W, rfl, hWopen, ⟨p.1, hp1⟩⟩⟩
+
+/-- Picard--Lindelöf gives a two-sided local `X1` trajectory through every
+point of the extracted cross-section.  The interval radius may depend on the
+transverse parameter; this theorem is therefore local-flow existence, not a
+uniform product collar and not a maximal saturated sheet. -/
+theorem ForwardBranchCrossSection.exists_localFlowLine
+    (S : ForwardBranchCrossSection) (x : ℝ × ℝ) (_hx : x ∈ S.W) :
+    ∃ α : ℝ → R3, α 0 = S.qSigma x ∧ ∃ δ > 0,
+      ∀ t ∈ Ioo (-δ) δ, HasDerivAt α (X1 (α t)) t := by
+  have hX : ContDiffAt ℝ 1 X1 (S.qSigma x) :=
+    (contDiff_X1.of_le (by simp : (1 : WithTop ℕ∞) ≤ ⊤)).contDiffAt
+  simpa only [zero_sub, zero_add] using
+    hX.exists_forall_mem_closedBall_exists_eq_forall_mem_Ioo_hasDerivAt₀ 0
 
 /-- A full forward flow sheet, including the endpoint data needed to account
 for every boundary term in a future integration-by-parts proof.

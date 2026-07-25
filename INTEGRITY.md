@@ -66,10 +66,14 @@ the historical B5 algebraic core.
     extension `uMinus` is measurable and represents a nonzero vector in ambient `L²(ℝ³)`. Its
     pullback along a vertical parameter line inside the positive open branch has derivative
     `-2τ uMinus`. The global weak-adjoint identity and operator conclusions are not asserted.
-16. **T0.F saturated-sheet interface (definition-level infrastructure).** `ForwardSaturatedSheet`
-    records the full interval-bundle, smooth injective flow parameterization, exact anchor
-    evaluation, `X1` integral-curve, upper-escape, and lower-end conditions that would be needed
-    before discarding endpoint terms. No inhabitant of this structure is asserted.
+16. **T0.F cross-section and saturation infrastructure.** Every `ForwardBranchOpen` contains a
+    smooth injective positive constant-`τ` cross-section. Its offset `ε₀=τ₀²` is positive and its
+    anchor value is exactly `(a, β(a,c)-ε₀, c)`. Picard--Lindelöf supplies a two-sided local `X1`
+    trajectory through each cross-section point, with a radius that may depend on that point.
+    `ForwardSaturatedSheet` separately records the full interval-bundle, smooth injective flow
+    parameterization, exact anchor evaluation, `X1` integral-curve, upper-escape, and lower-end
+    conditions that would be needed before discarding endpoint terms. No inhabitant of this
+    structure is asserted.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
 one-dimensional real-analysis consequences. They do not constitute all of Program B.
@@ -91,9 +95,11 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - A global A001 Theorem F sheet or measure-`1/2` conclusion, a concrete `Dom(H*)`
   vector satisfying the weak deficiency identity, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
-- That the current `ForwardBranchOpen` collar extends to a `ForwardSaturatedSheet`. Its local
-  `s = β-τ²` parameter domain is not proved to contain full flow intervals, and no theorem controls
-  its other endpoint. Consequently no integration-by-parts boundary term is dropped here.
+- That the current `ForwardBranchOpen` collar extends to a uniform product flow collar or a
+  `ForwardSaturatedSheet`. The proved local-flow lifetime is point-dependent; no maximal interval
+  or `lower_ok` escape alternative is constructed. Its local `s = β-τ²` parameter domain is not
+  proved to contain full flow intervals, and no theorem controls its other endpoint. Consequently
+  no integration-by-parts boundary term is dropped here.
 - Full B001, B6/B7 analytic classification, von Neumann algebra (`vNa`) conclusions, or any
   operator realization derived from the B5 algebraic slice.
 - Experimental, hardware, or metrology claims.
