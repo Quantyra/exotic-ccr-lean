@@ -592,4 +592,15 @@ theorem ForwardBranchOpen.tendsto_norm_branchMap_at_base (O : ForwardBranchOpen)
   exact_mod_cast Finset.le_sup (f := fun b ↦ ‖O.germ.branchMap p b‖₊)
     (Finset.mem_univ (0 : Fin 3))
 
+/-- Near the wall base within the positive sheet, the escaping reconstruction
+eventually avoids every compact subset of the ambient space. -/
+theorem ForwardBranchOpen.eventually_branchMap_not_mem_compact
+    (O : ForwardBranchOpen) {K : Set (Fin 3 → ℝ)} (hK : IsCompact K) :
+    ∀ᶠ p in 𝓝[O.Wpos] (((0, 2), 0) : (ℝ × ℝ) × ℝ),
+      O.germ.branchMap p ∉ K := by
+  obtain ⟨C, hC⟩ := hK.isBounded.exists_norm_le
+  filter_upwards [O.tendsto_norm_branchMap_at_base (Ioi_mem_atTop C)] with p hp
+  intro hpK
+  exact (not_le_of_gt hp) (hC _ hpK)
+
 end ExoticCCR
