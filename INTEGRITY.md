@@ -61,9 +61,9 @@ the historical B5 algebraic core.
     The positive branch domain and its image are measurable, the standard-coordinate branch
     Jacobian is exactly `|τ|`, and mathlib's Jacobian theorem gives the displayed change-of-variables
     identity for the squared norm of `uMinus` on the image. For continuous compactly supported `χ`,
-    the squared norm of `deficiencyDensity` is integrable on the full parameter space and on `Wpos`,
-    and the density is `MemLp` at exponent 2 on the full parameter space. Ambient `MemLp` for
-    `uMinus`, adjoint-domain, and operator conclusions are not asserted.
+    the squared norm of `deficiencyDensity` and its required `|τ|`-weighted form are integrable on
+    the relevant parameter domains. The zero extension `uMinus` is measurable and `MemLp` at
+    exponent 2 in ambient `L²(ℝ³)`. Adjoint-domain and operator conclusions are not asserted.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
 one-dimensional real-analysis consequences. They do not constitute all of Program B.
@@ -80,9 +80,8 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
   test-function domain is proved dense, the repository does not prove transport necessity or
   construct a nonzero vector in `Dom(H*)` satisfying `H* u = ±i u`. Incompleteness alone is not
   claimed to imply the operator conclusion.
-- A global A001 Theorem F sheet or measure-`1/2` conclusion, ambient `MemLp` for the defined
-  candidate `uMinus`, a concrete `Dom(H*)`
-  vector, and all
+- A global A001 Theorem F sheet or measure-`1/2` conclusion, a concrete `Dom(H*)`
+  vector satisfying the weak deficiency identity, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
 - Full B001, B6/B7 analytic classification, von Neumann algebra (`vNa`) conclusions, or any
   operator realization derived from the B5 algebraic slice.

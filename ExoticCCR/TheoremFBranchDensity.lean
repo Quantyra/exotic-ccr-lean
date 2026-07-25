@@ -15,8 +15,8 @@ import Mathlib.MeasureTheory.Integral.Prod
 
 This module records the absolute algebraic Jacobian value of the anchor map and
 defines the candidate deficiency density on the positive forward branch.  It
-does not assert a change-of-variables theorem, ambient `L²` membership, or an
-adjoint-domain statement.
+proves the required change-of-variables and ambient `L²` estimates, but does
+not assert an adjoint-domain statement.
 -/
 
 noncomputable section
@@ -47,6 +47,24 @@ def paramToFin3 : ((ℝ × ℝ) × ℝ) ≃L[ℝ] (Fin 3 → ℝ) :=
         intro r p
         funext i
         fin_cases i <;> rfl }
+
+/-- The standard-coordinate identification preserves Lebesgue volume. -/
+theorem measurePreserving_paramToFin3_symm :
+    MeasurePreserving paramToFin3.symm
+      (volume : Measure (Fin 3 → ℝ)) (volume : Measure ((ℝ × ℝ) × ℝ)) := by
+  let hsplit : MeasurePreserving
+      (MeasurableEquiv.piFinSuccAbove (fun _ : Fin 3 => ℝ) (2 : Fin 3))
+      (volume : Measure (Fin 3 → ℝ))
+      (volume : Measure (ℝ × (Fin 2 → ℝ))) :=
+    volume_preserving_piFinSuccAbove (fun _ : Fin 3 => ℝ) (2 : Fin 3)
+  let hswap : MeasurePreserving (Prod.swap : ℝ × (Fin 2 → ℝ) → (Fin 2 → ℝ) × ℝ) :=
+    Measure.measurePreserving_swap
+  let hpair := (volume_preserving_finTwoArrow ℝ).prod
+    (MeasurePreserving.id (volume : Measure ℝ))
+  have h := hpair.comp (hswap.comp hsplit)
+  refine h.congr paramToFin3.symm.continuous.measurable ?_
+  filter_upwards with v
+  ext <;> simp [paramToFin3, Fin.removeNth_apply, Fin.succAbove]
 
 /-- A parameter-space map transported to standard `Fin 3` coordinates. -/
 def asFin3Map (g : ((ℝ × ℝ) × ℝ) → Fin 3 → ℝ) :
@@ -457,5 +475,156 @@ theorem ForwardBranchOpen.lintegral_sq_norm_uMinus_image_eq
   congr 1
   simpa [asFin3Map] using congrArg (fun z => ‖z‖ₑ ^ 2)
     (O.uMinus_on_image χ hp)
+
+/-- The Jacobian-weighted squared deficiency density is integrable on the full
+standard parameter space. -/
+theorem ForwardBranchOpen.integrable_weighted_deficiencyDensity
+    (O : ForwardBranchOpen) (χ : ℝ × ℝ → ℂ)
+    (hχ : Continuous χ) (hχc : HasCompactSupport χ) :
+    Integrable (fun v : Fin 3 → ℝ =>
+      |v 2| * ‖O.deficiencyDensity χ (paramToFin3.symm v)‖ ^ 2) volume := by
+  have hχ2 : Integrable (fun x : ℝ × ℝ => ‖χ x‖ ^ 2)
+      (volume : Measure (ℝ × ℝ)) :=
+    (memLp_two_iff_integrable_sq_norm hχ.aestronglyMeasurable).mp
+      (hχ.memLp_of_hasCompactSupport hχc)
+  have hτ : Integrable
+      (fun τ : ℝ => |τ| * ‖Complex.exp (-(τ : ℂ) ^ 2)‖ ^ 2) := by
+    convert (integrable_mul_exp_neg_mul_sq (b := 2) (by norm_num)).norm using 1
+    ext τ
+    rw [norm_mul, Real.norm_eq_abs, Real.norm_of_nonneg (Real.exp_pos _).le,
+      Complex.norm_exp, pow_two, ← Real.exp_add]
+    congr 2
+    have hre : ((τ : ℂ) ^ 2).re = τ ^ 2 := by
+      norm_num [pow_two, Complex.mul_re]
+    rw [Complex.neg_re, hre]
+    ring
+  have hp : Integrable (fun p : (ℝ × ℝ) × ℝ =>
+      ‖χ p.1‖ ^ 2 * (|p.2| * ‖Complex.exp (-(p.2 : ℂ) ^ 2)‖ ^ 2)) := by
+    rw [Measure.volume_eq_prod]
+    exact hχ2.mul_prod hτ
+  have hi := (measurePreserving_paramToFin3_symm.integrable_comp_emb
+    paramToFin3.symm.toHomeomorph.measurableEmbedding
+    (g := fun p : (ℝ × ℝ) × ℝ =>
+      ‖χ p.1‖ ^ 2 * (|p.2| * ‖Complex.exp (-(p.2 : ℂ) ^ 2)‖ ^ 2))).mpr hp
+  convert hi using 1
+  ext v
+  simp [paramToFin3, Function.comp_apply, ForwardBranchOpen.deficiencyDensity,
+    mul_pow, mul_left_comm, mul_comm]
+
+/-- The Jacobian-weighted squared deficiency density is integrable on the
+positive standard-coordinate branch domain. -/
+theorem ForwardBranchOpen.integrableOn_weighted_deficiencyDensity
+    (O : ForwardBranchOpen) (χ : ℝ × ℝ → ℂ)
+    (hχ : Continuous χ) (hχc : HasCompactSupport χ) :
+    IntegrableOn (fun v : Fin 3 → ℝ =>
+      |v 2| * ‖O.deficiencyDensity χ (paramToFin3.symm v)‖ ^ 2)
+      O.WposFin3 volume :=
+  (O.integrable_weighted_deficiencyDensity χ hχ hχc).integrableOn
+
+/-- The weighted `ENNReal` integral occurring in branch change of variables is finite. -/
+theorem ForwardBranchOpen.lintegral_weighted_lt_top
+    (O : ForwardBranchOpen) (χ : ℝ × ℝ → ℂ)
+    (hχ : Continuous χ) (hχc : HasCompactSupport χ) :
+    ∫⁻ v in O.WposFin3, ENNReal.ofReal |v 2| *
+        ENNReal.ofReal (‖O.deficiencyDensity χ (paramToFin3.symm v)‖ ^ 2) ∂volume < ∞ := by
+  simp_rw [← ENNReal.ofReal_mul (abs_nonneg _)]
+  apply (hasFiniteIntegral_iff_ofReal ?_).mp
+    (O.integrableOn_weighted_deficiencyDensity χ hχ hχc).hasFiniteIntegral
+  filter_upwards
+  exact fun v => mul_nonneg (abs_nonneg _) (sq_nonneg _)
+
+/-- The standard-coordinate positive branch restriction is a measurable embedding. -/
+theorem ForwardBranchOpen.measurableEmbedding_asFin3Map_branchMap_WposFin3
+    (O : ForwardBranchOpen) :
+    MeasurableEmbedding (O.WposFin3.restrict (asFin3Map O.germ.branchMap)) :=
+  measurableEmbedding_of_fderivWithin O.measurableSet_WposFin3
+    (fun _ hv => O.hasFDerivWithinAt_asFin3Map_WposFin3 hv)
+    O.asFin3Map_injOn_WposFin3
+
+/-- The branch-supported zero extension is measurable. -/
+theorem ForwardBranchOpen.measurable_uMinus (O : ForwardBranchOpen)
+    (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ) : Measurable (O.uMinus χ) := by
+  classical
+  by_cases hW : O.Wpos.Nonempty
+  · obtain ⟨p0, hp0⟩ := hW
+    letI : Nonempty O.WposFin3 := ⟨⟨paramToFin3 p0, by
+      simpa [ForwardBranchOpen.WposFin3] using hp0⟩⟩
+    let e := O.measurableEmbedding_asFin3Map_branchMap_WposFin3
+    let g : (Fin 3 → ℝ) → ℂ := fun q =>
+      O.deficiencyDensity χ (paramToFin3.symm (e.invFun q).1)
+    have hg : Measurable g := by
+      have hinv : Measurable (fun q => paramToFin3.symm (e.invFun q).1) :=
+        paramToFin3.symm.continuous.measurable.comp
+          (measurable_subtype_coe.comp e.measurable_invFun)
+      apply Measurable.mul
+      · exact hχ.measurable.comp (measurable_fst.comp hinv)
+      · apply Complex.measurable_exp.comp
+        exact ((Complex.measurable_ofReal.comp
+          (measurable_snd.comp hinv)).pow_const 2).neg
+    have heq : O.uMinus χ = Set.piecewise (O.germ.branchMap '' O.Wpos) g 0 := by
+      funext q
+      by_cases hq : q ∈ O.germ.branchMap '' O.Wpos
+      · rcases hq with ⟨p, hp, rfl⟩
+        rw [O.uMinus_on_image χ hp]
+        have himg : O.germ.branchMap p ∈ O.germ.branchMap '' O.Wpos := ⟨p, hp, rfl⟩
+        rw [Set.piecewise_eq_of_mem _ _ _ himg]
+        have hv : paramToFin3 p ∈ O.WposFin3 := by
+          simpa [ForwardBranchOpen.WposFin3]
+        have heval : asFin3Map O.germ.branchMap (paramToFin3 p) =
+            O.germ.branchMap p := by simp [asFin3Map]
+        change O.deficiencyDensity χ p =
+          O.deficiencyDensity χ (paramToFin3.symm (e.invFun (O.germ.branchMap p)).1)
+        rw [← heval, show e.invFun (asFin3Map O.germ.branchMap (paramToFin3 p)) =
+          ⟨paramToFin3 p, hv⟩ from e.leftInverse_invFun ⟨paramToFin3 p, hv⟩]
+        simp
+      · rw [O.uMinus_off_image χ hq]
+        simp [Set.piecewise, hq]
+    rw [heq]
+    exact hg.piecewise O.measurableSet_image_branchMap_Wpos measurable_const
+  · have hEmpty : O.Wpos = ∅ := not_nonempty_iff_eq_empty.mp hW
+    rw [show O.uMinus χ = 0 by
+      funext q
+      simp [ForwardBranchOpen.uMinus, hEmpty]]
+    exact measurable_const
+
+/-- The branch-supported zero extension is strongly measurable almost everywhere. -/
+theorem ForwardBranchOpen.aestronglyMeasurable_uMinus (O : ForwardBranchOpen)
+    (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ) :
+    AEStronglyMeasurable (O.uMinus χ) volume :=
+  (O.measurable_uMinus χ hχ).aestronglyMeasurable
+
+/-- The ambient squared-norm integral of the branch-supported candidate is finite. -/
+theorem ForwardBranchOpen.lintegral_sq_norm_uMinus_lt_top
+    (O : ForwardBranchOpen) (χ : ℝ × ℝ → ℂ)
+    (hχ : Continuous χ) (hχc : HasCompactSupport χ) :
+    ∫⁻ q : Fin 3 → ℝ, ENNReal.ofReal (‖O.uMinus χ q‖ ^ 2) ∂volume < ∞ := by
+  let S := O.germ.branchMap '' O.Wpos
+  let f : (Fin 3 → ℝ) → ℝ≥0∞ := fun q => ENNReal.ofReal (‖O.uMinus χ q‖ ^ 2)
+  have hind : S.indicator f = f := by
+    funext q
+    by_cases hq : q ∈ S
+    · simp [hq]
+    · simp [Set.indicator, hq, f, S, O.uMinus_off_image χ hq]
+  calc
+    ∫⁻ q, ENNReal.ofReal (‖O.uMinus χ q‖ ^ 2) ∂volume = ∫⁻ q, f q ∂volume := rfl
+    _ = ∫⁻ q, S.indicator f q ∂volume := by rw [hind]
+    _ = ∫⁻ q in S, f q ∂volume :=
+      lintegral_indicator O.measurableSet_image_branchMap_Wpos f
+    _ = ∫⁻ v in O.WposFin3, ENNReal.ofReal |v 2| *
+        ENNReal.ofReal (‖O.deficiencyDensity χ (paramToFin3.symm v)‖ ^ 2) ∂volume :=
+      O.lintegral_sq_norm_uMinus_image_eq χ
+    _ < ∞ := O.lintegral_weighted_lt_top χ hχ hχc
+
+/-- The branch-supported candidate belongs to ambient `L²(ℝ³)`. -/
+theorem ForwardBranchOpen.memLp_uMinus (O : ForwardBranchOpen)
+    (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ) (hχc : HasCompactSupport χ) :
+    MemLp (O.uMinus χ) 2 volume := by
+  apply (memLp_two_iff_integrable_sq_norm
+    (O.aestronglyMeasurable_uMinus χ hχ)).mpr
+  refine ⟨((O.measurable_uMinus χ hχ).norm.pow_const 2).aestronglyMeasurable, ?_⟩
+  apply (hasFiniteIntegral_iff_ofReal ?_).mpr
+    (O.lintegral_sq_norm_uMinus_lt_top χ hχ hχc)
+  filter_upwards
+  exact fun q => sq_nonneg ‖O.uMinus χ q‖
 
 end ExoticCCR
