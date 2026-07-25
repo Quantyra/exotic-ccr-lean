@@ -6,6 +6,7 @@ Authors: Daniel Eric Fredriksen
 import ExoticCCR.TransportOperator
 import Mathlib.Analysis.Normed.Lp.SmoothApprox
 import Mathlib.MeasureTheory.Function.LpSpace.Indicator
+import Mathlib.MeasureTheory.Measure.OpenPos
 
 /-!
 # The canonical minimal transport core
@@ -19,7 +20,7 @@ silently imported as an analytic axiom.
 noncomputable section
 
 open MeasureTheory Set TopologicalSpace
-open scoped Distributions ENNReal
+open scoped Distributions ENNReal Topology
 
 namespace ExoticCCR
 
@@ -44,6 +45,62 @@ def testFunctionToL2 : CcinftyR3 →ₗ[ℂ] L2R3 where
 theorem testFunctionToL2_apply (φ : CcinftyR3) :
     testFunctionToL2 φ = (testFunctionMemLp φ).toLp (φ : R3 → ℂ) :=
   rfl
+
+/-- The `L²` inner product of two chosen representatives is the integral of
+their pointwise inner product, using mathlib's convention that the first
+argument is conjugate-linear. -/
+theorem inner_toLp_toLp_eq_integral {f g : R3 → ℂ}
+    (hf : MemLp f 2 (volume : Measure R3)) (hg : MemLp g 2 (volume : Measure R3)) :
+    inner ℂ (hf.toLp f) (hg.toLp g) = ∫ q : R3, inner ℂ (f q) (g q) ∂volume := by
+  rw [MeasureTheory.L2.inner_def]
+  apply integral_congr_ae
+  filter_upwards [hf.coeFn_toLp, hg.coeFn_toLp] with q hfq hgq
+  simp [hfq, hgq]
+
+/-- Inner product against an embedded test function, exposed as an integral
+over the selected `L²` representative. -/
+theorem inner_toLp_testFunctionToL2_eq_integral {f : R3 → ℂ}
+    (hf : MemLp f 2 (volume : Measure R3)) (φ : CcinftyR3) :
+    inner ℂ (hf.toLp f) (testFunctionToL2 φ) =
+      ∫ q : R3, inner ℂ (f q) (φ q) ∂volume := by
+  simpa [testFunctionToL2_apply] using
+    inner_toLp_toLp_eq_integral hf (testFunctionMemLp φ)
+
+/-- Inner product of an embedded test function against a selected `L²`
+representative, exposed as a representative integral. -/
+theorem inner_testFunctionToL2_toLp_eq_integral {f : R3 → ℂ}
+    (hf : MemLp f 2 (volume : Measure R3)) (φ : CcinftyR3) :
+    inner ℂ (testFunctionToL2 φ) (hf.toLp f) =
+      ∫ q : R3, inner ℂ (φ q) (f q) ∂volume := by
+  simpa [testFunctionToL2_apply] using
+    inner_toLp_toLp_eq_integral (testFunctionMemLp φ) hf
+
+/-- A continuous representative that is nonzero at some point gives a nonzero
+`L²` class. -/
+theorem toLp_ne_zero_of_continuous_exists_ne {f : R3 → ℂ}
+    (hf : MemLp f 2 (volume : Measure R3)) (hfc : Continuous f)
+    (hne : ∃ q : R3, f q ≠ 0) :
+    hf.toLp f ≠ 0 := by
+  rintro hzero
+  rw [MeasureTheory.Lp.eq_zero_iff_ae_eq_zero] at hzero
+  obtain ⟨q, hq⟩ := hne
+  have hfae : f =ᵐ[volume] 0 := hf.coeFn_toLp.symm.trans hzero
+  have hzeroMeasure : volume {x : R3 | f x ≠ 0} = 0 := by
+    simpa only [Pi.zero_apply, ne_eq] using (ae_iff.mp hfae)
+  have hne_nhds : {x : R3 | f x ≠ 0} ∈ 𝓝 q :=
+    hfc.continuousAt.eventually_ne hq
+  have hpos : 0 < volume {x : R3 | f x ≠ 0} :=
+    Measure.measure_pos_of_mem_nhds (μ := volume) hne_nhds
+  exact hpos.ne' hzeroMeasure
+
+/-- A representative that is not almost everywhere zero gives a nonzero `L²`
+class. -/
+theorem toLp_ne_zero_of_not_ae_eq_zero {f : R3 → ℂ}
+    (hf : MemLp f 2 (volume : Measure R3)) (hne : ¬ f =ᵐ[volume] 0) :
+    hf.toLp f ≠ 0 := by
+  rintro hzero
+  rw [MeasureTheory.Lp.eq_zero_iff_ae_eq_zero] at hzero
+  exact hne (hf.coeFn_toLp.symm.trans hzero)
 
 /-- The canonical test-function embedding into `L²(ℝ³)` is injective. -/
 theorem testFunctionToL2_injective : Function.Injective testFunctionToL2 :=

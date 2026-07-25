@@ -5,6 +5,7 @@ Authors: Daniel Eric Fredriksen
 -/
 import ExoticCCR.TheoremFForwardBranch
 import ExoticCCR.TheoremFJacobianFDeriv
+import Mathlib.Analysis.Calculus.BumpFunction.FiniteDimension
 import Mathlib.Analysis.SpecialFunctions.Gaussian.GaussianIntegral
 import Mathlib.MeasureTheory.Function.Jacobian
 import Mathlib.MeasureTheory.Function.L2Space
@@ -382,6 +383,41 @@ theorem ForwardBranchOpen.lintegral_image_branchMap_eq
 def ForwardBranchOpen.deficiencyDensity (_O : ForwardBranchOpen)
     (χ : ℝ × ℝ → ℂ) (p : (ℝ × ℝ) × ℝ) : ℂ :=
   χ p.1 * Complex.exp (-p.2 ^ 2)
+
+/-- There are nonzero continuous compactly supported complex cutoffs on the
+branch base coordinates. -/
+theorem exists_continuous_hasCompactSupport_nonzero_baseCutoff :
+    ∃ χ : ℝ × ℝ → ℂ, Continuous χ ∧ HasCompactSupport χ ∧ χ ≠ 0 := by
+  let c : ℝ × ℝ := (0, 2)
+  let b : ContDiffBump c := ⟨1, 2, zero_lt_one, one_lt_two⟩
+  refine ⟨fun x => (b x : ℂ), ?_, ?_, ?_⟩
+  · exact Complex.continuous_ofReal.comp b.continuous
+  · exact b.hasCompactSupport.comp_left (g := fun r : ℝ => (r : ℂ)) Complex.ofReal_zero
+  · intro hzero
+    have hcenter := congrFun hzero c
+    have hb : b c = 1 := b.one_of_mem_closedBall
+      (Metric.mem_closedBall_self b.rIn_pos.le)
+    rw [hb] at hcenter
+    norm_num at hcenter
+
+/-- The candidate density satisfies the expected Gaussian differential in the
+positive-branch time coordinate. -/
+theorem ForwardBranchOpen.hasDerivAt_deficiencyDensity_tau (O : ForwardBranchOpen)
+    (χ : ℝ × ℝ → ℂ) (x : ℝ × ℝ) (τ : ℝ) :
+    HasDerivAt (fun t : ℝ => O.deficiencyDensity χ (x, t))
+      (((-2 * τ : ℝ) : ℂ) * O.deficiencyDensity χ (x, τ)) τ := by
+  unfold ForwardBranchOpen.deficiencyDensity
+  have hsq : HasDerivAt (-((fun t : ℝ => (t : ℂ)) * (fun t : ℝ => (t : ℂ))))
+      (((-2 * τ : ℝ) : ℂ)) τ := by
+    have hcast : HasDerivAt (fun t : ℝ => (t : ℂ)) (1 : ℂ) τ := by
+      simpa using (hasDerivAt_id (x := τ)).ofReal_comp
+    have hpow : HasDerivAt ((fun t : ℝ => (t : ℂ)) * (fun t : ℝ => (t : ℂ)))
+        (2 * (τ : ℂ)) τ := by
+      simpa [pow_two, two_mul] using hcast.mul hcast
+    simpa [two_mul] using hpow.neg
+  simpa [pow_two, mul_assoc, mul_left_comm, mul_comm] using
+    ((Complex.hasDerivAt_exp ((-((fun t : ℝ => (t : ℂ)) *
+      (fun t : ℝ => (t : ℂ)))) τ)).comp τ hsq).const_mul (χ x)
 
 /-- The squared norm of the parameter-space deficiency density is integrable.
 This is an ambient parameter-space estimate; restricting it to `Wpos` is an

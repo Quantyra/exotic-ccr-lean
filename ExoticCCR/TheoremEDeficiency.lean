@@ -18,6 +18,7 @@ not derive it from incompleteness.
 
 noncomputable section
 
+open MeasureTheory
 open scoped LinearPMap
 
 namespace ExoticCCR
@@ -34,6 +35,44 @@ def X1ForwardWeakDeficiencyStatement : Prop :=
     WeakAdjointEigenvector
       (minimalTransportCore X1 contDiff_X1.continuous)
       (-Complex.I) u
+
+/-- It is enough to verify the weak `-i` identity on every embedded test
+function. -/
+theorem weakAdjoint_negI_of_test {u : L2R3}
+    (h : ∀ φ : CcinftyR3,
+      inner ℂ ((-Complex.I) • u) (testFunctionToL2 φ) =
+        inner ℂ u (transportAction X1 contDiff_X1.continuous φ)) :
+    WeakAdjointEigenvector
+      (minimalTransportCore X1 contDiff_X1.continuous)
+      (-Complex.I) u := by
+  intro x
+  have hxRange : (x : L2R3) ∈ LinearMap.range testFunctionToL2 := by
+    rw [← minimalTransportCore_domain X1 contDiff_X1.continuous]
+    exact x.property
+  rcases hxRange with ⟨φ, hφ⟩
+  have hx : x =
+      ⟨testFunctionToL2 φ, by
+        rw [minimalTransportCore_domain X1 contDiff_X1.continuous]
+        exact LinearMap.mem_range_self testFunctionToL2 φ⟩ := by
+    exact Subtype.ext hφ.symm
+  subst x
+  simpa [minimalTransportCore_apply] using h φ
+
+/-- Representative-integral form of the weak `-i` reduction.  The remaining
+analytic obligation is exactly the displayed identity for every test function. -/
+theorem weakAdjoint_negI_of_representative_integrals {f : R3 → ℂ}
+    (hf : MemLp f 2 (volume : Measure R3))
+    (h : ∀ φ : CcinftyR3,
+      inner ℂ ((-Complex.I) • hf.toLp f) (testFunctionToL2 φ) =
+        ∫ q : R3, inner ℂ (f q) (minimalTransportExpression X1 φ q) ∂volume) :
+    WeakAdjointEigenvector
+      (minimalTransportCore X1 contDiff_X1.continuous)
+      (-Complex.I) (hf.toLp f) := by
+  apply weakAdjoint_negI_of_test
+  intro φ
+  rw [h φ]
+  exact (inner_toLp_toLp_eq_integral hf
+    (transportExpressionMemLp X1 contDiff_X1.continuous φ)).symm
 
 /-- An explicit weak forward-deficiency witness supplies adjoint deficiency for
 the canonical minimal transport core. -/
