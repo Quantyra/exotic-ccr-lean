@@ -62,8 +62,10 @@ the historical B5 algebraic core.
     Jacobian is exactly `|τ|`, and mathlib's Jacobian theorem gives the displayed change-of-variables
     identity for the squared norm of `uMinus` on the image. For continuous compactly supported `χ`,
     the squared norm of `deficiencyDensity` and its required `|τ|`-weighted form are integrable on
-    the relevant parameter domains. The zero extension `uMinus` is measurable and `MemLp` at
-    exponent 2 in ambient `L²(ℝ³)`. Adjoint-domain and operator conclusions are not asserted.
+    the relevant parameter domains. A compactly supported cutoff can be chosen for which the zero
+    extension `uMinus` is measurable and represents a nonzero vector in ambient `L²(ℝ³)`. Its
+    pullback along a vertical parameter line inside the positive open branch has derivative
+    `-2τ uMinus`. The global weak-adjoint identity and operator conclusions are not asserted.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
 one-dimensional real-analysis consequences. They do not constitute all of Program B.
@@ -76,10 +78,12 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - Analytic/operator CCR realizations or exponentiated Weyl relations beyond the proved
   polynomial generator Poisson brackets and abstract polynomial Weyl-algebra endomorphism.
 - Essential self-adjointness, strong CCR/Weyl relations, C*-extension, complete positivity, or dilations.
-- Unconditional A001 Theorem E. Although the canonical minimal `L²` core is constructed and its
-  test-function domain is proved dense, the repository does not prove transport necessity or
-  construct a nonzero vector in `Dom(H*)` satisfying `H* u = ±i u`. Incompleteness alone is not
-  claimed to imply the operator conclusion.
+- Unconditional A001 Theorem E. Although the canonical minimal `L²` core is constructed, its
+  test-function domain is proved dense, and a nonzero `L²` branch candidate is now constructed,
+  the repository does not prove that candidate lies in `Dom(H*)` or satisfies `H* u = ±i u`.
+  The current local open branch has no flow-saturated boundary hypothesis that would by itself
+  eliminate all integration-by-parts boundary terms. Incompleteness alone is not claimed to imply
+  the operator conclusion.
 - A global A001 Theorem F sheet or measure-`1/2` conclusion, a concrete `Dom(H*)`
   vector satisfying the weak deficiency identity, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.

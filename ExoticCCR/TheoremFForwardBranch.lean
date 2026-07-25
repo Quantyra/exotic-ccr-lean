@@ -416,6 +416,7 @@ structure ForwardBranchOpen where
   den_ne : ∀ p ∈ W,
     wallReconstructionDenom (germ.sCoord p) p.1.2 (germ.q0 p) ≠ 0
   nonempty_W : W.Nonempty
+  nonempty_Wpos : (W ∩ {p | 0 < p.2}).Nonempty
   accumulates_base : ∀ U ∈ 𝓝 (((0, 2), 0) : (ℝ × ℝ) × ℝ), (U ∩ W).Nonempty
 
 /-- The forward branch germ admits an open positive punctured domain accumulating
@@ -444,7 +445,7 @@ theorem exists_forwardBranchOpen : Nonempty ForwardBranchOpen := by
     refine ⟨p, hpUN.1, hpUN.2, ?_⟩
     dsimp [p]
     linarith
-  refine ⟨⟨G, W, hWopen, ?_, ?_, ?_, ?_, hacc⟩⟩
+  refine ⟨⟨G, W, hWopen, ?_, ?_, ?_, ?_, ?_, hacc⟩⟩
   · intro p hp
     exact hp.1.1
   · intro p hp
@@ -452,6 +453,7 @@ theorem exists_forwardBranchOpen : Nonempty ForwardBranchOpen := by
   · intro p hp
     exact hNsub hp.1.2 hp.1.1 (ne_of_gt hp.2)
   · exact hacc Set.univ univ_mem |>.mono fun _ hp ↦ hp.2
+  · exact hacc Set.univ univ_mem |>.mono fun _ hp ↦ ⟨hp.2, hp.2.2⟩
 
 /-- The branch reconstruction is smooth on its open punctured domain. -/
 theorem ForwardBranchOpen.contDiff_branchMap (O : ForwardBranchOpen) :

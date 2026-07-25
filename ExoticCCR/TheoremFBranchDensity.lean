@@ -400,6 +400,17 @@ theorem exists_continuous_hasCompactSupport_nonzero_baseCutoff :
     rw [hb] at hcenter
     norm_num at hcenter
 
+/-- A compactly supported continuous cutoff can be chosen to equal one at any
+prescribed branch-base point. -/
+theorem exists_continuous_hasCompactSupport_baseCutoff_at (c : ℝ × ℝ) :
+    ∃ χ : ℝ × ℝ → ℂ, Continuous χ ∧ HasCompactSupport χ ∧ χ c = 1 := by
+  let b : ContDiffBump c := ⟨1, 2, zero_lt_one, one_lt_two⟩
+  refine ⟨fun x => (b x : ℂ), Complex.continuous_ofReal.comp b.continuous,
+    b.hasCompactSupport.comp_left (g := fun r : ℝ => (r : ℂ)) Complex.ofReal_zero, ?_⟩
+  change (b c : ℂ) = 1
+  rw [b.one_of_mem_closedBall (Metric.mem_closedBall_self b.rIn_pos.le)]
+  norm_num
+
 /-- The candidate density satisfies the expected Gaussian differential in the
 positive-branch time coordinate. -/
 theorem ForwardBranchOpen.hasDerivAt_deficiencyDensity_tau (O : ForwardBranchOpen)
@@ -491,6 +502,22 @@ theorem ForwardBranchOpen.uMinus_off_image (O : ForwardBranchOpen)
     O.uMinus χ q = 0 := by
   simp [uMinus, hq]
 
+/-- Along a vertical parameter line inside the open positive branch domain,
+the pullback of `uMinus` has the expected Gaussian derivative. -/
+theorem ForwardBranchOpen.hasDerivAt_uMinus_comp_branchMap_tau
+    (O : ForwardBranchOpen) (χ : ℝ × ℝ → ℂ)
+    {x : ℝ × ℝ} {τ : ℝ} (hp : (x, τ) ∈ O.Wpos) :
+    HasDerivAt (fun t : ℝ => O.uMinus χ (O.germ.branchMap (x, t)))
+      (((-2 * τ : ℝ) : ℂ) * O.uMinus χ (O.germ.branchMap (x, τ))) τ := by
+  have hline : (fun t : ℝ => (x, t)) ⁻¹' O.Wpos ∈ nhds τ :=
+    (O.isOpen_Wpos.preimage (continuous_const.prodMk continuous_id)).mem_nhds hp
+  have heq : (fun t : ℝ => O.uMinus χ (O.germ.branchMap (x, t))) =ᶠ[nhds τ]
+      (fun t : ℝ => O.deficiencyDensity χ (x, t)) := by
+    filter_upwards [hline] with t ht
+    exact O.uMinus_on_image χ ht
+  simpa only [O.uMinus_on_image χ hp] using
+    (O.hasDerivAt_deficiencyDensity_tau χ x τ).congr_of_eventuallyEq heq
+
 /-- Change of variables for the squared norm of the branch-supported candidate.
 The right-hand side displays the exact branch Jacobian `|τ|`. -/
 theorem ForwardBranchOpen.lintegral_sq_norm_uMinus_image_eq
@@ -568,6 +595,55 @@ theorem ForwardBranchOpen.lintegral_weighted_lt_top
     (O.integrableOn_weighted_deficiencyDensity χ hχ hχc).hasFiniteIntegral
   filter_upwards
   exact fun v => mul_nonneg (abs_nonneg _) (sq_nonneg _)
+
+/-- A cutoff which is nonzero at one positive branch parameter gives a strictly
+positive Jacobian-weighted square integral. -/
+theorem ForwardBranchOpen.lintegral_weighted_pos
+    (O : ForwardBranchOpen) (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ)
+    {p : (ℝ × ℝ) × ℝ} (hp : p ∈ O.Wpos) (hχp : χ p.1 ≠ 0) :
+    0 < ∫⁻ v in O.WposFin3, ENNReal.ofReal |v 2| *
+        ENNReal.ofReal (‖O.deficiencyDensity χ (paramToFin3.symm v)‖ ^ 2) ∂volume := by
+  let g : (Fin 3 → ℝ) → ℝ := fun v =>
+    |v 2| * ‖O.deficiencyDensity χ (paramToFin3.symm v)‖ ^ 2
+  let f : (Fin 3 → ℝ) → ℝ≥0∞ := fun v => ENNReal.ofReal |v 2| *
+    ENNReal.ofReal (‖O.deficiencyDensity χ (paramToFin3.symm v)‖ ^ 2)
+  let v0 := paramToFin3 p
+  have hv0 : v0 ∈ O.WposFin3 := by
+    simpa [v0, ForwardBranchOpen.WposFin3]
+  have hτ : 0 < p.2 := hp.2
+  have hdens : O.deficiencyDensity χ p ≠ 0 := by
+    simp only [ForwardBranchOpen.deficiencyDensity, mul_ne_zero_iff]
+    exact ⟨hχp, Complex.exp_ne_zero _⟩
+  have hg0 : 0 < g v0 := by
+    apply mul_pos
+    · simpa [v0, paramToFin3] using abs_pos.mpr (ne_of_gt hτ)
+    · exact sq_pos_of_pos (norm_pos_iff.mpr (by simpa [v0] using hdens))
+  have hg : Continuous g := by
+    unfold g ForwardBranchOpen.deficiencyDensity
+    fun_prop
+  let N : Set (Fin 3 → ℝ) := O.WposFin3 ∩ {v | 0 < g v}
+  have hNopen : IsOpen N := O.isOpen_WposFin3.inter (isOpen_lt continuous_const hg)
+  have hvN : v0 ∈ N := ⟨hv0, hg0⟩
+  have hNpos : 0 < volume N := hNopen.measure_pos volume ⟨v0, hvN⟩
+  have hf : Measurable f := by
+    unfold f ForwardBranchOpen.deficiencyDensity
+    fun_prop
+  have hsub : N ⊆ Function.support f ∩ O.WposFin3 := by
+    intro v hv
+    refine ⟨?_, hv.1⟩
+    have hgv : 0 < g v := hv.2
+    have hvτ : 0 < |v 2| := by
+      by_contra h
+      have hz : |v 2| = 0 := le_antisymm (not_lt.mp h) (abs_nonneg _)
+      simp [g, hz] at hgv
+    have hd : 0 < ‖O.deficiencyDensity χ (paramToFin3.symm v)‖ ^ 2 := by
+      by_contra h
+      have hz := le_antisymm (not_lt.mp h) (sq_nonneg _)
+      simp [g, hz] at hgv
+    simp only [Function.mem_support, f, ne_eq, mul_eq_zero, ENNReal.ofReal_eq_zero]
+    exact not_or_intro (not_le.mpr hvτ) (not_le.mpr hd)
+  apply (setLIntegral_pos_iff hf).mpr
+  exact lt_of_lt_of_le hNpos (measure_mono hsub)
 
 /-- The standard-coordinate positive branch restriction is a measurable embedding. -/
 theorem ForwardBranchOpen.measurableEmbedding_asFin3Map_branchMap_WposFin3
@@ -662,5 +738,43 @@ theorem ForwardBranchOpen.memLp_uMinus (O : ForwardBranchOpen)
     (O.lintegral_sq_norm_uMinus_lt_top χ hχ hχc)
   filter_upwards
   exact fun q => sq_nonneg ‖O.uMinus χ q‖
+
+/-- Every forward branch carries a compactly supported cutoff whose zero
+extension determines a nonzero vector of ambient `L²(ℝ³)`. -/
+theorem ForwardBranchOpen.exists_nonzero_L2_uMinus (O : ForwardBranchOpen) :
+    ∃ (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ) (hχc : HasCompactSupport χ),
+      (O.memLp_uMinus χ hχ hχc).toLp (O.uMinus χ) ≠ 0 := by
+  obtain ⟨p, hp⟩ := O.nonempty_Wpos
+  obtain ⟨χ, hχ, hχc, hχp⟩ := exists_continuous_hasCompactSupport_baseCutoff_at p.1
+  refine ⟨χ, hχ, hχc, ?_⟩
+  let hu := O.memLp_uMinus χ hχ hχc
+  have hweighted := O.lintegral_weighted_pos χ hχ hp (by simpa [hχp])
+  have himage : 0 < ∫⁻ q in O.germ.branchMap '' O.Wpos,
+      ENNReal.ofReal (‖O.uMinus χ q‖ ^ 2) ∂volume := by
+    rw [O.lintegral_sq_norm_uMinus_image_eq]
+    exact hweighted
+  intro hzero
+  rw [MeasureTheory.Lp.eq_zero_iff_ae_eq_zero] at hzero
+  have huae : O.uMinus χ =ᵐ[volume] 0 := hu.coeFn_toLp.symm.trans hzero
+  have hamb : ∫⁻ q : Fin 3 → ℝ,
+      ENNReal.ofReal (‖O.uMinus χ q‖ ^ 2) ∂volume = 0 := by
+    rw [← lintegral_zero]
+    apply lintegral_congr_ae
+    filter_upwards [huae] with q hq
+    simp [hq]
+  have hz : ∫⁻ q in O.germ.branchMap '' O.Wpos,
+      ENNReal.ofReal (‖O.uMinus χ q‖ ^ 2) ∂volume = 0 := by
+    apply le_zero_iff.mp
+    exact (setLIntegral_le_lintegral _ _).trans_eq hamb
+  exact (ne_of_gt himage) hz
+
+/-- Existence form of the nonzero ambient `L²` branch candidate. -/
+theorem exists_forwardBranchOpen_nonzero_L2_uMinus :
+    ∃ (O : ForwardBranchOpen) (χ : ℝ × ℝ → ℂ)
+        (hχ : Continuous χ) (hχc : HasCompactSupport χ),
+      (O.memLp_uMinus χ hχ hχc).toLp (O.uMinus χ) ≠ 0 := by
+  obtain ⟨O⟩ := exists_forwardBranchOpen
+  obtain ⟨χ, hχ, hχc, hu⟩ := O.exists_nonzero_L2_uMinus
+  exact ⟨O, χ, hχ, hχc, hu⟩
 
 end ExoticCCR
