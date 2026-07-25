@@ -68,8 +68,9 @@ the historical B5 algebraic core.
     `-2τ uMinus`. The global weak-adjoint identity and operator conclusions are not asserted.
 16. **T0.F cross-section and saturation infrastructure.** Every `ForwardBranchOpen` contains a
     smooth injective positive constant-`τ` cross-section. Its offset `ε₀=τ₀²` is positive and its
-    anchor value is exactly `(a, β(a,c)-ε₀, c)`. Picard--Lindelöf supplies a two-sided local `X1`
-    trajectory through each cross-section point, with a radius that may depend on that point.
+    anchor value is exactly `(a, β(a,c)-ε₀, c)`. A compact transverse closed ball inside the
+    cross-section admits a common positive Picard--Lindelöf lifetime for individually selected
+    two-sided local `X1` trajectories. This is not a jointly smooth flow parameterization.
     `ForwardSaturatedSheet` separately records the full interval-bundle, smooth injective flow
     parameterization, exact anchor evaluation, `X1` integral-curve, upper-escape, and lower-end
     conditions that would be needed before discarding endpoint terms. No inhabitant of this
@@ -95,8 +96,9 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - A global A001 Theorem F sheet or measure-`1/2` conclusion, a concrete `Dom(H*)`
   vector satisfying the weak deficiency identity, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
-- That the current `ForwardBranchOpen` collar extends to a uniform product flow collar or a
-  `ForwardSaturatedSheet`. The proved local-flow lifetime is point-dependent; no maximal interval
+- That the current `ForwardBranchOpen` collar extends to a jointly smooth uniform product flow
+  collar or a `ForwardSaturatedSheet`. A compact transverse ball has a common local existence
+  time, but the supplied trajectories are selected pointwise; no maximal interval, `escape_upper`,
   or `lower_ok` escape alternative is constructed. Its local `s = β-τ²` parameter domain is not
   proved to contain full flow intervals, and no theorem controls its other endpoint. Consequently
   no integration-by-parts boundary term is dropped here.
