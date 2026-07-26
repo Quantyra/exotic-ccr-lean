@@ -12,10 +12,10 @@ import Mathlib.Data.EReal.Basic
 # Forward saturated sheets
 
 This module first extracts an honest positive cross-section from the local
-forward branch, and records the geometric data that a full forward sheet would
-have to provide before an integration-by-parts argument can be attempted.  In
-particular, both ends of every flow interval are explicit: the upper end
-escapes, while the lower end is either `-∞` or a finite escaping end.
+forward branch, defines the extremal reachable times of `X1`, proves local
+uniqueness for trajectories used in gluing, and records the geometric data that
+a full forward sheet would have to provide before an integration-by-parts
+argument can be attempted.
 
 `ForwardBranchOpen` does not presently give an inhabitant of this structure.
 It is a local `s = β - τ²` collar whose parameter domain need not contain a
@@ -117,6 +117,62 @@ theorem ForwardBranchCrossSection.exists_localFlowLine
     (contDiff_X1.of_le (by simp : (1 : WithTop ℕ∞) ≤ ⊤)).contDiffAt
   simpa only [zero_sub, zero_add] using
     hX.exists_forall_mem_closedBall_exists_eq_forall_mem_Ioo_hasDerivAt₀ 0
+
+/-- A connected open integral curve of `X1` through `x₀` at time zero. -/
+def isIntegralCurveFrom (x₀ : R3) (α : ℝ → R3) (I : Set ℝ) : Prop :=
+  0 ∈ I ∧ IsOpen I ∧ IsConnected I ∧ α 0 = x₀ ∧
+    ∀ t ∈ I, HasDerivAt α (X1 (α t)) t
+
+/-- Nonnegative times reached by some connected integral curve through `x₀`. -/
+def forwardReachableTimes (x₀ : R3) : Set ℝ :=
+  {t | 0 ≤ t ∧ ∃ α I, isIntegralCurveFrom x₀ α I ∧ t ∈ I}
+
+/-- Nonpositive times reached by some connected integral curve through `x₀`. -/
+def backwardReachableTimes (x₀ : R3) : Set ℝ :=
+  {t | t ≤ 0 ∧ ∃ α I, isIntegralCurveFrom x₀ α I ∧ t ∈ I}
+
+/-- The extended-real supremum of forward times reached by local solutions. -/
+def tMax (x₀ : R3) : EReal :=
+  sSup ((fun t : ℝ => (t : EReal)) '' forwardReachableTimes x₀)
+
+/-- The extended-real infimum of backward times reached by local solutions. -/
+def tMin (x₀ : R3) : EReal :=
+  sInf ((fun t : ℝ => (t : EReal)) '' backwardReachableTimes x₀)
+
+/-- A local flow line supplies an honest connected-open partial trajectory. -/
+theorem ForwardBranchCrossSection.exists_isIntegralCurveFrom
+    (S : ForwardBranchCrossSection) (x : ℝ × ℝ) (hx : x ∈ S.W) :
+    ∃ α I, isIntegralCurveFrom (S.qSigma x) α I := by
+  obtain ⟨α, hα0, δ, hδ, hα⟩ := S.exists_localFlowLine x hx
+  refine ⟨α, Ioo (-δ) δ, ?_⟩
+  exact ⟨by simp [hδ], isOpen_Ioo, isConnected_Ioo (by linarith), hα0, hα⟩
+
+/-- Smoothness of `X1` gives the local ODE uniqueness needed when two partial
+curves are glued.  The conclusion is deliberately local; connected-interval
+propagation and construction of a maximal representative remain separate. -/
+theorem isIntegralCurveFrom.eventuallyEq_of_eq
+    {x₀ : R3} {α γ : ℝ → R3} {I J : Set ℝ} {t₀ : ℝ}
+    (hα : isIntegralCurveFrom x₀ α I) (hγ : isIntegralCurveFrom x₀ γ J)
+    (htI : t₀ ∈ I) (htJ : t₀ ∈ J) (heq : α t₀ = γ t₀) :
+    α =ᶠ[𝓝 t₀] γ := by
+  obtain ⟨K, U, hU, hLip⟩ :=
+    (contDiff_X1.of_le (by simp : (1 : WithTop ℕ∞) ≤ ⊤)).contDiffAt
+      |>.exists_lipschitzOnWith
+  have hαI : ∀ᶠ t in 𝓝 t₀, t ∈ I := hα.2.1.mem_nhds htI
+  have hγJ : ∀ᶠ t in 𝓝 t₀, t ∈ J := hγ.2.1.mem_nhds htJ
+  have hαU : ∀ᶠ t in 𝓝 t₀, α t ∈ U :=
+    (hα.2.2.2.2 t₀ htI).continuousAt hU
+  have hγU : ∀ᶠ t in 𝓝 t₀, γ t ∈ U := by
+    have hU' : U ∈ 𝓝 (γ t₀) := by simpa [heq] using hU
+    exact (hγ.2.2.2.2 t₀ htJ).continuousAt hU'
+  apply ODE_solution_unique_of_eventually
+      (v := fun _ => X1) (s := fun _ => U) (K := K)
+  · exact Filter.Eventually.of_forall fun _ => hLip
+  · filter_upwards [hαI, hαU] with t ht htu
+    exact ⟨hα.2.2.2.2 t ht, htu⟩
+  · filter_upwards [hγJ, hγU] with t ht htu
+    exact ⟨hγ.2.2.2.2 t ht, htu⟩
+  · exact heq
 
 /-- A compact transverse core carrying one common local existence time.
 
