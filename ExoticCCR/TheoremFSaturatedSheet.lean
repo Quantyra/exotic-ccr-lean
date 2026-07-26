@@ -123,6 +123,11 @@ def isIntegralCurveFrom (x₀ : R3) (α : ℝ → R3) (I : Set ℝ) : Prop :=
   0 ∈ I ∧ IsOpen I ∧ IsConnected I ∧ α 0 = x₀ ∧
     ∀ t ∈ I, HasDerivAt α (X1 (α t)) t
 
+/-- The union of the domains of all connected open integral curves through
+`x₀`.  This is the natural domain of the maximal integral curve. -/
+def integralCurveDomain (x₀ : R3) : Set ℝ :=
+  {t | ∃ α I, isIntegralCurveFrom x₀ α I ∧ t ∈ I}
+
 /-- Nonnegative times reached by some connected integral curve through `x₀`. -/
 def forwardReachableTimes (x₀ : R3) : Set ℝ :=
   {t | 0 ≤ t ∧ ∃ α I, isIntegralCurveFrom x₀ α I ∧ t ∈ I}
@@ -133,11 +138,11 @@ def backwardReachableTimes (x₀ : R3) : Set ℝ :=
 
 /-- The extended-real supremum of forward times reached by local solutions. -/
 def tMax (x₀ : R3) : EReal :=
-  sSup ((fun t : ℝ => (t : EReal)) '' forwardReachableTimes x₀)
+  sSup ((fun t : ℝ => (t : EReal)) '' integralCurveDomain x₀)
 
 /-- The extended-real infimum of backward times reached by local solutions. -/
 def tMin (x₀ : R3) : EReal :=
-  sInf ((fun t : ℝ => (t : EReal)) '' backwardReachableTimes x₀)
+  sInf ((fun t : ℝ => (t : EReal)) '' integralCurveDomain x₀)
 
 /-- A local flow line supplies an honest connected-open partial trajectory. -/
 theorem ForwardBranchCrossSection.exists_isIntegralCurveFrom
@@ -173,6 +178,138 @@ theorem isIntegralCurveFrom.eventuallyEq_of_eq
   · filter_upwards [hγJ, hγU] with t ht htu
     exact ⟨hγ.2.2.2.2 t ht, htu⟩
   · exact heq
+
+/-- Two connected partial trajectories through the same initial point agree
+wherever both are defined.  Local Picard--Lindelöf uniqueness propagates over
+the connected overlap. -/
+theorem isIntegralCurveFrom.eqOn_inter
+    {x₀ : R3} {α γ : ℝ → R3} {I J : Set ℝ}
+    (hα : isIntegralCurveFrom x₀ α I) (hγ : isIntegralCurveFrom x₀ γ J) :
+    Set.EqOn α γ (I ∩ J) := by
+  let K : Set ℝ := I ∩ J
+  have hKpre : IsPreconnected K := by
+    rw [isPreconnected_iff_ordConnected]
+    exact hα.2.2.1.2.ordConnected.inter hγ.2.2.1.2.ordConnected
+  let P : ℝ → ℝ → Prop := fun s t => (α s = γ s ↔ α t = γ t)
+  have hlocal : ∀ t ∈ K, ∀ᶠ u in 𝓝[K] t, P t u := by
+    intro t ht
+    by_cases heq : α t = γ t
+    · have huv := hα.eventuallyEq_of_eq hγ ht.1 ht.2 heq
+      filter_upwards [huv.filter_mono inf_le_left] with u hu
+      exact ⟨fun _ => hu, fun _ => heq⟩
+    · have hαc := (hα.2.2.2.2 t ht.1).continuousAt
+      have hγc := (hγ.2.2.2.2 t ht.2).continuousAt
+      have hne : ∀ᶠ u in 𝓝 t, α u - γ u ≠ 0 :=
+        (hαc.sub hγc).eventually_ne (sub_ne_zero.mpr heq)
+      filter_upwards [hne.filter_mono inf_le_left] with u hu
+      exact ⟨fun h => (heq h).elim, fun h => (hu (sub_eq_zero.mpr h)).elim⟩
+  have hprop : ∀ s t, s ∈ K → t ∈ K → P s t := by
+    intro s t hs ht
+    apply hKpre.induction₂ P hlocal
+    · intro a b c _ _ _ hab hbc
+      exact hab.trans hbc
+    · intro a b _ _ hab
+      exact hab.symm
+    · exact hs
+    · exact ht
+  intro t ht
+  have h0 : (0 : ℝ) ∈ K := ⟨hα.1, hγ.1⟩
+  exact (hprop 0 t h0 ht).mp (hα.2.2.2.1.trans hγ.2.2.2.1.symm)
+
+/-- The union of all partial-trajectory domains is open. -/
+theorem isOpen_integralCurveDomain (x₀ : R3) :
+    IsOpen (integralCurveDomain x₀) := by
+  rw [isOpen_iff_mem_nhds]
+  intro t ht
+  obtain ⟨α, I, hα, htI⟩ := ht
+  filter_upwards [hα.2.1.mem_nhds htI] with u hu
+  exact ⟨α, I, hα, hu⟩
+
+/-- The union of all partial-trajectory domains is an interval. -/
+theorem isPreconnected_integralCurveDomain (x₀ : R3) :
+    IsPreconnected (integralCurveDomain x₀) := by
+  rw [isPreconnected_iff_ordConnected]
+  refine ⟨?_⟩
+  intro a ha b hb t ht
+  obtain ⟨α, I, hα, haI⟩ := ha
+  obtain ⟨γ, J, hγ, hbJ⟩ := hb
+  by_cases ht0 : t ≤ 0
+  · exact ⟨α, I, hα, hα.2.2.1.2.ordConnected.out' haI hα.1 ⟨ht.1, ht0⟩⟩
+  · exact ⟨γ, J, hγ, hγ.2.2.1.2.ordConnected.out' hγ.1 hbJ
+      ⟨le_of_not_ge ht0, ht.2⟩⟩
+
+/-- A point lies in the maximal trajectory domain exactly when it lies strictly
+between the extended-real endpoint times. -/
+theorem mem_integralCurveDomain_iff (x₀ : R3) (t : ℝ) :
+    t ∈ integralCurveDomain x₀ ↔ tMin x₀ < (t : EReal) ∧ (t : EReal) < tMax x₀ := by
+  constructor
+  · intro ht
+    obtain ⟨ε, hε, hball⟩ := Metric.isOpen_iff.mp (isOpen_integralCurveDomain x₀) t ht
+    have hlo : t - ε / 2 ∈ integralCurveDomain x₀ := by
+      apply hball
+      rw [Metric.mem_ball, Real.dist_eq]
+      rw [show t - ε / 2 - t = -(ε / 2) by ring, abs_neg,
+        abs_of_pos (half_pos hε)]
+      linarith
+    have hhi : t + ε / 2 ∈ integralCurveDomain x₀ := by
+      apply hball
+      rw [Metric.mem_ball, Real.dist_eq]
+      rw [show t + ε / 2 - t = ε / 2 by ring, abs_of_pos (half_pos hε)]
+      linarith
+    constructor
+    · apply sInf_lt_iff.mpr
+      exact ⟨(t - ε / 2 : ℝ), ⟨_, hlo, rfl⟩, EReal.coe_lt_coe_iff.mpr (by linarith)⟩
+    · apply lt_sSup_iff.mpr
+      exact ⟨(t + ε / 2 : ℝ), ⟨_, hhi, rfl⟩, EReal.coe_lt_coe_iff.mpr (by linarith)⟩
+  · rintro ⟨hlo, hhi⟩
+    obtain ⟨l, ⟨l', hl', rfl⟩, hlt⟩ := sInf_lt_iff.mp hlo
+    obtain ⟨u, ⟨u', hu', rfl⟩, htu⟩ := lt_sSup_iff.mp hhi
+    have hlt' : l' < t := EReal.coe_lt_coe_iff.mp hlt
+    have htu' : t < u' := EReal.coe_lt_coe_iff.mp htu
+    exact (isPreconnected_integralCurveDomain x₀).ordConnected.out' hl' hu'
+      ⟨hlt'.le, htu'.le⟩
+
+/-- The canonical maximal representative, obtained by choosing any partial
+trajectory through each reachable time.  Overlap uniqueness makes the value
+independent of the choices. -/
+def maximalIntegralCurve (x₀ : R3) (t : ℝ) : R3 :=
+  by
+    classical
+    exact if h : t ∈ integralCurveDomain x₀ then Classical.choose h t else x₀
+
+/-- On the domain of any partial trajectory, the maximal representative agrees
+with that trajectory. -/
+theorem maximalIntegralCurve_eq_of_mem
+    {x₀ : R3} {α : ℝ → R3} {I : Set ℝ}
+    (hα : isIntegralCurveFrom x₀ α I) {t : ℝ} (ht : t ∈ I) :
+    maximalIntegralCurve x₀ t = α t := by
+  have htd : t ∈ integralCurveDomain x₀ := ⟨α, I, hα, ht⟩
+  rw [maximalIntegralCurve, dif_pos htd]
+  let γ : ℝ → R3 := Classical.choose htd
+  let J : Set ℝ := Classical.choose htd.choose_spec
+  have hγ : isIntegralCurveFrom x₀ γ J := htd.choose_spec.choose_spec.1
+  have htJ : t ∈ J := htd.choose_spec.choose_spec.2
+  exact (hγ.eqOn_inter hα) ⟨htJ, ht⟩
+
+/-- The canonical representative is the unique maximal integral curve on the
+open interval `(tMin x₀, tMax x₀)`. -/
+theorem hasDerivAt_maximalIntegralCurve {x₀ : R3} {t : ℝ}
+    (ht : tMin x₀ < (t : EReal) ∧ (t : EReal) < tMax x₀) :
+    HasDerivAt (maximalIntegralCurve x₀)
+      (X1 (maximalIntegralCurve x₀ t)) t := by
+  have htd := (mem_integralCurveDomain_iff x₀ t).2 ht
+  obtain ⟨α, I, hα, htI⟩ := htd
+  have heq : maximalIntegralCurve x₀ =ᶠ[𝓝 t] α := by
+    filter_upwards [hα.2.1.mem_nhds htI] with u hu
+    exact maximalIntegralCurve_eq_of_mem hα hu
+  exact ((hα.2.2.2.2 t htI).congr_of_eventuallyEq heq).congr_deriv
+    (congrArg X1 (heq.self_of_nhds.symm))
+
+@[simp] theorem maximalIntegralCurve_zero (x₀ : R3)
+    (h : ∃ α I, isIntegralCurveFrom x₀ α I) :
+    maximalIntegralCurve x₀ 0 = x₀ := by
+  obtain ⟨α, I, hα⟩ := h
+  rw [maximalIntegralCurve_eq_of_mem hα hα.1, hα.2.2.2.1]
 
 /-- A compact transverse core carrying one common local existence time.
 
