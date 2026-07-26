@@ -13,14 +13,16 @@ import Mathlib.Data.EReal.Basic
 
 This module first extracts an honest positive cross-section from the local
 forward branch, defines the extremal reachable times of `X1`, proves local
-uniqueness for trajectories used in gluing, and records the geometric data that
-a full forward sheet would have to provide before an integration-by-parts
-argument can be attempted.
+uniqueness and Picard continuation for trajectories used in gluing, and records
+the geometric data that a full forward sheet would have to provide before an
+integration-by-parts argument can be attempted.
 
 `ForwardBranchOpen` does not presently give an inhabitant of this structure.
-It is a local `s = β - τ²` collar whose parameter domain need not contain a
-whole interval in `s`, and only its wall-end escape has been proved.  Thus this
-module deliberately proves no weak-adjoint statement and no Theorem E.
+It is a local `s = β - τ²` collar whose exposed parameter-domain API need not
+contain a whole interval in `s`.  Finite maximal endpoints now escape, but the
+upper endpoint has not been identified with the branch wall and jointly smooth
+maximal-flow dependence has not been established.  Thus this module
+deliberately proves no weak-adjoint statement and no Theorem E.
 -/
 
 noncomputable section
@@ -152,6 +154,18 @@ theorem ForwardBranchCrossSection.exists_isIntegralCurveFrom
   refine ⟨α, Ioo (-δ) δ, ?_⟩
   exact ⟨by simp [hδ], isOpen_Ioo, isConnected_Ioo (by linarith), hα0, hα⟩
 
+/-- Smoothness of `X1` supplies a connected open integral curve through every
+ambient point. -/
+theorem exists_isIntegralCurveFrom (x₀ : R3) :
+    ∃ α I, isIntegralCurveFrom x₀ α I := by
+  have hX : ContDiffAt ℝ 1 X1 x₀ :=
+    (contDiff_X1.of_le (by simp : (1 : WithTop ℕ∞) ≤ ⊤)).contDiffAt
+  obtain ⟨α, hα0, δ, hδ, hα⟩ :=
+    hX.exists_forall_mem_closedBall_exists_eq_forall_mem_Ioo_hasDerivAt₀ 0
+  exact ⟨α, Ioo (-δ) δ,
+    ⟨by simp [hδ], isOpen_Ioo, isConnected_Ioo (by linarith), hα0,
+      by simpa only [zero_sub, zero_add] using hα⟩⟩
+
 /-- Smoothness of `X1` gives the local ODE uniqueness needed when two partial
 curves are glued.  The conclusion is deliberately local; connected-interval
 propagation and construction of a maximal representative remain separate. -/
@@ -215,6 +229,99 @@ theorem isIntegralCurveFrom.eqOn_inter
   intro t ht
   have h0 : (0 : ℝ) ∈ K := ⟨hα.1, hγ.1⟩
   exact (hprop 0 t h0 ht).mp (hα.2.2.2.1.trans hγ.2.2.2.1.symm)
+
+/-- Two integral curves of `X1` agree on their connected overlap if they agree
+at one point of that overlap.  Unlike `isIntegralCurveFrom.eqOn_inter`, this
+version does not require the curves to use the same time-zero base point. -/
+theorem integralCurve_eqOn_inter_of_eq
+    {α γ : ℝ → R3} {I J : Set ℝ} {t₀ : ℝ}
+    (hIopen : IsOpen I) (hIconn : IsConnected I)
+    (hJopen : IsOpen J) (hJconn : IsConnected J)
+    (hα : ∀ t ∈ I, HasDerivAt α (X1 (α t)) t)
+    (hγ : ∀ t ∈ J, HasDerivAt γ (X1 (γ t)) t)
+    (htI : t₀ ∈ I) (htJ : t₀ ∈ J) (heq : α t₀ = γ t₀) :
+    Set.EqOn α γ (I ∩ J) := by
+  let K : Set ℝ := I ∩ J
+  have hKpre : IsPreconnected K := by
+    rw [isPreconnected_iff_ordConnected]
+    exact hIconn.2.ordConnected.inter hJconn.2.ordConnected
+  let P : ℝ → ℝ → Prop := fun s t => (α s = γ s ↔ α t = γ t)
+  have hlocal : ∀ t ∈ K, ∀ᶠ u in 𝓝[K] t, P t u := by
+    intro t ht
+    by_cases hEq : α t = γ t
+    · obtain ⟨L, U, hU, hLip⟩ :=
+        (contDiff_X1.of_le (by simp : (1 : WithTop ℕ∞) ≤ ⊤)).contDiffAt
+          |>.exists_lipschitzOnWith
+      have hαI : ∀ᶠ u in 𝓝 t, u ∈ I := hIopen.mem_nhds ht.1
+      have hγJ : ∀ᶠ u in 𝓝 t, u ∈ J := hJopen.mem_nhds ht.2
+      have hαU : ∀ᶠ u in 𝓝 t, α u ∈ U := (hα t ht.1).continuousAt hU
+      have hγU : ∀ᶠ u in 𝓝 t, γ u ∈ U := by
+        have hU' : U ∈ 𝓝 (γ t) := by simpa [hEq] using hU
+        exact (hγ t ht.2).continuousAt hU'
+      have huv : α =ᶠ[𝓝 t] γ := by
+        apply ODE_solution_unique_of_eventually
+            (v := fun _ => X1) (s := fun _ => U) (K := L)
+        · exact Filter.Eventually.of_forall fun _ => hLip
+        · filter_upwards [hαI, hαU] with u huI huU
+          exact ⟨hα u huI, huU⟩
+        · filter_upwards [hγJ, hγU] with u huJ huU
+          exact ⟨hγ u huJ, huU⟩
+        · exact hEq
+      filter_upwards [huv.filter_mono inf_le_left] with u hu
+      exact ⟨fun _ => hu, fun _ => hEq⟩
+    · have hαc := (hα t ht.1).continuousAt
+      have hγc := (hγ t ht.2).continuousAt
+      have hne : ∀ᶠ u in 𝓝 t, α u - γ u ≠ 0 :=
+        (hαc.sub hγc).eventually_ne (sub_ne_zero.mpr hEq)
+      filter_upwards [hne.filter_mono inf_le_left] with u hu
+      exact ⟨fun h => (hEq h).elim, fun h => (hu (sub_eq_zero.mpr h)).elim⟩
+  have hprop : ∀ s t, s ∈ K → t ∈ K → P s t := by
+    intro s t hs ht
+    apply hKpre.induction₂ P hlocal
+    · intro a b c _ _ _ hab hbc
+      exact hab.trans hbc
+    · intro a b _ _ hab
+      exact hab.symm
+    · exact hs
+    · exact ht
+  intro t ht
+  exact (hprop t₀ t ⟨htI, htJ⟩ ht).mp heq
+
+/-- The pointwise gluing used to extend an integral curve. -/
+def gluedIntegralCurve (I : Set ℝ) (α γ : ℝ → R3) : ℝ → R3 := by
+  classical
+  exact I.piecewise α γ
+
+/-- Patch a connected open integral curve with an overlapping local extension. -/
+theorem isIntegralCurveFrom.extend
+    {x₀ : R3} {α γ : ℝ → R3} {I J : Set ℝ} {t₀ : ℝ}
+    (hα : isIntegralCurveFrom x₀ α I)
+    (hJopen : IsOpen J) (hJconn : IsConnected J)
+    (hγ : ∀ t ∈ J, HasDerivAt γ (X1 (γ t)) t)
+    (htI : t₀ ∈ I) (htJ : t₀ ∈ J) (heq : α t₀ = γ t₀) :
+    isIntegralCurveFrom x₀ (gluedIntegralCurve I α γ) (I ∪ J) := by
+  classical
+  have hagree := integralCurve_eqOn_inter_of_eq hα.2.1 hα.2.2.1 hJopen hJconn
+    hα.2.2.2.2 hγ htI htJ heq
+  refine ⟨Or.inl hα.1, hα.2.1.union hJopen,
+    IsConnected.union ⟨t₀, htI, htJ⟩ hα.2.2.1 hJconn, ?_, ?_⟩
+  · simp [gluedIntegralCurve, hα.1, hα.2.2.2.1]
+  · intro t ht
+    by_cases htI' : t ∈ I
+    · have hevent : gluedIntegralCurve I α γ =ᶠ[𝓝 t] α := by
+        filter_upwards [hα.2.1.mem_nhds htI'] with u hu
+        simp [gluedIntegralCurve, hu]
+      exact ((hα.2.2.2.2 t htI').congr_of_eventuallyEq hevent).congr_deriv
+        (congrArg X1 hevent.self_of_nhds.symm)
+    · have htJ' : t ∈ J := ht.resolve_left htI'
+      have hevent : gluedIntegralCurve I α γ =ᶠ[𝓝 t] γ := by
+        filter_upwards [hJopen.mem_nhds htJ'] with u huJ
+        by_cases huI : u ∈ I
+        · simp only [gluedIntegralCurve, Set.piecewise, if_pos huI]
+          exact hagree ⟨huI, huJ⟩
+        · simp [gluedIntegralCurve, huI]
+      exact ((hγ t htJ').congr_of_eventuallyEq hevent).congr_deriv
+        (congrArg X1 hevent.self_of_nhds.symm)
 
 /-- The union of all partial-trajectory domains is open. -/
 theorem isOpen_integralCurveDomain (x₀ : R3) :
@@ -310,6 +417,196 @@ theorem hasDerivAt_maximalIntegralCurve {x₀ : R3} {t : ℝ}
     maximalIntegralCurve x₀ 0 = x₀ := by
   obtain ⟨α, I, hα⟩ := h
   rw [maximalIntegralCurve_eq_of_mem hα hα.1, hα.2.2.2.1]
+
+/-- The canonical representative is itself an integral curve on the union of
+all reachable times. -/
+theorem maximalIntegralCurve_isIntegralCurveFrom (x₀ : R3) :
+    isIntegralCurveFrom x₀ (maximalIntegralCurve x₀) (integralCurveDomain x₀) := by
+  have hex := exists_isIntegralCurveFrom x₀
+  have h0 : 0 ∈ integralCurveDomain x₀ := by
+    obtain ⟨α, I, hα⟩ := hex
+    exact ⟨α, I, hα, hα.1⟩
+  refine ⟨h0, isOpen_integralCurveDomain x₀,
+    ⟨⟨0, h0⟩, isPreconnected_integralCurveDomain x₀⟩,
+    maximalIntegralCurve_zero x₀ hex, ?_⟩
+  intro t ht
+  exact hasDerivAt_maximalIntegralCurve ((mem_integralCurveDomain_iff x₀ t).1 ht)
+
+/-- A finite forward maximal time cannot have even a frequently compact tail:
+a cluster point supplies a uniform Picard interval, and gluing from a late
+point extends the curve past its alleged supremum. -/
+theorem not_frequently_mem_compact_of_tMax_eq
+    {x₀ : R3} {T : ℝ} {K : Set R3} (hT : tMax x₀ = (T : EReal))
+    (hK : IsCompact K) :
+    ¬(∃ᶠ t in 𝓝[<] T, maximalIntegralCurve x₀ t ∈ K) := by
+  intro hfreqK
+  have hmax := maximalIntegralCurve_isIntegralCurveFrom x₀
+  have hends := (mem_integralCurveDomain_iff x₀ 0).1 hmax.1
+  have hTpos : 0 < T := by
+    exact EReal.coe_lt_coe_iff.mp (hends.2.trans_eq hT)
+  obtain ⟨y, _hyK, hy⟩ := hK.exists_mapClusterPt_of_frequently hfreqK
+  have hX : ContDiffAt ℝ 1 X1 y :=
+    (contDiff_X1.of_le (by simp : (1 : WithTop ℕ∞) ≤ ⊤)).contDiffAt
+  obtain ⟨r, hr, ε, hε, H⟩ :=
+    hX.exists_forall_mem_closedBall_exists_eq_forall_mem_Ioo_hasDerivAt 0
+  have hfreqBall : ∃ᶠ t in 𝓝[<] T,
+      maximalIntegralCurve x₀ t ∈ Metric.ball y r :=
+    mapClusterPt_iff_frequently.mp hy (Metric.ball y r) (Metric.ball_mem_nhds y hr)
+  have hnear : ∀ᶠ t in 𝓝[<] T, t ∈ Ioo 0 T := Ioo_mem_nhdsLT hTpos
+  have hlate : ∀ᶠ t in 𝓝[<] T, T - ε / 2 < t := by
+    filter_upwards [Ioo_mem_nhdsLT (show T - ε / 2 < T by linarith)] with t ht
+    exact ht.1
+  obtain ⟨t, htBall, htNear, htLate⟩ :=
+    (hfreqBall.and_eventually (hnear.and hlate)).exists
+  have htDom : t ∈ integralCurveDomain x₀ := by
+    apply (mem_integralCurveDomain_iff x₀ t).2
+    constructor
+    · exact hends.1.trans (EReal.coe_lt_coe_iff.mpr htNear.1)
+    · rw [hT]
+      exact EReal.coe_lt_coe_iff.mpr htNear.2
+  obtain ⟨γ, hγt, hγ⟩ := H (maximalIntegralCurve x₀ t)
+    (Metric.ball_subset_closedBall htBall)
+  let γ' : ℝ → R3 := fun u => γ (u - t)
+  let J : Set ℝ := Ioo (t - ε) (t + ε)
+  have htJ : t ∈ J := by simp [J, hε]
+  have hγ' : ∀ u ∈ J, HasDerivAt γ' (X1 (γ' u)) u := by
+    intro u hu
+    change t - ε < u ∧ u < t + ε at hu
+    have hu' : u - t ∈ Ioo (0 - ε) (0 + ε) := by
+      constructor <;> norm_num <;> linarith [hu.1, hu.2]
+    simpa only [γ', sub_eq_add_neg] using
+      (hγ (u - t) hu').comp_add_const u (-t)
+  have hγ't : γ' t = maximalIntegralCurve x₀ t := by
+    change γ (t - t) = maximalIntegralCurve x₀ t
+    simpa only [sub_self] using hγt
+  have hJconn : IsConnected J :=
+    isConnected_Ioo (show t - ε < t + ε by linarith)
+  have hpatch := hmax.extend (J := J) isOpen_Ioo hJconn hγ' htDom htJ hγ't.symm
+  let u := t + ε / 2
+  have huJ : u ∈ J := by dsimp [u, J]; constructor <;> linarith
+  have huDom : u ∈ integralCurveDomain x₀ :=
+    ⟨gluedIntegralCurve (integralCurveDomain x₀) (maximalIntegralCurve x₀) γ',
+      integralCurveDomain x₀ ∪ J, hpatch, Or.inr huJ⟩
+  have huUpper := ((mem_integralCurveDomain_iff x₀ u).1 huDom).2
+  rw [hT] at huUpper
+  have huLT : u < T := EReal.coe_lt_coe_iff.mp huUpper
+  dsimp [u] at huLT
+  linarith
+
+/-- Eventual containment in a compact set at a finite forward endpoint
+contradicts maximality. -/
+theorem not_eventually_mem_compact_of_tMax_eq
+    {x₀ : R3} {T : ℝ} {K : Set R3} (hT : tMax x₀ = (T : EReal))
+    (hK : IsCompact K) :
+    ¬(∀ᶠ t in 𝓝[<] T, maximalIntegralCurve x₀ t ∈ K) := by
+  intro h
+  exact not_frequently_mem_compact_of_tMax_eq hT hK h.frequently
+
+/-- A finite backward maximal time cannot have even a frequently compact tail.
+The same Picard gluing argument now extends to a time below the alleged
+infimum. -/
+theorem not_frequently_mem_compact_of_tMin_eq
+    {x₀ : R3} {T : ℝ} {K : Set R3} (hT : tMin x₀ = (T : EReal))
+    (hK : IsCompact K) :
+    ¬(∃ᶠ t in 𝓝[>] T, maximalIntegralCurve x₀ t ∈ K) := by
+  intro hfreqK
+  have hmax := maximalIntegralCurve_isIntegralCurveFrom x₀
+  have hends := (mem_integralCurveDomain_iff x₀ 0).1 hmax.1
+  have hTneg : T < 0 := by
+    exact EReal.coe_lt_coe_iff.mp (hT ▸ hends.1)
+  obtain ⟨y, _hyK, hy⟩ := hK.exists_mapClusterPt_of_frequently hfreqK
+  have hX : ContDiffAt ℝ 1 X1 y :=
+    (contDiff_X1.of_le (by simp : (1 : WithTop ℕ∞) ≤ ⊤)).contDiffAt
+  obtain ⟨r, hr, ε, hε, H⟩ :=
+    hX.exists_forall_mem_closedBall_exists_eq_forall_mem_Ioo_hasDerivAt 0
+  have hfreqBall : ∃ᶠ t in 𝓝[>] T,
+      maximalIntegralCurve x₀ t ∈ Metric.ball y r :=
+    mapClusterPt_iff_frequently.mp hy (Metric.ball y r) (Metric.ball_mem_nhds y hr)
+  have hnear : ∀ᶠ t in 𝓝[>] T, t ∈ Ioo T 0 := Ioo_mem_nhdsGT hTneg
+  have hlate : ∀ᶠ t in 𝓝[>] T, t < T + ε / 2 := by
+    filter_upwards [Ioo_mem_nhdsGT (show T < T + ε / 2 by linarith)] with t ht
+    exact ht.2
+  obtain ⟨t, htBall, htNear, htLate⟩ :=
+    (hfreqBall.and_eventually (hnear.and hlate)).exists
+  have htDom : t ∈ integralCurveDomain x₀ := by
+    apply (mem_integralCurveDomain_iff x₀ t).2
+    constructor
+    · rw [hT]
+      exact EReal.coe_lt_coe_iff.mpr htNear.1
+    · exact (EReal.coe_lt_coe_iff.mpr htNear.2).trans hends.2
+  obtain ⟨γ, hγt, hγ⟩ := H (maximalIntegralCurve x₀ t)
+    (Metric.ball_subset_closedBall htBall)
+  let γ' : ℝ → R3 := fun u => γ (u - t)
+  let J : Set ℝ := Ioo (t - ε) (t + ε)
+  have htJ : t ∈ J := by simp [J, hε]
+  have hγ' : ∀ u ∈ J, HasDerivAt γ' (X1 (γ' u)) u := by
+    intro u hu
+    change t - ε < u ∧ u < t + ε at hu
+    have hu' : u - t ∈ Ioo (0 - ε) (0 + ε) := by
+      constructor <;> norm_num <;> linarith [hu.1, hu.2]
+    simpa only [γ', sub_eq_add_neg] using
+      (hγ (u - t) hu').comp_add_const u (-t)
+  have hγ't : γ' t = maximalIntegralCurve x₀ t := by
+    change γ (t - t) = maximalIntegralCurve x₀ t
+    simpa only [sub_self] using hγt
+  have hJconn : IsConnected J :=
+    isConnected_Ioo (show t - ε < t + ε by linarith)
+  have hpatch := hmax.extend (J := J) isOpen_Ioo hJconn hγ' htDom htJ hγ't.symm
+  let u := t - ε / 2
+  have huJ : u ∈ J := by dsimp [u, J]; constructor <;> linarith
+  have huDom : u ∈ integralCurveDomain x₀ :=
+    ⟨gluedIntegralCurve (integralCurveDomain x₀) (maximalIntegralCurve x₀) γ',
+      integralCurveDomain x₀ ∪ J, hpatch, Or.inr huJ⟩
+  have huLower := ((mem_integralCurveDomain_iff x₀ u).1 huDom).1
+  rw [hT] at huLower
+  have hTLT : T < u := EReal.coe_lt_coe_iff.mp huLower
+  dsimp [u] at hTLT
+  linarith
+
+/-- Eventual containment in a compact set at a finite backward endpoint
+contradicts maximality. -/
+theorem not_eventually_mem_compact_of_tMin_eq
+    {x₀ : R3} {T : ℝ} {K : Set R3} (hT : tMin x₀ = (T : EReal))
+    (hK : IsCompact K) :
+    ¬(∀ᶠ t in 𝓝[>] T, maximalIntegralCurve x₀ t ∈ K) := by
+  intro h
+  exact not_frequently_mem_compact_of_tMin_eq hT hK h.frequently
+
+/-- Every finite forward endpoint of a maximal `X1` trajectory escapes all
+norm balls. -/
+theorem tendsto_norm_maximalIntegralCurve_at_tMax
+    {x₀ : R3} {T : ℝ} (hT : tMax x₀ = (T : EReal)) :
+    Tendsto (fun t => ‖maximalIntegralCurve x₀ t‖) (𝓝[<] T) atTop := by
+  apply tendsto_atTop.2
+  intro b
+  by_contra h
+  have hfreq : ∃ᶠ t in 𝓝[<] T, ¬b ≤ ‖maximalIntegralCurve x₀ t‖ :=
+    not_eventually.mp h
+  have hfreqBall : ∃ᶠ t in 𝓝[<] T,
+      maximalIntegralCurve x₀ t ∈ Metric.closedBall 0 |b| := by
+    apply hfreq.mono
+    intro t ht
+    rw [Metric.mem_closedBall, dist_zero_right]
+    exact (le_of_not_ge ht).trans (le_abs_self b)
+  exact not_frequently_mem_compact_of_tMax_eq hT (isCompact_closedBall 0 |b|) hfreqBall
+
+/-- Every finite backward endpoint of a maximal `X1` trajectory escapes all
+norm balls. -/
+theorem tendsto_norm_maximalIntegralCurve_at_tMin
+    {x₀ : R3} {T : ℝ} (hT : tMin x₀ = (T : EReal)) :
+    Tendsto (fun t => ‖maximalIntegralCurve x₀ t‖) (𝓝[>] T) atTop := by
+  apply tendsto_atTop.2
+  intro b
+  by_contra h
+  have hfreq : ∃ᶠ t in 𝓝[>] T, ¬b ≤ ‖maximalIntegralCurve x₀ t‖ :=
+    not_eventually.mp h
+  have hfreqBall : ∃ᶠ t in 𝓝[>] T,
+      maximalIntegralCurve x₀ t ∈ Metric.closedBall 0 |b| := by
+    apply hfreq.mono
+    intro t ht
+    rw [Metric.mem_closedBall, dist_zero_right]
+    exact (le_of_not_ge ht).trans (le_abs_self b)
+  exact not_frequently_mem_compact_of_tMin_eq hT (isCompact_closedBall 0 |b|) hfreqBall
 
 /-- A compact transverse core carrying one common local existence time.
 
