@@ -58,8 +58,9 @@ the historical B5 algebraic core.
     the evaluated polynomial Jacobian with determinant `-2`, and on the open branch domain the
     derivative of `F ∘ branchMap` equals the derivative of `targetMap`. The reciprocal algebraic
     factor is `1/2`, as is the proved absolute local derivative-determinant ratio in fixed coordinates.
-    The positive branch domain and its image are measurable, the standard-coordinate branch
-    Jacobian is exactly `|τ|`, and mathlib's Jacobian theorem gives the displayed change-of-variables
+    The positive branch domain is open, the standard-coordinate branch derivative is bijective
+    with Jacobian exactly `|τ|`, and its image is therefore open (and measurable). Mathlib's
+    Jacobian theorem gives the displayed change-of-variables
     identity for the squared norm of `uMinus` on the image. For continuous compactly supported `χ`,
     the squared norm of `deficiencyDensity` and its required `|τ|`-weighted form are integrable on
     the relevant parameter domains. A compactly supported cutoff can be chosen for which the zero
@@ -90,9 +91,10 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - Unconditional A001 Theorem E. Although the canonical minimal `L²` core is constructed, its
   test-function domain is proved dense, and a nonzero `L²` branch candidate is now constructed,
   the repository does not prove that candidate lies in `Dom(H*)` or satisfies `H* u = ±i u`.
-  The current local open branch has no flow-saturated boundary hypothesis that would by itself
-  eliminate all integration-by-parts boundary terms. Incompleteness alone is not claimed to imply
-  the operator conclusion.
+  Openness of the branch image does not eliminate the uncontrolled finite boundary of the local
+  collar. The current local open branch has no flow-saturated boundary hypothesis that would by
+  itself eliminate all integration-by-parts boundary terms. Incompleteness alone is not claimed
+  to imply the operator conclusion.
 - A global A001 Theorem F sheet or measure-`1/2` conclusion, a concrete `Dom(H*)`
   vector satisfying the weak deficiency identity, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.

@@ -362,6 +362,59 @@ theorem ForwardBranchOpen.abs_det_fderiv_asFin3Map_branchMap
     ← O.fderiv_asFin3Map_targetMap hv, O.abs_det_fderiv_asFin3Map_targetMap hv]
   ring
 
+/-- The standard-coordinate branch map is smooth at every point of its positive
+domain. -/
+theorem ForwardBranchOpen.contDiffAt_asFin3Map_branchMap
+    (O : ForwardBranchOpen) {v : Fin 3 → ℝ} (hv : v ∈ O.WposFin3) :
+    ContDiffAt ℝ ⊤ (asFin3Map O.germ.branchMap) v := by
+  have hp : paramToFin3.symm v ∈ O.Wpos := hv
+  exact (O.contDiff_branchMap (paramToFin3.symm v) hp.1).contDiffAt
+    (O.isOpen_W.mem_nhds hp.1) |>.comp v
+      (paramToFin3.symm : (Fin 3 → ℝ) →L[ℝ] ((ℝ × ℝ) × ℝ)).contDiff.contDiffAt
+
+/-- The derivative of the standard-coordinate branch map is bijective at every
+point of the positive domain. -/
+theorem ForwardBranchOpen.bijective_fderiv_asFin3Map_branchMap
+    (O : ForwardBranchOpen) {v : Fin 3 → ℝ} (hv : v ∈ O.WposFin3) :
+    Function.Bijective (fderiv ℝ (asFin3Map O.germ.branchMap) v) := by
+  let L := fderiv ℝ (asFin3Map O.germ.branchMap) v
+  have hdet : L.det ≠ 0 := by
+    intro hzero
+    have habs := O.abs_det_fderiv_asFin3Map_branchMap hv
+    rw [hzero, abs_zero] at habs
+    have hvτ : 0 < v 2 := hv.2
+    exact (ne_of_gt hvτ) (abs_eq_zero.mp habs.symm)
+  have hunitDet : IsUnit L.det := isUnit_iff_ne_zero.mpr hdet
+  have hunitLinear : IsUnit (L : (Fin 3 → ℝ) →ₗ[ℝ] (Fin 3 → ℝ)) :=
+    (LinearMap.isUnit_iff_isUnit_det
+      (L : (Fin 3 → ℝ) →ₗ[ℝ] (Fin 3 → ℝ))).mpr hunitDet
+  have hunit : IsUnit L := ContinuousLinearMap.isUnit_iff_isUnit_toLinearMap.mpr hunitLinear
+  exact ContinuousLinearMap.isUnit_iff_bijective.mp hunit
+
+/-- The positive local branch image is open in ambient `ℝ³`.  This is the
+local-diffeomorphism step: the branch derivative has determinant of absolute
+value `τ`, hence is invertible throughout the positive domain. -/
+theorem ForwardBranchOpen.isOpen_image_branchMap_Wpos (O : ForwardBranchOpen) :
+    IsOpen (O.germ.branchMap '' O.Wpos) := by
+  rw [← O.image_asFin3Map_WposFin3]
+  apply isOpen_iff_mem_nhds.mpr
+  intro q hq
+  rcases hq with ⟨v, hv, rfl⟩
+  let L := fderiv ℝ (asFin3Map O.germ.branchMap) v
+  have hbij : Function.Bijective L :=
+    O.bijective_fderiv_asFin3Map_branchMap hv
+  let e : (Fin 3 → ℝ) ≃L[ℝ] (Fin 3 → ℝ) :=
+    ContinuousLinearEquiv.ofBijective L
+      (LinearMap.ker_eq_bot_of_injective hbij.1)
+      (LinearMap.range_eq_top.mpr hbij.2)
+  have hstrict : HasStrictFDerivAt (asFin3Map O.germ.branchMap)
+      (e : (Fin 3 → ℝ) →L[ℝ] (Fin 3 → ℝ)) v := by
+    have h := (O.contDiffAt_asFin3Map_branchMap hv).hasStrictFDerivAt (by simp)
+    change HasStrictFDerivAt (asFin3Map O.germ.branchMap) L v
+    exact h
+  rw [← hstrict.map_nhds_eq_of_equiv]
+  exact Filter.image_mem_map (O.isOpen_WposFin3.mem_nhds hv)
+
 /-- Mathlib's Jacobian change-of-variables formula for the positive branch,
 expressed in standard `Fin 3` coordinates. -/
 theorem ForwardBranchOpen.lintegral_image_branchMap_eq
