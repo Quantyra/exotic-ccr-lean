@@ -5,6 +5,7 @@ Authors: Daniel Eric Fredriksen
 -/
 import ExoticCCR.TheoremFForwardBranch
 import ExoticCCR.TheoremFJacobianFDeriv
+import ExoticCCR.TheoremD
 import Mathlib.Analysis.Calculus.BumpFunction.FiniteDimension
 import Mathlib.Analysis.SpecialFunctions.Gaussian.GaussianIntegral
 import Mathlib.MeasureTheory.Function.Jacobian
@@ -22,8 +23,8 @@ not assert an adjoint-domain statement.
 
 noncomputable section
 
-open Function MeasureTheory MvPolynomial Set
-open scoped ENNReal
+open Filter Function MeasureTheory MvPolynomial Set
+open scoped ENNReal Topology
 
 namespace ExoticCCR
 
@@ -570,6 +571,132 @@ theorem ForwardBranchOpen.hasDerivAt_uMinus_comp_branchMap_tau
     exact O.uMinus_on_image χ ht
   simpa only [O.uMinus_on_image χ hp] using
     (O.hasDerivAt_deficiencyDensity_tau χ x τ).congr_of_eventuallyEq heq
+
+/-- The evaluated anchor derivative sends the first dual field to the unit
+vector in the middle target coordinate. -/
+theorem evalJacobianF_apply_X1 (q : Fin 3 → ℝ) :
+    evalJacobianF q (X1 q) = ![0, 1, 0] := by
+  funext i
+  have hij := congrArg (fun M => M i (1 : Fin 3))
+    (jacobian_mul_dualMatrixF_transpose ℝ (by norm_num))
+  change (∑ x, MvPolynomial.eval q (jacobianMatrix (F ℝ) i x) *
+    MvPolynomial.eval q (dualMatrixF ℝ 1 x)) = (![0, 1, 0] : Fin 3 → ℝ) i
+  fin_cases i <;>
+    simpa [evalJacobianF, X1, dualVectorField, Matrix.toLin'_apply,
+      Matrix.mulVec, Matrix.mul_apply, Matrix.one_apply, map_sum, map_mul] using
+      congrArg (MvPolynomial.eval q) hij
+
+/-- On the positive local branch, differentiation in `τ` is the vector field
+`X1` multiplied by the target speed `-2τ`.  This is the honest local
+characteristic identity; it does not control a boundary of `Wpos`. -/
+theorem ForwardBranchOpen.hasDerivAt_branchMap_tau
+    (O : ForwardBranchOpen) {x : ℝ × ℝ} {τ : ℝ} (hp : (x, τ) ∈ O.Wpos) :
+    HasDerivAt (fun t : ℝ => O.germ.branchMap (x, t))
+      ((-2 * τ) • X1 (O.germ.branchMap (x, τ))) τ := by
+  let q := O.germ.branchMap (x, τ)
+  have hline : HasDerivAt (fun t : ℝ => (x, t)) (0, 1) τ :=
+    (hasDerivAt_const τ x).prodMk (hasDerivAt_id τ)
+  have hbranchDiff : DifferentiableAt ℝ (fun t : ℝ => O.germ.branchMap (x, t)) τ :=
+    (O.differentiableAt_branchMap hp.1).comp τ hline.differentiableAt
+  have hbranch := hbranchDiff.hasDerivAt
+  have hcomp : HasDerivAt
+      (fun t : ℝ => evalMap (F ℝ) (O.germ.branchMap (x, t)))
+      (evalJacobianF q (deriv (fun t : ℝ => O.germ.branchMap (x, t)) τ)) τ := by
+    simpa only [Function.comp_def] using
+      (hasFDerivAt_evalMap_F q).comp_hasDerivAt τ hbranch
+  have htarget : HasDerivAt (fun t : ℝ => O.targetMap (x, t))
+      (![0, -2 * τ, 0] : Fin 3 → ℝ) τ := by
+    rw [hasDerivAt_pi]
+    intro i
+    fin_cases i
+    · simpa [ForwardBranchOpen.targetMap] using (hasDerivAt_const τ x.1)
+    · change HasDerivAt (fun t : ℝ => O.germ.β x - t ^ 2) (-2 * τ) τ
+      simpa [id_eq, two_mul] using
+        ((hasDerivAt_id τ).pow 2).const_sub (O.germ.β x)
+    · simpa [ForwardBranchOpen.targetMap] using (hasDerivAt_const τ x.2)
+  have heq : (fun t : ℝ => evalMap (F ℝ) (O.germ.branchMap (x, t))) =ᶠ[𝓝 τ]
+      (fun t : ℝ => O.targetMap (x, t)) := by
+    have hmem : (fun t : ℝ => (x, t)) ⁻¹' O.W ∈ 𝓝 τ :=
+      (O.isOpen_W.preimage (continuous_const.prodMk continuous_id)).mem_nhds hp.1
+    filter_upwards [hmem] with t ht
+    exact O.evalMap_branch_eq_targetMap ht
+  have hJbranch : evalJacobianF q (deriv (fun t : ℝ => O.germ.branchMap (x, t)) τ) =
+      (![0, -2 * τ, 0] : Fin 3 → ℝ) :=
+    hcomp.unique (htarget.congr_of_eventuallyEq heq)
+  have hdet : (evalJacobianF q).det ≠ 0 := by
+    rw [← fderiv_evalMap_F, det_fderiv_evalMap_F]
+    norm_num
+  have hunitDet : IsUnit (evalJacobianF q).det := isUnit_iff_ne_zero.mpr hdet
+  have hunitLinear : IsUnit (evalJacobianF q : (Fin 3 → ℝ) →ₗ[ℝ] (Fin 3 → ℝ)) :=
+    (LinearMap.isUnit_iff_isUnit_det _).mpr hunitDet
+  have hJinj : Function.Injective (evalJacobianF q) :=
+    (ContinuousLinearMap.isUnit_iff_bijective.mp
+      (ContinuousLinearMap.isUnit_iff_isUnit_toLinearMap.mpr hunitLinear)).1
+  apply hbranch.congr_deriv
+  apply hJinj
+  rw [hJbranch, map_smul, evalJacobianF_apply_X1]
+  funext i
+  fin_cases i <;> simp
+
+/-- Reparameterizing the local positive branch by its target `s` coordinate
+gives the deficiency equation `d u / ds = u` at every interior point.  This is
+a pointwise characteristic identity only, not a global weak identity for the
+zero extension. -/
+theorem ForwardBranchOpen.hasDerivAt_uMinus_along_s
+    (O : ForwardBranchOpen) (χ : ℝ × ℝ → ℂ)
+    {x : ℝ × ℝ} {τ : ℝ} (hp : (x, τ) ∈ O.Wpos) :
+    HasDerivAt
+      (fun s : ℝ => O.uMinus χ
+        (O.germ.branchMap (x, Real.sqrt (O.germ.β x - s))))
+      (O.uMinus χ (O.germ.branchMap (x, τ)))
+      (O.germ.β x - τ ^ 2) := by
+  have hτ : 0 < τ := hp.2
+  have hsqrt : Real.sqrt (O.germ.β x - (O.germ.β x - τ ^ 2)) = τ := by
+    rw [show O.germ.β x - (O.germ.β x - τ ^ 2) = τ ^ 2 by ring]
+    rw [Real.sqrt_sq_eq_abs, abs_of_pos hτ]
+  have hinner : HasDerivAt (fun s : ℝ => O.germ.β x - s) (-1)
+      (O.germ.β x - τ ^ 2) := by
+    exact (hasDerivAt_id (O.germ.β x - τ ^ 2)).const_sub (O.germ.β x)
+  have hsqrtOuter : HasDerivAt Real.sqrt (1 / (2 * τ)) (τ ^ 2) := by
+    simpa [Real.sqrt_sq_eq_abs, abs_of_pos hτ] using
+      Real.hasDerivAt_sqrt (by positivity : τ ^ 2 ≠ 0)
+  have hs := hsqrtOuter.comp_of_eq (O.germ.β x - τ ^ 2) hinner
+    (show τ ^ 2 = O.germ.β x - (O.germ.β x - τ ^ 2) by ring)
+  have huOuter := O.hasDerivAt_uMinus_comp_branchMap_tau χ hp
+  have hu := huOuter.scomp_of_eq (O.germ.β x - τ ^ 2) hs hsqrt.symm
+  have hscalar : (1 / (2 * τ) * (-1)) •
+      (((-2 * τ : ℝ) : ℂ) * O.uMinus χ (O.germ.branchMap (x, τ))) =
+      O.uMinus χ (O.germ.branchMap (x, τ)) := by
+    change (((1 / (2 * τ) * (-1) : ℝ) : ℂ) *
+      (((-2 * τ : ℝ) : ℂ) * O.uMinus χ (O.germ.branchMap (x, τ)))) = _
+    rw [← mul_assoc]
+    have hone : (((1 / (2 * τ) * (-1) : ℝ) : ℂ) * ((-2 * τ : ℝ) : ℂ)) = 1 := by
+      norm_cast
+      field_simp [ne_of_gt hτ]
+      norm_num
+    rw [hone, one_mul]
+  simpa only [Function.comp_def] using hu.congr_deriv hscalar
+
+/-- Precise finite-boundary residual for the zero extension: if an interior
+branch parameter approaches a finite parameter whose image lies outside the
+chosen local image, continuity of `uMinus` would force the parameter density
+to tend to zero.  The local construction presently supplies no such vanishing
+at artificial ends of `Wpos`. -/
+theorem ForwardBranchOpen.tendsto_deficiencyDensity_zero_of_continuousAt_boundary
+    (O : ForwardBranchOpen) (χ : ℝ × ℝ → ℂ) {p : (ℝ × ℝ) × ℝ}
+    (hpW : p ∈ O.W) (hout : O.germ.branchMap p ∉ O.germ.branchMap '' O.Wpos)
+    (hu : ContinuousAt (O.uMinus χ) (O.germ.branchMap p)) :
+    Tendsto (O.deficiencyDensity χ) (𝓝[O.Wpos] p) (𝓝 0) := by
+  have hb : Tendsto O.germ.branchMap (𝓝[O.Wpos] p)
+      (𝓝 (O.germ.branchMap p)) :=
+    ((O.contDiff_branchMap p hpW).contDiffAt
+      (O.isOpen_W.mem_nhds hpW)).continuousAt.tendsto.mono_left inf_le_left
+  have hcomp := hu.tendsto.comp hb
+  rw [O.uMinus_off_image χ hout] at hcomp
+  apply hcomp.congr'
+  filter_upwards [self_mem_nhdsWithin] with q hq
+  change O.uMinus χ (O.germ.branchMap q) = O.deficiencyDensity χ q
+  exact O.uMinus_on_image χ hq
 
 /-- Change of variables for the squared norm of the branch-supported candidate.
 The right-hand side displays the exact branch Jacobian `|τ|`. -/
