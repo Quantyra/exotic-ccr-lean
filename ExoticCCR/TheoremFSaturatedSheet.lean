@@ -120,9 +120,9 @@ theorem ForwardBranchCrossSection.exists_localFlowLine
 
 /-- A compact transverse core carrying one common local existence time.
 
-This is the uniform local collar that follows directly from the cross-section:
-the trajectories are not yet packaged as a jointly smooth flow map, but their
-lifetimes have a common positive lower bound on the compact set `W₀`. -/
+This is the uniform local collar that follows directly from the cross-section.
+The Picard--Lindelöf construction gives one jointly continuous flow map on the
+compact transverse core and a common open time interval. -/
 structure UniformLocalFlowCollar where
   S : ForwardBranchCrossSection
   x₀ : ℝ × ℝ
@@ -134,9 +134,24 @@ structure UniformLocalFlowCollar where
   W₀_subset : W₀ ⊆ S.W
   δ : ℝ
   δ_pos : 0 < δ
-  exists_flowLine : ∀ x ∈ W₀, ∃ α : ℝ → R3,
-    α 0 = S.qSigma x ∧
-      ∀ t ∈ Ioo (-δ) δ, HasDerivAt α (X1 (α t)) t
+  flowMap : (ℝ × ℝ) × ℝ → R3
+  flowMap_zero : ∀ x ∈ W₀, flowMap (x, 0) = S.qSigma x
+  continuousOn_flowMap : ContinuousOn flowMap (W₀ ×ˢ Ioo (-δ) δ)
+  hasDerivAt_flowMap : ∀ x ∈ W₀, ∀ t ∈ Ioo (-δ) δ,
+    HasDerivAt (fun u => flowMap (x, u)) (X1 (flowMap (x, t))) t
+
+namespace UniformLocalFlowCollar
+
+/-- Each transverse point in a uniform collar has the corresponding local
+integral curve.  Unlike the earlier pointwise selection, all these curves are
+slices of the same jointly continuous map. -/
+theorem exists_flowLine (C : UniformLocalFlowCollar) (x : ℝ × ℝ) (hx : x ∈ C.W₀) :
+    ∃ α : ℝ → R3, α 0 = C.S.qSigma x ∧
+      ∀ t ∈ Ioo (-C.δ) C.δ, HasDerivAt α (X1 (α t)) t := by
+  exact ⟨fun t => C.flowMap (x, t), C.flowMap_zero x hx,
+    fun t ht => C.hasDerivAt_flowMap x hx t ht⟩
+
+end UniformLocalFlowCollar
 
 /-- Every positive branch cross-section contains a compact transverse ball on
 which Picard--Lindelöf gives a uniform local lifetime. -/
@@ -145,8 +160,9 @@ theorem ForwardBranchCrossSection.exists_uniformLocalFlowCollar
   obtain ⟨x₀, hx₀⟩ := S.nonempty_W
   have hX : ContDiffAt ℝ 1 X1 (S.qSigma x₀) :=
     (contDiff_X1.of_le (by simp : (1 : WithTop ℕ∞) ≤ ⊤)).contDiffAt
-  obtain ⟨r, hr, δ, hδ, hflow⟩ :=
-    hX.exists_forall_mem_closedBall_exists_eq_forall_mem_Ioo_hasDerivAt 0
+  obtain ⟨δ, hδ, a, r, L, K, hr, hpl⟩ := IsPicardLindelof.of_contDiffAt_one hX
+  obtain ⟨flow, hflow, hflow_cont⟩ :=
+    (hpl 0).exists_forall_mem_closedBall_eq_hasDerivWithinAt_continuousOn
   have hqcd : ContDiffAt ℝ ⊤ S.qSigma x₀ :=
     (S.contDiffOn_qSigma x₀ hx₀).contDiffAt (S.isOpen_W.mem_nhds hx₀)
   have hq : ContinuousAt S.qSigma x₀ := hqcd.continuousAt
@@ -166,15 +182,26 @@ theorem ForwardBranchCrossSection.exists_uniformLocalFlowCollar
       simpa [W₀, dist_comm] using hx
     dsimp [ρ] at hx'
     linarith
-  refine ⟨⟨S, x₀, ρ, hρ, W₀, rfl, ?_, ?_, δ, hδ, ?_⟩⟩
+  let flowMap : (ℝ × ℝ) × ℝ → R3 := fun p => flow (S.qSigma p.1, p.2)
+  refine ⟨⟨S, x₀, ρ, hρ, W₀, rfl, ?_, ?_, δ, hδ, flowMap, ?_, ?_, ?_⟩⟩
   · simpa [W₀] using (isCompact_closedBall x₀ ρ)
   · intro x hx
     exact (hWsub hx).1
   · intro x hx
-    have hqball : S.qSigma x ∈ Metric.closedBall (S.qSigma x₀) r :=
-      Metric.ball_subset_closedBall (hWsub hx).2
-    obtain ⟨α, hα0, hα⟩ := hflow (S.qSigma x) hqball
-    exact ⟨α, hα0, by simpa only [zero_sub, zero_add] using hα⟩
+    apply (hflow (S.qSigma x) (Metric.ball_subset_closedBall (hWsub hx).2)).1
+  · have hqcont : ContinuousOn (fun p : (ℝ × ℝ) × ℝ => S.qSigma p.1)
+        (W₀ ×ˢ Ioo (-δ) δ) :=
+      S.contDiffOn_qSigma.continuousOn.comp continuousOn_fst
+        (fun p hp => (hWsub hp.1).1)
+    apply hflow_cont.comp (hqcont.prodMk continuousOn_snd)
+    intro p hp
+    exact ⟨Metric.ball_subset_closedBall (hWsub hp.1).2,
+      by simpa only [zero_sub, zero_add] using Ioo_subset_Icc_self hp.2⟩
+  · intro x hx t ht
+    have ht' : t ∈ Ioo (0 - δ) (0 + δ) := by
+      simpa only [zero_sub, zero_add] using ht
+    exact (hflow (S.qSigma x) (Metric.ball_subset_closedBall (hWsub hx).2)).2 t
+      (Ioo_subset_Icc_self ht') |>.hasDerivAt (Icc_mem_nhds ht'.1 ht'.2)
 
 /-- Every local forward branch therefore carries a compact uniform local flow
 collar.  This still makes no maximal-time or endpoint-escape assertion. -/

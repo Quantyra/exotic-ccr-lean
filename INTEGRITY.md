@@ -69,8 +69,8 @@ the historical B5 algebraic core.
 16. **T0.F cross-section and saturation infrastructure.** Every `ForwardBranchOpen` contains a
     smooth injective positive constant-`τ` cross-section. Its offset `ε₀=τ₀²` is positive and its
     anchor value is exactly `(a, β(a,c)-ε₀, c)`. A compact transverse closed ball inside the
-    cross-section admits a common positive Picard--Lindelöf lifetime for individually selected
-    two-sided local `X1` trajectories. This is not a jointly smooth flow parameterization.
+    cross-section admits a common positive Picard--Lindelöf lifetime and a jointly continuous
+    two-sided local `X1` flow map. Joint smooth dependence is not proved.
     `ForwardSaturatedSheet` separately records the full interval-bundle, smooth injective flow
     parameterization, exact anchor evaluation, `X1` integral-curve, upper-escape, and lower-end
     conditions that would be needed before discarding endpoint terms. No inhabitant of this
@@ -97,8 +97,8 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
   vector satisfying the weak deficiency identity, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
 - That the current `ForwardBranchOpen` collar extends to a jointly smooth uniform product flow
-  collar or a `ForwardSaturatedSheet`. A compact transverse ball has a common local existence
-  time, but the supplied trajectories are selected pointwise; no maximal interval, `escape_upper`,
+  collar or a `ForwardSaturatedSheet`. A compact transverse ball has a jointly continuous local
+  flow with a common existence time, but no maximal interval, `escape_upper`,
   or `lower_ok` escape alternative is constructed. Its local `s = β-τ²` parameter domain is not
   proved to contain full flow intervals, and no theorem controls its other endpoint. Consequently
   no integration-by-parts boundary term is dropped here.
