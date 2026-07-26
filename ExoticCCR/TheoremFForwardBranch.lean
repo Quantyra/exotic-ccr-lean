@@ -418,6 +418,11 @@ structure ForwardBranchOpen where
   nonempty_W : W.Nonempty
   nonempty_Wpos : (W ∩ {p | 0 < p.2}).Nonempty
   accumulates_base : ∀ U ∈ 𝓝 (((0, 2), 0) : (ℝ × ℝ) × ℝ), (U ∩ W).Nonempty
+  /-- The constructed punctured domain contains a positive half-ball at the
+  distinguished wall base.  This records the product collar present in the
+  construction, rather than retaining only its weaker accumulation consequence. -/
+  exists_positive_ball_subset : ∃ ε > 0,
+    Metric.ball (((0, 2), 0) : (ℝ × ℝ) × ℝ) ε ∩ {p | 0 < p.2} ⊆ W
 
 /-- The forward branch germ admits an open positive punctured domain accumulating
 at the wall base. -/
@@ -445,7 +450,10 @@ theorem exists_forwardBranchOpen : Nonempty ForwardBranchOpen := by
     refine ⟨p, hpUN.1, hpUN.2, ?_⟩
     dsimp [p]
     linarith
-  refine ⟨⟨G, W, hWopen, ?_, ?_, ?_, ?_, ?_, hacc⟩⟩
+  have hVN : G.V ∩ N ∈ 𝓝 (((0, 2), 0) : (ℝ × ℝ) × ℝ) :=
+    (G.isOpen_V.inter hNopen).mem_nhds ⟨G.base_tau_mem, hbaseN⟩
+  obtain ⟨ε, hε, hballVN⟩ := Metric.mem_nhds_iff.mp hVN
+  refine ⟨⟨G, W, hWopen, ?_, ?_, ?_, ?_, ?_, hacc, ⟨ε, hε, ?_⟩⟩⟩
   · intro p hp
     exact hp.1.1
   · intro p hp
@@ -454,6 +462,8 @@ theorem exists_forwardBranchOpen : Nonempty ForwardBranchOpen := by
     exact hNsub hp.1.2 hp.1.1 (ne_of_gt hp.2)
   · exact hacc Set.univ univ_mem |>.mono fun _ hp ↦ hp.2
   · exact hacc Set.univ univ_mem |>.mono fun _ hp ↦ ⟨hp.2, hp.2.2⟩
+  · intro p hp
+    exact ⟨hballVN hp.1, hp.2⟩
 
 /-- The branch reconstruction is smooth on its open punctured domain. -/
 theorem ForwardBranchOpen.contDiff_branchMap (O : ForwardBranchOpen) :

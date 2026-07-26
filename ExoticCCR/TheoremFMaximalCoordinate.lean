@@ -9,9 +9,10 @@ import ExoticCCR.TheoremFBranchDensity
 /-!
 # The anchor coordinate along maximal `X1` trajectories
 
-This module proves the chain-rule input for locating a maximal trajectory in
-the target `s` coordinate.  It does not identify either maximal endpoint with
-the forward wall; that requires an additional global component/range argument.
+This module constructs a nonempty vertical collar at the distinguished wall,
+proves fixed-parameter escape there, and identifies the resulting maximal
+forward trajectory time with the wall offset.  It makes no sheet-smoothness or
+weak-adjoint claim.
 -/
 
 noncomputable section
@@ -28,11 +29,87 @@ def ForwardBranchCrossSection.branchTimeCurve (S : ForwardBranchCrossSection)
   S.O.germ.branchMap (x, Real.sqrt (S.ε₀ - t))
 
 /-- A fixed transverse parameter has the whole positive vertical branch segment
-below the chosen cross-section.  This is deliberately a hypothesis: it does not
-follow from the current `ForwardBranchOpen` API. -/
+below the chosen cross-section. -/
 def ForwardBranchCrossSection.HasVerticalBranchSegment
     (S : ForwardBranchCrossSection) (x : ℝ × ℝ) : Prop :=
   ∀ τ ∈ Ioc (0 : ℝ) S.τ₀, (x, τ) ∈ S.O.W
+
+/-- Shrinking the positive half-ball in a forward branch gives a vertical
+collar on which the numerator of the divided branch root stays uniformly
+positive. -/
+theorem ForwardBranchOpen.exists_crossSection_with_verticalCollar_and_rPlus
+    (O : ForwardBranchOpen) :
+    ∃ S : ForwardBranchCrossSection, S.O = O ∧
+      ∃ W' : Set (ℝ × ℝ), IsOpen W' ∧ W'.Nonempty ∧ W' ⊆ S.W ∧
+        ∀ x ∈ W', S.HasVerticalBranchSegment x ∧
+          ∀ τ ∈ Ioc (0 : ℝ) S.τ₀, 1 ≤ O.germ.rPlus (x, τ) := by
+  obtain ⟨ε, hε, hball⟩ := O.exists_positive_ball_subset
+  have hrcont : ContinuousAt O.germ.rPlus (((0, 2), 0) : (ℝ × ℝ) × ℝ) :=
+    (O.germ.contDiff_rPlus.contDiffAt
+      (O.germ.isOpen_V.mem_nhds O.germ.base_tau_mem)).continuousAt
+  have hsqrt : 1 < Real.sqrt 2 := by
+    nlinarith [Real.sq_sqrt (by norm_num : (0 : ℝ) ≤ 2), Real.sqrt_nonneg 2]
+  have hrnh : {p | 1 < O.germ.rPlus p} ∈
+      𝓝 (((0, 2), 0) : (ℝ × ℝ) × ℝ) := by
+    change O.germ.rPlus ⁻¹' Ioi 1 ∈ 𝓝 (((0, 2), 0) : (ℝ × ℝ) × ℝ)
+    apply hrcont
+    simpa [O.germ.rPlus_base] using Ioi_mem_nhds hsqrt
+  obtain ⟨δ, hδ, hballr⟩ := Metric.mem_nhds_iff.mp hrnh
+  let r := min ε δ
+  let τ₀ := r / 2
+  let W : Set (ℝ × ℝ) := {x | (x, τ₀) ∈ O.W}
+  let W' : Set (ℝ × ℝ) := Metric.ball (0, 2) (r / 2)
+  have hr : 0 < r := lt_min hε hδ
+  have hτ₀ : 0 < τ₀ := by dsimp [τ₀]; linarith
+  have hcollar : ∀ x ∈ W', ∀ τ ∈ Ioc (0 : ℝ) τ₀, (x, τ) ∈ O.W := by
+    intro x hx τ hτ
+    apply hball
+    constructor
+    · rw [Metric.mem_ball, Prod.dist_eq]
+      have hx' : dist x (0, 2) < r / 2 := by simpa [W'] using hx
+      have hτdist : dist τ 0 < ε := by
+        rw [Real.dist_eq, sub_zero, abs_of_pos hτ.1]
+        dsimp [τ₀] at hτ
+        exact hτ.2.trans_lt ((half_lt_self hr).trans_le (min_le_left ε δ))
+      exact max_lt (hx'.trans (half_lt_self hr) |>.trans_le (min_le_left ε δ)) hτdist
+    · exact hτ.1
+  have hrplus : ∀ x ∈ W', ∀ τ ∈ Ioc (0 : ℝ) τ₀,
+      1 ≤ O.germ.rPlus (x, τ) := by
+    intro x hx τ hτ
+    apply le_of_lt
+    apply hballr
+    rw [Metric.mem_ball, Prod.dist_eq]
+    have hx' : dist x (0, 2) < r / 2 := by simpa [W'] using hx
+    have hτdist : dist τ 0 < δ := by
+      rw [Real.dist_eq, sub_zero, abs_of_pos hτ.1]
+      dsimp [τ₀] at hτ
+      exact hτ.2.trans_lt ((half_lt_self hr).trans_le (min_le_right ε δ))
+    exact max_lt (hx'.trans (half_lt_self hr) |>.trans_le (min_le_right ε δ)) hτdist
+  have hWopen : IsOpen W := by
+    exact O.isOpen_W.preimage (by fun_prop : Continuous fun x : ℝ × ℝ => (x, τ₀))
+  have hW'open : IsOpen W' := Metric.isOpen_ball
+  have hbaseW' : (0, 2) ∈ W' := by simp [W', hr]
+  have hW'sub : W' ⊆ W := by
+    intro x hx
+    exact hcollar x hx τ₀ ⟨hτ₀, le_rfl⟩
+  let S : ForwardBranchCrossSection :=
+    ⟨O, τ₀, hτ₀, W, rfl, hWopen, ⟨(0, 2), hW'sub hbaseW'⟩⟩
+  refine ⟨S, rfl, W', hW'open, ⟨(0, 2), hbaseW'⟩, ?_, ?_⟩
+  · simpa [S] using hW'sub
+  · intro x hx
+    exact ⟨fun τ hτ => hcollar x hx τ hτ,
+      by simpa [S] using hrplus x hx⟩
+
+/-- Every forward branch therefore has a nonempty open cross-section carrying
+full vertical branch segments down to the wall. -/
+theorem ForwardBranchOpen.exists_crossSection_with_verticalCollar
+    (O : ForwardBranchOpen) :
+    ∃ S : ForwardBranchCrossSection, S.O = O ∧
+      ∃ W' : Set (ℝ × ℝ), IsOpen W' ∧ W'.Nonempty ∧ W' ⊆ S.W ∧
+        ∀ x ∈ W', S.HasVerticalBranchSegment x := by
+  obtain ⟨S, hSO, W', hWopen, hWne, hWsub, h⟩ :=
+    O.exists_crossSection_with_verticalCollar_and_rPlus
+  exact ⟨S, hSO, W', hWopen, hWne, hWsub, fun x hx => (h x hx).1⟩
 
 /-- The square-root reparameterization of a vertical branch segment has
 velocity exactly `X1`. -/
@@ -82,6 +159,54 @@ theorem ForwardBranchCrossSection.hasDerivAt_branchTimeCurve
     exact Real.sqrt_le_sqrt (by linarith [ht.1])
   exact S.hasDerivAt_branchTimeCurve_of_mem x ht.2
     (hvert _ ⟨hτpos, hτle⟩)
+
+/-- A uniform positive lower bound for the divided branch root numerator makes
+the fixed-parameter branch escape when its vertical parameter tends to zero. -/
+theorem ForwardBranchCrossSection.tendsto_norm_branchTimeCurve_of_one_le_rPlus
+    (S : ForwardBranchCrossSection) (x : ℝ × ℝ)
+    (hr : ∀ τ ∈ Ioc (0 : ℝ) S.τ₀, 1 ≤ S.O.germ.rPlus (x, τ)) :
+    Tendsto (fun t : ℝ => ‖S.branchTimeCurve x t‖)
+      (𝓝[<] S.ε₀) atTop := by
+  let τ : ℝ → ℝ := fun t => Real.sqrt (S.ε₀ - t)
+  have hτzero : Tendsto τ (𝓝[<] S.ε₀) (𝓝 0) := by
+    have hcont : ContinuousAt τ S.ε₀ := by
+      dsimp [τ]
+      fun_prop
+    change Tendsto (fun t => Real.sqrt (S.ε₀ - t))
+      (𝓝 S.ε₀ ⊓ 𝓟 (Iio S.ε₀)) (𝓝 0)
+    simpa only [τ, sub_self, Real.sqrt_zero] using
+      hcont.tendsto.mono_left inf_le_left
+  have hτpos : ∀ᶠ t in 𝓝[<] S.ε₀, 0 < τ t := by
+    filter_upwards [self_mem_nhdsWithin] with t ht
+    exact Real.sqrt_pos.2 (sub_pos.mpr ht)
+  have hτGT : Tendsto τ (𝓝[<] S.ε₀) (𝓝[>] 0) := by
+    rw [tendsto_nhdsWithin_iff]
+    exact ⟨hτzero, hτpos⟩
+  have hinv : Tendsto (fun t => (τ t)⁻¹) (𝓝[<] S.ε₀) atTop :=
+    hτGT.inv_tendsto_nhdsGT_zero
+  have hnear : ∀ᶠ t in 𝓝[<] S.ε₀, t ∈ Ioo 0 S.ε₀ :=
+    Ioo_mem_nhdsLT S.ε₀_pos
+  have hτle : ∀ᶠ t in 𝓝[<] S.ε₀, τ t ≤ S.τ₀ := by
+    filter_upwards [hnear] with t ht
+    dsimp [τ]
+    rw [← S.sqrt_ε₀]
+    exact Real.sqrt_le_sqrt (by linarith [ht.1])
+  have hq0 : Tendsto (fun t => S.O.germ.q0 (x, τ t))
+      (𝓝[<] S.ε₀) atTop := by
+    apply tendsto_atTop_mono' _ _ hinv
+    filter_upwards [hτpos, hτle] with t htpos htle
+    rw [ForwardBranchGerm.q0, div_eq_mul_inv]
+    have hinvnonneg : 0 ≤ (τ t)⁻¹ := le_of_lt (inv_pos.2 htpos)
+    simpa using mul_le_mul_of_nonneg_right (hr (τ t) ⟨htpos, htle⟩) hinvnonneg
+  apply tendsto_atTop_mono' _ _ hq0
+  filter_upwards with t
+  calc
+    S.O.germ.q0 (x, τ t) ≤ |S.O.germ.q0 (x, τ t)| := le_abs_self _
+    _ ≤ ‖S.branchTimeCurve x t‖ := by
+      rw [← S.O.branchMap_coord0_eq_q0 (x, τ t), Pi.norm_def]
+      exact_mod_cast Finset.le_sup
+        (f := fun b ↦ ‖S.O.germ.branchMap (x, τ t) b‖₊)
+        (Finset.mem_univ (0 : Fin 3))
 
 /-- A vertical branch segment extends slightly backward from the cross-section
 by openness, so the branch reparameterization itself is a connected open
@@ -262,5 +387,23 @@ theorem ForwardBranchCrossSection.tMax_qSigma_eq_ε₀_of_escape
   have htReal : t < (tMax (S.qSigma x)).toReal := EReal.coe_lt_coe_iff.mp htUpper
   dsimp [t] at htReal
   linarith
+
+/-- On a nonempty open transverse set, the vertical branch reaches its wall at
+exactly the maximal forward `X1` time.  No endpoint hypothesis remains in this
+existence statement. -/
+theorem ForwardBranchOpen.exists_crossSection_tMax_qSigma_eq_ε₀
+    (O : ForwardBranchOpen) :
+    ∃ S : ForwardBranchCrossSection, S.O = O ∧
+      ∃ W' : Set (ℝ × ℝ), IsOpen W' ∧ W'.Nonempty ∧ W' ⊆ S.W ∧
+        ∀ x ∈ W', tMax (S.qSigma x) = (S.ε₀ : EReal) := by
+  obtain ⟨S, hSO, W', hWopen, hWne, hWsub, h⟩ :=
+    O.exists_crossSection_with_verticalCollar_and_rPlus
+  refine ⟨S, hSO, W', hWopen, hWne, hWsub, ?_⟩
+  intro x hx
+  have hvert := (h x hx).1
+  have hr : ∀ τ ∈ Ioc (0 : ℝ) S.τ₀, 1 ≤ S.O.germ.rPlus (x, τ) := by
+    simpa [hSO] using (h x hx).2
+  exact S.tMax_qSigma_eq_ε₀_of_escape (hWsub hx) hvert
+    (S.tendsto_norm_branchTimeCurve_of_one_le_rPlus x hr)
 
 end ExoticCCR

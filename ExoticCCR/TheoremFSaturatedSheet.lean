@@ -18,10 +18,10 @@ the geometric data that a full forward sheet would have to provide before an
 integration-by-parts argument can be attempted.
 
 `ForwardBranchOpen` does not presently give an inhabitant of this structure.
-It is a local `s = β - τ²` collar whose exposed parameter-domain API need not
-contain a whole interval in `s`.  Finite maximal endpoints now escape, but the
-upper endpoint has not been identified with the branch wall and jointly smooth
-maximal-flow dependence has not been established.  Thus this module
+Its positive half-ball supplies vertical segments, and the resulting upper
+maximal endpoint is identified with the branch wall in
+`TheoremFMaximalCoordinate`.  Pointwise finite lower endpoints also escape.
+Jointly smooth maximal-flow dependence has not been established.  Thus this module
 deliberately proves no weak-adjoint statement and no Theorem E.
 -/
 
@@ -607,6 +607,27 @@ theorem tendsto_norm_maximalIntegralCurve_at_tMin
     rw [Metric.mem_closedBall, dist_zero_right]
     exact (le_of_not_ge ht).trans (le_abs_self b)
   exact not_frequently_mem_compact_of_tMin_eq hT (isCompact_closedBall 0 |b|) hfreqBall
+
+/-- The lower maximal endpoint is either negative infinity or a finite endpoint
+with norm escape from the right.  This is the pointwise lower-end alternative
+required by a saturated sheet; assembling it into a sheet still requires
+jointly smooth dependence on the transverse parameter. -/
+theorem tMin_eq_bot_or_exists_escape (x₀ : R3) :
+    tMin x₀ = ⊥ ∨ ∃ T : ℝ, tMin x₀ = (T : EReal) ∧
+      Tendsto (fun t : ℝ => ‖maximalIntegralCurve x₀ t‖) (𝓝[>] T) atTop := by
+  by_cases hbot : tMin x₀ = ⊥
+  · exact Or.inl hbot
+  · right
+    have hmax := maximalIntegralCurve_isIntegralCurveFrom x₀
+    have hlower := ((mem_integralCurveDomain_iff x₀ 0).1 hmax.1).1
+    have htop : tMin x₀ ≠ ⊤ := by
+      intro h
+      rw [h] at hlower
+      simpa using hlower
+    let T := (tMin x₀).toReal
+    have hT : tMin x₀ = (T : EReal) :=
+      (EReal.coe_toReal htop hbot).symm
+    exact ⟨T, hT, tendsto_norm_maximalIntegralCurve_at_tMin hT⟩
 
 /-- A compact transverse core carrying one common local existence time.
 
