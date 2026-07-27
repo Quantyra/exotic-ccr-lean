@@ -466,37 +466,95 @@ theorem maximalIntegralCurve_add {x₀ : R3} {t u : ℝ}
   apply maximalIntegralCurve_eq_of_mem hα
   simpa [I] using htu
 
+/-- Membership in the maximal domain is stable under concatenating two
+successive pieces of a trajectory. -/
+theorem mem_integralCurveDomain_add {x₀ : R3} {t u : ℝ}
+    (ht : t ∈ integralCurveDomain x₀)
+    (hu : u ∈ integralCurveDomain (maximalIntegralCurve x₀ t)) :
+    t + u ∈ integralCurveDomain x₀ := by
+  obtain ⟨γ, J, hγ, huJ⟩ := hu
+  let J' : Set ℝ := (fun v : ℝ => v - t) ⁻¹' J
+  let γ' : ℝ → R3 := fun v => γ (v - t)
+  have hJ'open : IsOpen J' :=
+    hγ.2.1.preimage (continuous_id.sub continuous_const)
+  have hJ'pre : IsPreconnected J' := by
+    rw [isPreconnected_iff_ordConnected]
+    refine ⟨?_⟩
+    intro a ha b hb c hc
+    change a - t ∈ J at ha
+    change b - t ∈ J at hb
+    change c - t ∈ J
+    apply hγ.2.2.1.2.ordConnected.out' ha hb
+    constructor <;> linarith [hc.1, hc.2]
+  have htJ' : t ∈ J' := by simpa [J'] using hγ.1
+  have hγ'deriv : ∀ v ∈ J', HasDerivAt γ' (X1 (γ' v)) v := by
+    intro v hv
+    change v - t ∈ J at hv
+    simpa only [γ', sub_eq_add_neg] using
+      (hγ.2.2.2.2 (v - t) hv).comp_add_const v (-t)
+  have hpatch := (maximalIntegralCurve_isIntegralCurveFrom x₀).extend
+    hJ'open ⟨⟨t, htJ'⟩, hJ'pre⟩ hγ'deriv ht htJ' (by simp [γ', hγ.2.2.2.1])
+  exact ⟨_, _, hpatch, Or.inr (by simpa [J'] using huJ)⟩
+
+/-- Cocycle identity with the natural successive-domain hypotheses. -/
+theorem maximalIntegralCurve_add' {x₀ : R3} {t u : ℝ}
+    (ht : t ∈ integralCurveDomain x₀)
+    (hu : u ∈ integralCurveDomain (maximalIntegralCurve x₀ t)) :
+    maximalIntegralCurve (maximalIntegralCurve x₀ t) u =
+      maximalIntegralCurve x₀ (t + u) :=
+  maximalIntegralCurve_add ht (mem_integralCurveDomain_add ht hu)
+
 /-- Around every ambient initial point, the canonical selected maximal curves
 are one jointly continuous Picard flow on a common product collar.  Unlike
 `UniformLocalFlowCollar`, this statement has no cross-section parameter and is
 therefore suitable for repeated continuation along a maximal trajectory. -/
-theorem exists_continuousOn_maximalIntegralCurve_ambient_local (x₀ : R3) :
+theorem exists_continuousOn_maximalIntegralCurve_ambient_local_with_domain (x₀ : R3) :
     ∃ r > (0 : ℝ), ∃ δ > (0 : ℝ),
       ContinuousOn (fun p : R3 × ℝ => maximalIntegralCurve p.1 p.2)
-        (Metric.closedBall x₀ r ×ˢ Ioo (-δ) δ) := by
+          (Metric.closedBall x₀ r ×ˢ Ioo (-δ) δ) ∧
+        ∀ p ∈ Metric.closedBall x₀ r ×ˢ Ioo (-δ) δ,
+          p.2 ∈ integralCurveDomain p.1 := by
   have hX : ContDiffAt ℝ 1 X1 x₀ :=
     (contDiff_X1.of_le (by simp : (1 : WithTop ℕ∞) ≤ ⊤)).contDiffAt
   obtain ⟨δ, hδ, a, r, L, K, hr, hpl⟩ := IsPicardLindelof.of_contDiffAt_one hX
   obtain ⟨flow, hflow, hflow_cont⟩ :=
     (hpl 0).exists_forall_mem_closedBall_eq_hasDerivWithinAt_continuousOn
-  refine ⟨r, hr, δ, hδ, ?_⟩
-  apply hflow_cont.mono (by
+  refine ⟨r, hr, δ, hδ, ?_, ?_⟩
+  · apply hflow_cont.mono (by
+      intro p hp
+      have hp2 : p.2 ∈ Ioo (0 - δ) (0 + δ) := by
+        simpa only [zero_sub, zero_add] using hp.2
+      exact ⟨hp.1, Ioo_subset_Icc_self hp2⟩) |>.congr
     intro p hp
-    have hp2 : p.2 ∈ Ioo (0 - δ) (0 + δ) := by
-      simpa only [zero_sub, zero_add] using hp.2
-    exact ⟨hp.1, Ioo_subset_Icc_self hp2⟩) |>.congr
-  intro p hp
-  let α : ℝ → R3 := fun t => flow (p.1, t)
-  have hα : isIntegralCurveFrom p.1 α (Ioo (-δ) δ) := by
-    refine ⟨by simp [hδ], isOpen_Ioo,
-      isConnected_Ioo (by linarith [hδ]), ?_, ?_⟩
-    · exact (hflow p.1 hp.1).1
-    · intro t ht
-      have ht' : t ∈ Ioo (0 - δ) (0 + δ) := by
-        simpa only [zero_sub, zero_add] using ht
+    let α : ℝ → R3 := fun t => flow (p.1, t)
+    have hα : isIntegralCurveFrom p.1 α (Ioo (-δ) δ) := by
+      refine ⟨by simp [hδ], isOpen_Ioo,
+        isConnected_Ioo (by linarith [hδ]), ?_, ?_⟩
+      · exact (hflow p.1 hp.1).1
+      · intro t ht
+        have ht' : t ∈ Ioo (0 - δ) (0 + δ) := by
+          simpa only [zero_sub, zero_add] using ht
+        exact (hflow p.1 hp.1).2 t (Ioo_subset_Icc_self ht') |>.hasDerivAt
+          (Icc_mem_nhds ht'.1 ht'.2)
+    simpa only [α] using maximalIntegralCurve_eq_of_mem hα hp.2
+  · intro p hp
+    let α : ℝ → R3 := fun t => flow (p.1, t)
+    have hα : isIntegralCurveFrom p.1 α (Ioo (-δ) δ) := by
+      refine ⟨by simp [hδ], isOpen_Ioo,
+        isConnected_Ioo (by linarith [hδ]), (hflow p.1 hp.1).1, ?_⟩
+      intro t ht
+      have ht' : t ∈ Ioo (0 - δ) (0 + δ) := by simpa using ht
       exact (hflow p.1 hp.1).2 t (Ioo_subset_Icc_self ht') |>.hasDerivAt
         (Icc_mem_nhds ht'.1 ht'.2)
-  simpa only [α] using maximalIntegralCurve_eq_of_mem hα hp.2
+    exact ⟨α, Ioo (-δ) δ, hα, hp.2⟩
+
+theorem exists_continuousOn_maximalIntegralCurve_ambient_local (x₀ : R3) :
+    ∃ r > (0 : ℝ), ∃ δ > (0 : ℝ),
+      ContinuousOn (fun p : R3 × ℝ => maximalIntegralCurve p.1 p.2)
+        (Metric.closedBall x₀ r ×ˢ Ioo (-δ) δ) := by
+  obtain ⟨r, hr, δ, hδ, hcont, _⟩ :=
+    exists_continuousOn_maximalIntegralCurve_ambient_local_with_domain x₀
+  exact ⟨r, hr, δ, hδ, hcont⟩
 
 /-- On a compact set of initial points there is one common time collar on
 which the canonical maximal curves are jointly continuous.  This is the
@@ -542,6 +600,209 @@ theorem exists_continuousOn_maximalIntegralCurve_ambient_compact_local
       ((Metric.isOpen_ball.prod isOpen_Ioo).mem_nhds hpOpen) |>.continuousWithinAt
   · refine ⟨1, by norm_num, ?_⟩
     simpa [Set.not_nonempty_iff_eq_empty.mp hKne]
+
+/-- At a fixed base point, a time is good when it remains in the maximal
+domain for all sufficiently nearby initial points and evaluation at that time
+depends continuously on the initial point. -/
+def maximalIntegralCurveGoodAt (y : R3) (t : ℝ) : Prop :=
+  (∀ᶠ z in 𝓝 y, t ∈ integralCurveDomain z) ∧
+    ContinuousAt (fun z : R3 => maximalIntegralCurve z t) y
+
+private theorem maximalIntegralCurveGoodAt.propagate
+    {y c : R3} {s t r δ : ℝ}
+    (hs : maximalIntegralCurveGoodAt y s)
+    (hr : 0 < r) (hδ : 0 < δ)
+    (hcont : ContinuousOn
+      (fun p : R3 × ℝ => maximalIntegralCurve p.1 p.2)
+      (Metric.closedBall c r ×ˢ Ioo (-δ) δ))
+    (hlocalDom : ∀ p ∈ Metric.closedBall c r ×ˢ Ioo (-δ) δ,
+      p.2 ∈ integralCurveDomain p.1)
+    (hys : maximalIntegralCurve y s ∈ Metric.ball c r)
+    (hu : t - s ∈ Ioo (-δ) δ) :
+    maximalIntegralCurveGoodAt y t := by
+  have heventBall : ∀ᶠ z in 𝓝 y,
+      maximalIntegralCurve z s ∈ Metric.ball c r :=
+    hs.2 (Metric.isOpen_ball.mem_nhds hys)
+  have hevent : ∀ᶠ z in 𝓝 y,
+      s ∈ integralCurveDomain z ∧
+        t - s ∈ integralCurveDomain (maximalIntegralCurve z s) := by
+    filter_upwards [hs.1, heventBall] with z hzs hzball
+    refine ⟨hzs, hlocalDom (maximalIntegralCurve z s, t - s)
+      ⟨Metric.ball_subset_closedBall hzball, hu⟩⟩
+  constructor
+  · filter_upwards [hevent] with z hz
+    convert mem_integralCurveDomain_add hz.1 hz.2 using 1 <;> ring
+  · have hmap : ContinuousAt
+        (fun z : R3 => (maximalIntegralCurve z s, t - s)) y :=
+      hs.2.prodMk continuousAt_const
+    have hyMap : (maximalIntegralCurve y s, t - s) ∈
+        Metric.ball c r ×ˢ Ioo (-δ) δ := ⟨hys, hu⟩
+    have hflow : ContinuousAt
+        (fun p : R3 × ℝ => maximalIntegralCurve p.1 p.2)
+        (maximalIntegralCurve y s, t - s) :=
+      ((hcont.mono (prod_mono Metric.ball_subset_closedBall Subset.rfl)) _ hyMap).continuousAt
+        ((Metric.isOpen_ball.prod isOpen_Ioo).mem_nhds hyMap)
+    have hcomp : ContinuousAt
+        (fun z : R3 => maximalIntegralCurve (maximalIntegralCurve z s) (t - s)) y :=
+      Filter.Tendsto.comp hflow hmap
+    apply hcomp.congr_of_eventuallyEq
+    filter_upwards [hevent] with z hz
+    simpa only [show s + (t - s) = t by ring] using
+      (maximalIntegralCurve_add' hz.1 hz.2).symm
+
+/-- Nearby initial points retain every fixed time in the reference maximal
+domain, and evaluation there depends continuously on the initial point. -/
+theorem maximalIntegralCurveGoodAt_of_mem {y : R3} {T : ℝ}
+    (hT : T ∈ integralCurveDomain y) :
+    maximalIntegralCurveGoodAt y T := by
+  let G : Set ℝ := {t | maximalIntegralCurveGoodAt y t}
+  have hGopen : IsOpen G := by
+    rw [isOpen_iff_mem_nhds]
+    intro t ht
+    obtain ⟨r, hr, δ, hδ, hcont, hlocalDom⟩ :=
+      exists_continuousOn_maximalIntegralCurve_ambient_local_with_domain
+        (maximalIntegralCurve y t)
+    have htnhds : Ioo (t - δ) (t + δ) ∈ 𝓝 t :=
+      Ioo_mem_nhds (by linarith [hδ]) (by linarith [hδ])
+    apply mem_of_superset htnhds
+    intro q hq
+    apply maximalIntegralCurveGoodAt.propagate ht hr hδ hcont hlocalDom
+    · exact Metric.mem_ball_self hr
+    · constructor <;> linarith [hq.1, hq.2]
+  have hDGopen : IsOpen (integralCurveDomain y \ G) := by
+    rw [isOpen_iff_mem_nhds]
+    intro t ht
+    obtain ⟨r, hr, δ, hδ, hcont, hlocalDom⟩ :=
+      exists_continuousOn_maximalIntegralCurve_ambient_local_with_domain
+        (maximalIntegralCurve y t)
+    have hcurveCont : ContinuousAt (maximalIntegralCurve y) t :=
+      (hasDerivAt_maximalIntegralCurve
+        ((mem_integralCurveDomain_iff y t).1 ht.1)).continuousAt
+    have hball : ∀ᶠ q in 𝓝 t,
+        maximalIntegralCurve y q ∈ Metric.ball (maximalIntegralCurve y t) r :=
+      hcurveCont (Metric.ball_mem_nhds _ hr)
+    have htime : Ioo (t - δ) (t + δ) ∈ 𝓝 t :=
+      Ioo_mem_nhds (by linarith [hδ]) (by linarith [hδ])
+    apply mem_of_superset
+      (inter_mem (isOpen_integralCurveDomain y |>.mem_nhds ht.1)
+        (inter_mem hball htime))
+    rintro q ⟨hqDom, hqBall, hqTime⟩
+    refine ⟨hqDom, ?_⟩
+    intro hqGood
+    apply ht.2
+    apply maximalIntegralCurveGoodAt.propagate hqGood hr hδ hcont hlocalDom hqBall
+    constructor <;> linarith [hqTime.1, hqTime.2]
+  have hzeroDom : (0 : ℝ) ∈ integralCurveDomain y :=
+    (maximalIntegralCurve_isIntegralCurveFrom y).1
+  have hzeroGood : maximalIntegralCurveGoodAt y 0 := by
+    constructor
+    · exact Filter.Eventually.of_forall fun z =>
+        (maximalIntegralCurve_isIntegralCurveFrom z).1
+    · have heq : (fun z : R3 => maximalIntegralCurve z 0) = id := by
+        funext z
+        exact maximalIntegralCurve_zero z (exists_isIntegralCurveFrom z)
+      rw [heq]
+      exact continuousAt_id
+  have hsubset : integralCurveDomain y ⊆ G := by
+    apply (isPreconnected_integralCurveDomain y).subset_left_of_subset_union
+      hGopen hDGopen
+    · exact disjoint_sdiff_right
+    · intro t ht
+      by_cases htG : t ∈ G
+      · exact Or.inl htG
+      · exact Or.inr ⟨ht, htG⟩
+    · exact ⟨0, hzeroDom, hzeroGood⟩
+  exact hsubset hT
+
+/-- Continuous dependence on the initial point at every time belonging to the
+maximal domain of the reference trajectory. -/
+theorem continuousAt_maximalIntegralCurve_const_time {y : R3} {T : ℝ}
+    (hT : T ∈ integralCurveDomain y) :
+    ContinuousAt (fun z : R3 => maximalIntegralCurve z T) y :=
+  (maximalIntegralCurveGoodAt_of_mem hT).2
+
+/-- Continuous dependence at one fixed time, restricted to any compact set of
+initial points on which that time belongs to every maximal domain. -/
+theorem continuousOn_maximalIntegralCurve_const_time
+    (K : Set R3) (_hK : IsCompact K) (T : ℝ)
+    (hdom : ∀ y ∈ K, tMin y < (T : EReal) ∧ (T : EReal) < tMax y) :
+    ContinuousOn (fun y : R3 => maximalIntegralCurve y T) K := by
+  intro y hy
+  exact (continuousAt_maximalIntegralCurve_const_time
+    ((mem_integralCurveDomain_iff y T).2 (hdom y hy))).continuousWithinAt
+
+/-- Every real time between two times in a maximal trajectory domain remains
+in that domain. -/
+theorem Icc_subset_integralCurveDomain {y : R3} {a b : ℝ}
+    (ha : tMin y < (a : EReal) ∧ (a : EReal) < tMax y)
+    (hb : tMin y < (b : EReal) ∧ (b : EReal) < tMax y) :
+    Icc a b ⊆ integralCurveDomain y := by
+  intro t ht
+  apply (mem_integralCurveDomain_iff y t).2
+  constructor
+  · exact ha.1.trans_le (EReal.coe_le_coe_iff.mpr ht.1)
+  · exact (EReal.coe_le_coe_iff.mpr ht.2).trans_lt hb.2
+
+/-- Joint continuous dependence of maximal trajectories on a compact set of
+initial points and a compact time interval contained fiberwise in their
+maximal domains. -/
+theorem continuousOn_maximalIntegralCurve_compact_time
+    (K : Set R3) (_hK : IsCompact K) {a b : ℝ} (_hab : a ≤ b)
+    (hdom : ∀ y ∈ K, tMin y < (a : EReal) ∧ (b : EReal) < tMax y) :
+    ContinuousOn (fun p : R3 × ℝ => maximalIntegralCurve p.1 p.2)
+      (K ×ˢ Icc a b) := by
+  rintro ⟨y, t⟩ ⟨hy, ht⟩
+  have htBounds : tMin y < (t : EReal) ∧ (t : EReal) < tMax y := by
+    constructor
+    · exact (hdom y hy).1.trans_le (EReal.coe_le_coe_iff.mpr ht.1)
+    · exact (EReal.coe_le_coe_iff.mpr ht.2).trans_lt (hdom y hy).2
+  have htDom : t ∈ integralCurveDomain y :=
+    (mem_integralCurveDomain_iff y t).2 htBounds
+  have hgood := maximalIntegralCurveGoodAt_of_mem htDom
+  obtain ⟨r, hr, δ, hδ, hlocalCont, hlocalDom⟩ :=
+    exists_continuousOn_maximalIntegralCurve_ambient_local_with_domain
+      (maximalIntegralCurve y t)
+  have hbase : ContinuousAt
+      (fun q : R3 × ℝ => maximalIntegralCurve q.1 t) (y, t) :=
+    Filter.Tendsto.comp hgood.2 continuousAt_fst
+  have hmap : ContinuousAt
+      (fun q : R3 × ℝ =>
+        (maximalIntegralCurve q.1 t, q.2 - t)) (y, t) :=
+    hbase.prodMk (continuousAt_snd.sub continuousAt_const)
+  have hyMap : (maximalIntegralCurve y t, t - t) ∈
+      Metric.ball (maximalIntegralCurve y t) r ×ˢ Ioo (-δ) δ := by
+    constructor
+    · exact Metric.mem_ball_self hr
+    · simp [hδ]
+  have hflow : ContinuousAt
+      (fun p : R3 × ℝ => maximalIntegralCurve p.1 p.2)
+      (maximalIntegralCurve y t, t - t) :=
+    ((hlocalCont.mono (prod_mono Metric.ball_subset_closedBall Subset.rfl)) _ hyMap).continuousAt
+      ((Metric.isOpen_ball.prod isOpen_Ioo).mem_nhds hyMap)
+  have hcomp : ContinuousAt
+      (fun q : R3 × ℝ =>
+        maximalIntegralCurve (maximalIntegralCurve q.1 t) (q.2 - t)) (y, t) :=
+    Filter.Tendsto.comp hflow hmap
+  have hsource : ∀ᶠ q in 𝓝 (y, t), t ∈ integralCurveDomain q.1 :=
+    hgood.1.prod_inl_nhds t
+  have hball : ∀ᶠ q in 𝓝 (y, t),
+      maximalIntegralCurve q.1 t ∈ Metric.ball (maximalIntegralCurve y t) r :=
+    hbase (Metric.ball_mem_nhds _ hr)
+  have htime : ∀ᶠ q in 𝓝 (y, t), q.2 - t ∈ Ioo (-δ) δ :=
+    (continuousAt_snd.sub continuousAt_const) (by simpa using Ioo_mem_nhds (neg_lt_zero.mpr hδ) hδ)
+  have hevent : ∀ᶠ q in 𝓝 (y, t),
+      t ∈ integralCurveDomain q.1 ∧
+        q.2 - t ∈ integralCurveDomain (maximalIntegralCurve q.1 t) := by
+    filter_upwards [hsource, hball, htime] with q hqSource hqBall hqTime
+    exact ⟨hqSource, hlocalDom (maximalIntegralCurve q.1 t, q.2 - t)
+      ⟨Metric.ball_subset_closedBall hqBall, hqTime⟩⟩
+  have hjoint : ContinuousAt
+      (fun q : R3 × ℝ => maximalIntegralCurve q.1 q.2) (y, t) := by
+    apply hcomp.congr_of_eventuallyEq
+    filter_upwards [hevent] with q hq
+    simpa only [show t + (q.2 - t) = q.2 by ring] using
+      (maximalIntegralCurve_add' hq.1 hq.2).symm
+  exact hjoint.continuousWithinAt
 
 /-- On a compact time interval in the maximal domain, the selected maximal
 curve is jointly continuous when the compact initial set is a singleton.  This

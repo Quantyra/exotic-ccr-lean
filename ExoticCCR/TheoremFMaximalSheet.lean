@@ -13,10 +13,11 @@ canonical maximal integral curve through its regular lower face.  This module
 records that extension and proves exact agreement at the interface and on the
 overlap.  The local Picard collar in `TheoremFSaturatedSheet` now identifies
 the selected maximal curves with a jointly continuous flow on a nonempty open
-product collar.  It deliberately does not package the full extension as a
-`ForwardSaturatedSheet`: joint regularity has not been continued over the
-whole variable maximal domain.  Consequently no ambient change of variables
-is claimed here.
+product collar, and `TheoremFSaturatedSheet` proves general compact-base,
+compact-time joint continuity for the ambient maximal flow.  This file still
+does not package the translated variable-domain extension as a
+`ForwardSaturatedSheet`; the needed global measurable/change-of-variables
+infrastructure is not claimed here.
 -/
 
 noncomputable section
@@ -115,9 +116,9 @@ theorem lower_eq_bot_or_exists_escape (M : ForwardMaximalSheet) (x : ℝ × ℝ)
 end ForwardMaximalSheet
 
 /-- Every forward branch contains a nonempty pointwise maximal sheet.  This is
-not promoted to `ForwardSaturatedSheet` because the available local joint
-continuity of `maximalIntegralCurve (qSigma x)` has not been continued over
-the whole maximal domain. -/
+not promoted to `ForwardSaturatedSheet`: although compact-subdomain joint
+continuity of the ambient maximal flow is available, the translated variable
+domain has not yet been supplied with all fields required by that structure. -/
 theorem ForwardBranchOpen.exists_forwardMaximalSheet (O : ForwardBranchOpen) :
     Nonempty ForwardMaximalSheet := by
   obtain ⟨S, hSO, W, hWopen, hWne, hWsub, hcollar⟩ :=
