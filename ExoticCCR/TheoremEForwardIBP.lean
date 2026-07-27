@@ -367,6 +367,155 @@ theorem forall_pos_exists_near_beta_norm_inner_lt
   simp only [dist_zero_right] at hres
   exact hres
 
+/-!
+## Lower residual vanishing
+
+The lower endpoint has two honest alternatives per `lower_eq_bot_or_exists_escape`:
+
+1. **`tMin = ⊥`** (lower endpoint is `-∞`): The density factor `exp(s - β(x)) → 0`
+   as `s → -∞`, while the test function remains bounded (compact support on a
+   continuous function).  The pairing vanishes.
+
+2. **Finite `tMin` with norm escape**: As `s` approaches the finite lower endpoint
+   from the right, `‖Psi‖ → ∞`, so any compactly supported test function eventually
+   evaluates to zero.  The pairing vanishes.
+-/
+
+/-- When the lower endpoint is `-∞`, the density factor `exp(s - β(x))` tends to 0
+as `s → -∞`. -/
+theorem tendsto_exp_sub_beta_atBot (M : ForwardMaximalSheet) (x : ℝ × ℝ) :
+    Tendsto (fun s : ℝ => Complex.exp (s - M.S.O.germ.β x)) atBot (𝓝 0) := by
+  have h : Tendsto (fun s : ℝ => (s - M.S.O.germ.β x : ℂ)) atBot (comap Complex.re atBot) := by
+    rw [tendsto_comap_iff]
+    simp only [Function.comp_def, Complex.sub_re, Complex.ofReal_re]
+    exact tendsto_atBot_add_const_right _ _ tendsto_id
+  exact Complex.tendsto_exp_comap_re_atBot.comp h
+
+/-- **Lower residual vanishing (case: lower endpoint is `-∞`).**  When `tMin = ⊥`,
+the deficiency density `χ(x) * exp(s - β(x))` tends to 0 as `s → -∞`, and hence
+the pairing with any bounded test function vanishes.  This covers the first
+honest alternative for lower residual treatment. -/
+theorem tendsto_inner_deficiencyDensity_test_zero_atBot
+    (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ) (φ : CcinftyR3) (x : ℝ × ℝ) :
+    Tendsto (fun s : ℝ => inner ℂ (M.deficiencyDensity χ (x, s)) (φ (M.Psi (x, s))))
+      atBot (𝓝 0) := by
+  -- The density is χ(x) * exp(s - β(x)); as s → -∞, exp(s - β) → 0
+  -- The test function φ(Psi(x, s)) is bounded (continuous, compactly supported)
+  have hexp := M.tendsto_exp_sub_beta_atBot x
+  -- χ(x) is a constant wrt s
+  have hdens : Tendsto (fun s : ℝ => M.deficiencyDensity χ (x, s)) atBot (𝓝 0) := by
+    unfold deficiencyDensity
+    simpa using hexp.const_mul (χ x)
+  -- φ is bounded: continuous function with compact support
+  have hbdd : ∃ C : ℝ, ∀ q : R3, ‖(φ : R3 → ℂ) q‖ ≤ C := by
+    have hK := φ.hasCompactSupport
+    have hcont := φ.contDiff.continuous
+    -- The image of the compact support is bounded
+    have himg := hK.image hcont
+    obtain ⟨R, hR⟩ := himg.isBounded.exists_norm_le
+    -- Outside tsupport, φ = 0, so norm ≤ max(R, 0) = R (since R ≥ 0 from norm bound)
+    refine ⟨max R 0, fun q => ?_⟩
+    by_cases hmem : q ∈ tsupport (φ : R3 → ℂ)
+    · exact (hR _ (Set.mem_image_of_mem (φ : R3 → ℂ) hmem)).trans (le_max_left R 0)
+    · have hzero : (φ : R3 → ℂ) q = 0 := by
+        by_contra h
+        exact hmem (subset_tsupport (φ : R3 → ℂ) (Function.mem_support.mpr h))
+      simp only [hzero, norm_zero]
+      exact le_max_right R 0
+  obtain ⟨C, hbnd⟩ := hbdd
+  have hpair : ∀ s : ℝ, ‖inner ℂ (M.deficiencyDensity χ (x, s)) (φ (M.Psi (x, s)))‖ ≤
+      ‖M.deficiencyDensity χ (x, s)‖ * C := fun s =>
+    calc ‖inner ℂ (M.deficiencyDensity χ (x, s)) (φ (M.Psi (x, s)))‖
+        ≤ ‖M.deficiencyDensity χ (x, s)‖ * ‖φ (M.Psi (x, s))‖ := norm_inner_le_norm _ _
+      _ ≤ ‖M.deficiencyDensity χ (x, s)‖ * C :=
+          mul_le_mul_of_nonneg_left (hbnd _) (norm_nonneg _)
+  have htends : Tendsto (fun s => ‖M.deficiencyDensity χ (x, s)‖ * C) atBot (𝓝 0) := by
+    have h0 : (0 : ℝ) = ‖(0 : ℂ)‖ * C := by simp
+    rw [h0]
+    exact hdens.norm.mul_const C
+  exact squeeze_zero_norm hpair htends
+
+/-- On every fiber over `W`, the norm of `Psi` tends to infinity as `s` approaches
+a finite lower endpoint from the right.  This mirrors `tendsto_norm_Psi_atTop_nhdsWithin_Iio_beta`
+for the upper wall. -/
+theorem tendsto_norm_Psi_atTop_nhdsWithin_Ioi_finite_lower (M : ForwardMaximalSheet)
+    {x : ℝ × ℝ} (_hx : x ∈ M.W) {T : ℝ} (hT : tMin (M.S.qSigma x) = (T : EReal)) :
+    Tendsto (fun s : ℝ => ‖M.Psi (x, s)‖) (𝓝[>] (M.s0 x + T)) atTop := by
+  -- The finite-endpoint escape lemma gives norm escape at the maximal-curve level
+  have hesc := tendsto_norm_maximalIntegralCurve_at_tMin hT
+  -- Psi(x, s) = maximalIntegralCurve (qSigma x) (s - s0 x)
+  -- As s → (s0 x + T)⁺, we have (s - s0 x) → T⁺
+  rw [Filter.tendsto_atTop] at hesc ⊢
+  intro B
+  obtain ⟨U, hU, hUB⟩ := Filter.eventually_iff_exists_mem.mp (hesc B)
+  rw [mem_nhdsWithin_iff_exists_mem_nhds_inter] at hU
+  obtain ⟨V, hV, hVU⟩ := hU
+  refine Filter.eventually_iff_exists_mem.mpr
+    ⟨(fun s => s - M.s0 x) ⁻¹' V ∩ Ioi (M.s0 x + T), ?_, ?_⟩
+  · rw [mem_nhdsWithin_iff_exists_mem_nhds_inter]
+    refine ⟨(fun s => s - M.s0 x) ⁻¹' V, ?_, rfl.subset⟩
+    apply (continuous_sub_right (M.s0 x)).continuousAt.preimage_mem_nhds
+    simp only [add_sub_cancel_left]
+    exact hV
+  · intro s hs
+    simp only [mem_inter_iff, mem_preimage, mem_Ioi] at hs
+    have hs' : s - M.s0 x ∈ V ∩ Ioi T := by
+      refine ⟨hs.1, ?_⟩
+      simp only [mem_Ioi]
+      linarith [hs.2]
+    have hmem : s - M.s0 x ∈ U := hVU hs'
+    have hB := hUB (s - M.s0 x) hmem
+    simp only [Psi]
+    exact hB
+
+/-- **Lower residual vanishing (case: finite lower with norm escape).**  When the
+lower endpoint is finite and the norm escapes to infinity, the compactly supported
+test function eventually vanishes, and hence the pairing vanishes.  This covers
+the second honest alternative for lower residual treatment. -/
+theorem tendsto_inner_deficiencyDensity_test_zero_nhdsWithin_Ioi_finite_lower
+    (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ) (φ : CcinftyR3)
+    {x : ℝ × ℝ} (hx : x ∈ M.W) {T : ℝ} (hT : tMin (M.S.qSigma x) = (T : EReal)) :
+    Tendsto (fun s : ℝ => inner ℂ (M.deficiencyDensity χ (x, s)) (φ (M.Psi (x, s))))
+      (𝓝[>] (M.s0 x + T)) (𝓝 0) := by
+  have hnorm := M.tendsto_norm_Psi_atTop_nhdsWithin_Ioi_finite_lower hx hT
+  have hφzero := eventually_eq_zero_of_tendsto_norm_atTop φ hnorm
+  apply tendsto_const_nhds.congr'
+  filter_upwards [hφzero] with s hs
+  simp [hs]
+
+/-- Variant of lower residual vanishing (finite case) for the raw test function. -/
+theorem tendsto_test_comp_Psi_zero_nhdsWithin_Ioi_finite_lower
+    (M : ForwardMaximalSheet) (φ : CcinftyR3)
+    {x : ℝ × ℝ} (hx : x ∈ M.W) {T : ℝ} (hT : tMin (M.S.qSigma x) = (T : EReal)) :
+    Tendsto (fun s : ℝ => φ (M.Psi (x, s))) (𝓝[>] (M.s0 x + T)) (𝓝 0) := by
+  have hnorm := M.tendsto_norm_Psi_atTop_nhdsWithin_Ioi_finite_lower hx hT
+  have hφzero := eventually_eq_zero_of_tendsto_norm_atTop φ hnorm
+  apply tendsto_const_nhds.congr'
+  filter_upwards [hφzero] with s hs
+  exact hs.symm
+
+/-- **Pointwise lower residual vanishing (combined).**  For both honest lower
+alternatives, the density--test pairing vanishes at the lower endpoint:
+
+- If `tMin = ⊥`, the exponential factor in the density goes to zero as `s → -∞`.
+- If `tMin` is finite with norm escape, the test function vanishes.
+
+This is the key estimate ensuring the lower residual can be taken to zero in
+integration by parts on forward maximal sheets. -/
+theorem lower_residual_vanishing_alternatives (M : ForwardMaximalSheet)
+    (χ : ℝ × ℝ → ℂ) (φ : CcinftyR3) {x : ℝ × ℝ} (hx : x ∈ M.W) :
+    (tMin (M.S.qSigma x) = ⊥ ∧
+      Tendsto (fun s : ℝ => inner ℂ (M.deficiencyDensity χ (x, s)) (φ (M.Psi (x, s))))
+        atBot (𝓝 0)) ∨
+    (∃ T : ℝ, tMin (M.S.qSigma x) = (T : EReal) ∧
+      Tendsto (fun s : ℝ => inner ℂ (M.deficiencyDensity χ (x, s)) (φ (M.Psi (x, s))))
+        (𝓝[>] (M.s0 x + T)) (𝓝 0)) := by
+  rcases M.lower_eq_bot_or_exists_escape x with hbot | ⟨T, hT, _⟩
+  · left
+    exact ⟨hbot, M.tendsto_inner_deficiencyDensity_test_zero_atBot χ φ x⟩
+  · right
+    exact ⟨T, hT, M.tendsto_inner_deficiencyDensity_test_zero_nhdsWithin_Ioi_finite_lower χ φ hx hT⟩
+
 end ForwardMaximalSheet
 
 end ExoticCCR
