@@ -77,6 +77,13 @@ the historical B5 algebraic core.
     vertical branch collar inhabits `ForwardSaturatedSheet`, with exact anchor evaluation,
     `X1` integral curves, and upper escape. Its finite lower face converges to the regular
     cross-section and is explicitly recorded as nonescaping boundary data.
+17. **T0.F finite IBP and pointwise maximal extension (bounded claim).** On finite characteristic
+    intervals the exponential flow-time density has derivative equal to itself, and the
+    density--test pairing satisfies FTC/IBP with both endpoint traces displayed. A separate
+    `ForwardMaximalSheet` extends each transverse trajectory backward through `qSigma`, agrees
+    exactly with the explicit branch on the overlap, and has only the `tMin = -∞` or finite norm
+    escape alternatives at its lower end. No joint transverse measurability, continuity, or
+    smoothness of this selected maximal family is asserted.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
 one-dimensional real-analysis consequences. They do not constitute all of Program B.
@@ -92,17 +99,17 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - Unconditional A001 Theorem E. Although the canonical minimal `L²` core is constructed, its
   test-function domain is proved dense, and a nonzero `L²` branch candidate is now constructed,
   the repository does not prove that candidate lies in `Dom(H*)` or satisfies `H* u = ±i u`.
-  Openness of the branch image does not eliminate the uncontrolled finite boundary of the local
-  collar. The current local open branch has no flow-saturated boundary hypothesis that would by
-  itself eliminate all integration-by-parts boundary terms. Incompleteness alone is not claimed
-  to imply the operator conclusion.
+  Finite-interval integration by parts and pointwise maximal lower-end escape do not by themselves
+  provide the joint measurable/smooth parameterization needed for ambient change of variables or
+  Fubini. The global representative-integral identity is therefore still absent. Incompleteness
+  alone is not claimed to imply the operator conclusion.
 - A global A001 Theorem F sheet or measure-`1/2` conclusion, a concrete `Dom(H*)`
   vector satisfying the weak deficiency identity, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
-- That the `ForwardSaturatedSheet` extends to a jointly smooth **maximal** product flow, or that its
-  regular lower cross-section contributes no boundary residual. The explicit branch sheet is only
-  the finite collar `β-ε₀ < s < β`; its upper face escapes, while its lower face converges to
-  `qSigma`. Consequently no integration-by-parts boundary term is dropped here.
+- That the pointwise `ForwardMaximalSheet` is a jointly smooth or measurable maximal product flow.
+  The explicit branch sheet still has the regular lower trace at `qSigma`; finite-interval IBP
+  retains it, and overlap agreement identifies the matching maximal-sheet trace. No boundary term
+  is dropped, and no ambient cancellation theorem is claimed without the missing joint/Fubini API.
 - Full B001, B6/B7 analytic classification, von Neumann algebra (`vNa`) conclusions, or any
   operator realization derived from the B5 algebraic slice.
 - Experimental, hardware, or metrology claims.
