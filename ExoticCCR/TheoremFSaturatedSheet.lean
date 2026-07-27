@@ -543,6 +543,28 @@ theorem exists_continuousOn_maximalIntegralCurve_ambient_compact_local
   · refine ⟨1, by norm_num, ?_⟩
     simpa [Set.not_nonempty_iff_eq_empty.mp hKne]
 
+/-- On a compact time interval in the maximal domain, the selected maximal
+curve is jointly continuous when the compact initial set is a singleton.  This
+is the base case for continuation in the initial point. -/
+theorem continuousOn_maximalIntegralCurve_singleton_compact_time
+    (y : R3) (a b : ℝ) (_hab : a ≤ b)
+    (hdom : tMin y < (a : EReal) ∧ (b : EReal) < tMax y) :
+    ContinuousOn (fun p : R3 × ℝ => maximalIntegralCurve p.1 p.2)
+      ({y} ×ˢ Icc a b) := by
+  have hcurve : ContinuousOn (maximalIntegralCurve y) (Icc a b) := by
+    intro t ht
+    have htDom : tMin y < (t : EReal) ∧ (t : EReal) < tMax y := by
+      constructor
+      · exact hdom.1.trans_le (EReal.coe_le_coe_iff.mpr ht.1)
+      · exact (EReal.coe_le_coe_iff.mpr ht.2).trans_lt hdom.2
+    exact (hasDerivAt_maximalIntegralCurve htDom).continuousAt.continuousWithinAt
+  have hcomp : ContinuousOn (fun p : R3 × ℝ => maximalIntegralCurve y p.2)
+      ({y} ×ˢ Icc a b) :=
+    hcurve.comp continuousOn_snd (fun _ hp => hp.2)
+  apply hcomp.congr
+  intro p hp
+  simpa only [mem_singleton_iff.mp hp.1]
+
 /-- A finite forward maximal time cannot have even a frequently compact tail:
 a cluster point supplies a uniform Picard interval, and gluing from a late
 point extends the curve past its alleged supremum. -/
