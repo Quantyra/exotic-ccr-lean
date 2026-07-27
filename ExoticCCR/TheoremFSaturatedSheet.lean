@@ -498,6 +498,51 @@ theorem exists_continuousOn_maximalIntegralCurve_ambient_local (x₀ : R3) :
         (Icc_mem_nhds ht'.1 ht'.2)
   simpa only [α] using maximalIntegralCurve_eq_of_mem hα hp.2
 
+/-- On a compact set of initial points there is one common time collar on
+which the canonical maximal curves are jointly continuous.  This is the
+compact-base continuation input; extending the collar to an arbitrary compact
+time interval can then be done by finitely many cocycle steps. -/
+theorem exists_continuousOn_maximalIntegralCurve_ambient_compact_local
+    (K : Set R3) (hK : IsCompact K) :
+    ∃ δ > (0 : ℝ), ContinuousOn
+      (fun p : R3 × ℝ => maximalIntegralCurve p.1 p.2)
+      (K ×ˢ Ioo (-δ) δ) := by
+  classical
+  by_cases hKne : K.Nonempty
+  · choose r hr δ hδ hcont using
+      fun x : R3 => exists_continuousOn_maximalIntegralCurve_ambient_local x
+    obtain ⟨t, ht⟩ := hK.elim_finite_subcover
+      (fun x : R3 => Metric.ball x (r x))
+      (fun _ => Metric.isOpen_ball)
+      (by
+        intro x hx
+        exact mem_iUnion.mpr ⟨x, Metric.mem_ball_self (hr x)⟩)
+    have htne : t.Nonempty := by
+      obtain ⟨x, hx⟩ := hKne
+      rcases mem_iUnion₂.mp (ht hx) with ⟨y, hyt, _⟩
+      exact ⟨y, hyt⟩
+    let δ₀ : ℝ := (t.image δ).min' (htne.image δ)
+    have hδ₀ : 0 < δ₀ := by
+      have hmem := Finset.min'_mem (t.image δ) (htne.image δ)
+      rcases Finset.mem_image.mp hmem with ⟨x, hxt, hxδ⟩
+      dsimp [δ₀]
+      rw [← hxδ]
+      exact hδ x
+    refine ⟨δ₀, hδ₀, ?_⟩
+    intro p hp
+    rcases mem_iUnion₂.mp (ht hp.1) with ⟨x, hxt, hpx⟩
+    have hδle : δ₀ ≤ δ x := by
+      exact Finset.min'_le (t.image δ) (δ x) (Finset.mem_image.mpr ⟨x, hxt, rfl⟩)
+    have hpTime : p.2 ∈ Ioo (-(δ x)) (δ x) := by
+      constructor <;> linarith [hp.2.1, hp.2.2]
+    have hpOpen : p ∈ Metric.ball x (r x) ×ˢ Ioo (-(δ x)) (δ x) :=
+      ⟨hpx, hpTime⟩
+    have hwithin := (hcont x).mono (prod_mono Metric.ball_subset_closedBall Subset.rfl)
+    exact (hwithin p hpOpen).continuousAt
+      ((Metric.isOpen_ball.prod isOpen_Ioo).mem_nhds hpOpen) |>.continuousWithinAt
+  · refine ⟨1, by norm_num, ?_⟩
+    simpa [Set.not_nonempty_iff_eq_empty.mp hKne]
+
 /-- A finite forward maximal time cannot have even a frequently compact tail:
 a cluster point supplies a uniform Picard interval, and gluing from a late
 point extends the curve past its alleged supremum. -/
