@@ -75,8 +75,11 @@ the historical B5 algebraic core.
     maximal curves, so those curves are jointly continuous on a nonempty open product collar.
     Connected open partial trajectories and their extended-real
     forward/backward reachable-time extrema are defined, and local uniqueness glues them to a
-    pointwise maximal trajectory. Independently, square-root reparameterization of the explicit
-    vertical branch collar inhabits `ForwardSaturatedSheet`, with exact anchor evaluation,
+    pointwise maximal trajectory. The selected maximal curves obey the time-translation cocycle
+    identity on their domains, and through every ambient initial point they agree with one jointly
+    continuous Picard flow on a common local product collar. Independently, square-root
+    reparameterization of the explicit vertical branch collar inhabits `ForwardSaturatedSheet`,
+    with exact anchor evaluation,
     `X1` integral curves, and upper escape. Its finite lower face converges to the regular
     cross-section and is explicitly recorded as nonescaping boundary data.
 17. **T0.F finite IBP and pointwise maximal extension (bounded claim).** On finite characteristic
@@ -84,7 +87,9 @@ the historical B5 algebraic core.
     density--test pairing satisfies FTC/IBP with both endpoint traces displayed. A separate
     `ForwardMaximalSheet` extends each transverse trajectory backward through `qSigma`, agrees
     exactly with the explicit branch on the overlap, and has only the `tMin = -∞` or finite norm
-    escape alternatives at its lower end. Beyond the local Picard product collar, no joint
+    escape alternatives at its lower end. These local ambient collars and the cocycle identity are
+    the continuation infrastructure, but continuity on arbitrary compact subsets of the maximal
+    time bundle has not yet been assembled. In particular, no global joint
     transverse measurability, continuity, or smoothness on the full maximal domain is asserted.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated

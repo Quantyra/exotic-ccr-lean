@@ -430,6 +430,74 @@ theorem maximalIntegralCurve_isIntegralCurveFrom (x₀ : R3) :
   intro t ht
   exact hasDerivAt_maximalIntegralCurve ((mem_integralCurveDomain_iff x₀ t).1 ht)
 
+/-- Time translation of a maximal trajectory is the maximal trajectory through
+the translated point, as long as the two displayed times belong to the
+original maximal domain.  This is the cocycle identity needed to continue the
+local Picard flow along a compact piece of a trajectory. -/
+theorem maximalIntegralCurve_add {x₀ : R3} {t u : ℝ}
+    (ht : t ∈ integralCurveDomain x₀) (htu : t + u ∈ integralCurveDomain x₀) :
+    maximalIntegralCurve (maximalIntegralCurve x₀ t) u =
+      maximalIntegralCurve x₀ (t + u) := by
+  let I : Set ℝ := (fun v : ℝ => t + v) ⁻¹' integralCurveDomain x₀
+  let α : ℝ → R3 := fun v => maximalIntegralCurve x₀ (t + v)
+  have hIopen : IsOpen I :=
+    (isOpen_integralCurveDomain x₀).preimage (continuous_const.add continuous_id)
+  have hIpre : IsPreconnected I := by
+    rw [isPreconnected_iff_ordConnected]
+    refine ⟨?_⟩
+    intro a ha b hb c hc
+    change t + a ∈ integralCurveDomain x₀ at ha
+    change t + b ∈ integralCurveDomain x₀ at hb
+    change t + c ∈ integralCurveDomain x₀
+    apply (isPreconnected_integralCurveDomain x₀).ordConnected.out' ha hb
+    constructor <;> linarith [hc.1, hc.2]
+  have h0I : (0 : ℝ) ∈ I := by simpa [I] using ht
+  have hα : isIntegralCurveFrom (maximalIntegralCurve x₀ t) α I := by
+    refine ⟨h0I, hIopen, ⟨⟨0, h0I⟩, hIpre⟩, ?_, ?_⟩
+    · simp [α]
+    · intro v hv
+      change t + v ∈ integralCurveDomain x₀ at hv
+      have hd := hasDerivAt_maximalIntegralCurve
+        ((mem_integralCurveDomain_iff x₀ (t + v)).1 hv)
+      have hd' : HasDerivAt (maximalIntegralCurve x₀)
+          (X1 (maximalIntegralCurve x₀ (v + t))) (v + t) := by
+        simpa only [add_comm] using hd
+      simpa only [α, add_comm] using hd'.comp_add_const v t
+  apply maximalIntegralCurve_eq_of_mem hα
+  simpa [I] using htu
+
+/-- Around every ambient initial point, the canonical selected maximal curves
+are one jointly continuous Picard flow on a common product collar.  Unlike
+`UniformLocalFlowCollar`, this statement has no cross-section parameter and is
+therefore suitable for repeated continuation along a maximal trajectory. -/
+theorem exists_continuousOn_maximalIntegralCurve_ambient_local (x₀ : R3) :
+    ∃ r > (0 : ℝ), ∃ δ > (0 : ℝ),
+      ContinuousOn (fun p : R3 × ℝ => maximalIntegralCurve p.1 p.2)
+        (Metric.closedBall x₀ r ×ˢ Ioo (-δ) δ) := by
+  have hX : ContDiffAt ℝ 1 X1 x₀ :=
+    (contDiff_X1.of_le (by simp : (1 : WithTop ℕ∞) ≤ ⊤)).contDiffAt
+  obtain ⟨δ, hδ, a, r, L, K, hr, hpl⟩ := IsPicardLindelof.of_contDiffAt_one hX
+  obtain ⟨flow, hflow, hflow_cont⟩ :=
+    (hpl 0).exists_forall_mem_closedBall_eq_hasDerivWithinAt_continuousOn
+  refine ⟨r, hr, δ, hδ, ?_⟩
+  apply hflow_cont.mono (by
+    intro p hp
+    have hp2 : p.2 ∈ Ioo (0 - δ) (0 + δ) := by
+      simpa only [zero_sub, zero_add] using hp.2
+    exact ⟨hp.1, Ioo_subset_Icc_self hp2⟩) |>.congr
+  intro p hp
+  let α : ℝ → R3 := fun t => flow (p.1, t)
+  have hα : isIntegralCurveFrom p.1 α (Ioo (-δ) δ) := by
+    refine ⟨by simp [hδ], isOpen_Ioo,
+      isConnected_Ioo (by linarith [hδ]), ?_, ?_⟩
+    · exact (hflow p.1 hp.1).1
+    · intro t ht
+      have ht' : t ∈ Ioo (0 - δ) (0 + δ) := by
+        simpa only [zero_sub, zero_add] using ht
+      exact (hflow p.1 hp.1).2 t (Ioo_subset_Icc_self ht') |>.hasDerivAt
+        (Icc_mem_nhds ht'.1 ht'.2)
+  simpa only [α] using maximalIntegralCurve_eq_of_mem hα hp.2
+
 /-- A finite forward maximal time cannot have even a frequently compact tail:
 a cluster point supplies a uniform Picard interval, and gluing from a late
 point extends the curve past its alleged supremum. -/
