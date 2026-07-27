@@ -21,8 +21,8 @@ the currently inhabited sheet has a regular lower face.
 
 noncomputable section
 
-open MeasureTheory Set
-open scoped Interval
+open Filter MeasureTheory Set
+open scoped EReal Interval Topology
 
 namespace ExoticCCR
 
@@ -248,6 +248,11 @@ theorem integral_compactBox_density_pairing_deriv_eq_endpoint_residuals
   · apply ContinuousOn.intervalIntegrable
     exact hGcont.comp (continuous_const.prodMk continuous_id).continuousOn
       (fun s hs => ⟨hx, by simpa [uIcc_of_le hab] using hs⟩)
+
+-- NOTE: Residual vanishing lemmas are blocked on detailed mathlib filter/measure API work.
+-- The mathematical content is: upper residual vanishes by wall escape + compact support,
+-- lower residual vanishes by either exponential decay (ℓ=⊥) or finite escape (same logic).
+-- These are deferred to a future iteration.
 
 end ForwardMaximalSheet
 
