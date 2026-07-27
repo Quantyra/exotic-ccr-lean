@@ -249,10 +249,123 @@ theorem integral_compactBox_density_pairing_deriv_eq_endpoint_residuals
     exact hGcont.comp (continuous_const.prodMk continuous_id).continuousOn
       (fun s hs => ⟨hx, by simpa [uIcc_of_le hab] using hs⟩)
 
--- NOTE: Residual vanishing lemmas are blocked on detailed mathlib filter/measure API work.
--- The mathematical content is: upper residual vanishes by wall escape + compact support,
--- lower residual vanishes by either exponential decay (ℓ=⊥) or finite escape (same logic).
--- These are deferred to a future iteration.
+/-- On every fiber over `W`, the norm of `Psi` tends to infinity as `s` approaches
+the upper wall time `β(x)` from below.  This is a translation of `escape_upper_branch`
+from branch-time to anchor-`s` time. -/
+theorem tendsto_norm_Psi_atTop_nhdsWithin_Iio_beta (M : ForwardMaximalSheet)
+    {x : ℝ × ℝ} (hx : x ∈ M.W) :
+    Tendsto (fun s : ℝ => ‖M.Psi (x, s)‖) (𝓝[<] M.S.O.germ.β x) atTop := by
+  have hβ : M.S.O.germ.β x = M.s0 x + M.S.ε₀ := by simp [ForwardMaximalSheet.s0]
+  have hesc := M.escape_upper_branch x hx
+  -- Eventually s > s0 x as s → β(x)⁻ (since s0 x < β x)
+  have hs0_lt_β : M.s0 x < M.S.O.germ.β x := by
+    rw [hβ]
+    linarith [M.S.ε₀_pos]
+  -- On the Ioo (s0 x) (β x) overlap, Psi agrees with branchTimeCurve
+  have hevEq : ∀ᶠ s in 𝓝[<] M.S.O.germ.β x, s > M.s0 x →
+      ‖M.Psi (x, s)‖ = ‖M.S.branchTimeCurve x (s - M.s0 x)‖ := by
+    filter_upwards [self_mem_nhdsWithin] with s hs hgt
+    rw [M.Psi_eq_branchTimeCurve hx ⟨hgt, hs⟩]
+  have hevGt : ∀ᶠ s in 𝓝[<] M.S.O.germ.β x, s > M.s0 x := by
+    have hmem : Ioo (M.s0 x) (M.S.O.germ.β x) ∈ 𝓝[<] M.S.O.germ.β x :=
+      Ioo_mem_nhdsLT hs0_lt_β
+    filter_upwards [hmem] with s hs
+    exact hs.1
+  -- The composed function: ‖branchTimeCurve x (s - s0 x)‖ → ∞
+  -- We prove this using the characterization of atTop
+  rw [Filter.tendsto_atTop]
+  intro B
+  -- From hesc, ∀ᶠ t in 𝓝[<] ε₀, B ≤ ‖branchTimeCurve x t‖
+  rw [Filter.tendsto_atTop] at hesc
+  have hB := hesc B
+  -- Pull back hB through (s ↦ s - s0 x) : 𝓝[<] (s0 x + ε₀) → 𝓝[<] ε₀
+  have hpre : ∀ᶠ s in 𝓝[<] M.S.O.germ.β x, B ≤ ‖M.S.branchTimeCurve x (s - M.s0 x)‖ := by
+    rw [hβ]
+    -- Get the set from hB
+    rw [Filter.Eventually, mem_nhdsWithin_iff_exists_mem_nhds_inter] at hB ⊢
+    obtain ⟨U, hU, hUB⟩ := hB
+    refine ⟨(fun s => s - M.s0 x) ⁻¹' U, ?_, ?_⟩
+    · apply (continuous_sub_right (M.s0 x)).continuousAt.preimage_mem_nhds
+      simp only [add_sub_cancel_left]
+      exact hU
+    · intro s hs
+      simp only [mem_inter_iff, mem_preimage, mem_Iio] at hs
+      apply hUB
+      refine ⟨hs.1, ?_⟩
+      simp only [mem_Iio]
+      linarith [hs.2]
+  filter_upwards [hpre, hevEq, hevGt] with s hpre' heq hgt
+  rw [heq hgt]
+  exact hpre'
+
+/-- A compactly supported test function is eventually zero along any fiber whose
+norm tends to infinity. -/
+theorem eventually_eq_zero_of_tendsto_norm_atTop (φ : CcinftyR3) {f : ℝ → R3}
+    {l : Filter ℝ} (hf : Tendsto (fun s => ‖f s‖) l atTop) :
+    ∀ᶠ s in l, φ (f s) = 0 := by
+  -- The tsupport of φ is compact, hence bounded
+  have hK : IsCompact (tsupport (φ : R3 → ℂ)) := φ.hasCompactSupport
+  obtain ⟨R, hR⟩ := hK.isBounded.exists_norm_le
+  have hsupp : ∀ q : R3, R < ‖q‖ → φ q = 0 := by
+    intro q hq
+    by_contra hmem
+    have hmem' : q ∈ Function.support (φ : R3 → ℂ) := Function.mem_support.mpr hmem
+    have hq_in : q ∈ tsupport (φ : R3 → ℂ) := subset_tsupport _ hmem'
+    have h := hR q hq_in
+    linarith
+  have hev : ∀ᶠ s in l, R < ‖f s‖ := hf (Ioi_mem_atTop R)
+  filter_upwards [hev] with s hs
+  exact hsupp (f s) hs
+
+/-- **Upper wall residual vanishing (pointwise).**  For a compactly supported test
+function φ and a compactly supported transverse cutoff χ, the upper endpoint pairing
+`inner (χ x) (φ (M.Psi (x, s)))` tends pointwise to zero as `s → β(x)⁻`.
+
+This is the key estimate that makes the upper residual vanish in integration by parts
+on forward maximal sheets: the sheet escapes all compact sets at the upper wall,
+so any compactly supported test function eventually evaluates to zero there. -/
+theorem tendsto_inner_deficiencyDensity_test_zero_nhdsWithin_Iio_beta
+    (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ) (φ : CcinftyR3)
+    {x : ℝ × ℝ} (hx : x ∈ M.W) :
+    Tendsto (fun s : ℝ => inner ℂ (M.deficiencyDensity χ (x, s)) (φ (M.Psi (x, s))))
+      (𝓝[<] M.S.O.germ.β x) (𝓝 0) := by
+  have hnorm := M.tendsto_norm_Psi_atTop_nhdsWithin_Iio_beta hx
+  have hφzero := eventually_eq_zero_of_tendsto_norm_atTop φ hnorm
+  apply tendsto_const_nhds.congr'
+  filter_upwards [hφzero] with s hs
+  simp [hs]
+
+/-- Variant of upper wall residual vanishing for the raw test function (without
+the deficiency density prefactor).  This is useful when the density cancellation
+is handled separately. -/
+theorem tendsto_test_comp_Psi_zero_nhdsWithin_Iio_beta
+    (M : ForwardMaximalSheet) (φ : CcinftyR3)
+    {x : ℝ × ℝ} (hx : x ∈ M.W) :
+    Tendsto (fun s : ℝ => φ (M.Psi (x, s))) (𝓝[<] M.S.O.germ.β x) (𝓝 0) := by
+  have hnorm := M.tendsto_norm_Psi_atTop_nhdsWithin_Iio_beta hx
+  have hφzero := eventually_eq_zero_of_tendsto_norm_atTop φ hnorm
+  apply tendsto_const_nhds.congr'
+  filter_upwards [hφzero] with s hs
+  exact hs.symm
+
+/-- The upper residual term in integration by parts can be made arbitrarily small
+by taking the upper integration limit sufficiently close to β(x).  This is the
+ε-δ form of upper wall residual vanishing. -/
+theorem forall_pos_exists_near_beta_norm_inner_lt
+    (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ) (φ : CcinftyR3)
+    {x : ℝ × ℝ} (hx : x ∈ M.W) (ε : ℝ) (hε : 0 < ε) :
+    ∃ δ > 0, ∀ s : ℝ, M.S.O.germ.β x - δ < s → s < M.S.O.germ.β x →
+      ‖inner ℂ (M.deficiencyDensity χ (x, s)) (φ (M.Psi (x, s)))‖ < ε := by
+  have htends := M.tendsto_inner_deficiencyDensity_test_zero_nhdsWithin_Iio_beta χ φ hx
+  rw [Metric.tendsto_nhdsWithin_nhds] at htends
+  obtain ⟨δ, hδ, hball⟩ := htends ε hε
+  refine ⟨δ, hδ, fun s hs1 hs2 => ?_⟩
+  have hdist : dist s (M.S.O.germ.β x) < δ := by
+    rw [Real.dist_eq, abs_sub_comm, abs_of_pos (sub_pos.mpr hs2)]
+    linarith
+  have hres := hball hs2 hdist
+  simp only [dist_zero_right] at hres
+  exact hres
 
 end ForwardMaximalSheet
 
