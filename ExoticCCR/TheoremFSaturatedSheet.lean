@@ -721,6 +721,74 @@ theorem continuousAt_maximalIntegralCurve_const_time {y : R3} {T : ℝ}
     ContinuousAt (fun z : R3 => maximalIntegralCurve z T) y :=
   (maximalIntegralCurveGoodAt_of_mem hT).2
 
+/-- The total maximal-flow domain is open in initial-point--time space. -/
+theorem isOpen_maximalIntegralCurve_domain_bundle :
+    IsOpen {p : R3 × ℝ | p.2 ∈ integralCurveDomain p.1} := by
+  rw [isOpen_iff_mem_nhds]
+  rintro ⟨y, t⟩ ht
+  have hgood := maximalIntegralCurveGoodAt_of_mem ht
+  obtain ⟨r, hr, δ, hδ, _hlocalCont, hlocalDom⟩ :=
+    exists_continuousOn_maximalIntegralCurve_ambient_local_with_domain
+      (maximalIntegralCurve y t)
+  have hbase : ContinuousAt
+      (fun q : R3 × ℝ => maximalIntegralCurve q.1 t) (y, t) :=
+    Filter.Tendsto.comp hgood.2 continuousAt_fst
+  have hsource : ∀ᶠ q in 𝓝 (y, t), t ∈ integralCurveDomain q.1 :=
+    hgood.1.prod_inl_nhds t
+  have hball : ∀ᶠ q in 𝓝 (y, t),
+      maximalIntegralCurve q.1 t ∈ Metric.ball (maximalIntegralCurve y t) r :=
+    hbase (Metric.ball_mem_nhds _ hr)
+  have htime : ∀ᶠ q in 𝓝 (y, t), q.2 - t ∈ Ioo (-δ) δ :=
+    (continuousAt_snd.sub continuousAt_const)
+      (by simpa using Ioo_mem_nhds (neg_lt_zero.mpr hδ) hδ)
+  filter_upwards [hsource, hball, htime] with q hqSource hqBall hqTime
+  simpa only [show t + (q.2 - t) = q.2 by ring] using
+    mem_integralCurveDomain_add hqSource
+      (hlocalDom (maximalIntegralCurve q.1 t, q.2 - t)
+        ⟨Metric.ball_subset_closedBall hqBall, hqTime⟩)
+
+/-- The selected maximal flow is jointly continuous at every point of its
+open total domain. -/
+theorem continuousAt_maximalIntegralCurve_of_mem {y : R3} {t : ℝ}
+    (ht : t ∈ integralCurveDomain y) :
+    ContinuousAt (fun q : R3 × ℝ => maximalIntegralCurve q.1 q.2) (y, t) := by
+  have hgood := maximalIntegralCurveGoodAt_of_mem ht
+  obtain ⟨r, hr, δ, hδ, hlocalCont, hlocalDom⟩ :=
+    exists_continuousOn_maximalIntegralCurve_ambient_local_with_domain
+      (maximalIntegralCurve y t)
+  have hbase : ContinuousAt
+      (fun q : R3 × ℝ => maximalIntegralCurve q.1 t) (y, t) :=
+    Filter.Tendsto.comp hgood.2 continuousAt_fst
+  have hmap : ContinuousAt
+      (fun q : R3 × ℝ => (maximalIntegralCurve q.1 t, q.2 - t)) (y, t) :=
+    hbase.prodMk (continuousAt_snd.sub continuousAt_const)
+  have hyMap : (maximalIntegralCurve y t, t - t) ∈
+      Metric.ball (maximalIntegralCurve y t) r ×ˢ Ioo (-δ) δ :=
+    ⟨Metric.mem_ball_self hr, by simp [hδ]⟩
+  have hflow : ContinuousAt
+      (fun p : R3 × ℝ => maximalIntegralCurve p.1 p.2)
+      (maximalIntegralCurve y t, t - t) :=
+    ((hlocalCont.mono (prod_mono Metric.ball_subset_closedBall Subset.rfl)) _ hyMap).continuousAt
+      ((Metric.isOpen_ball.prod isOpen_Ioo).mem_nhds hyMap)
+  have hcomp : ContinuousAt
+      (fun q : R3 × ℝ =>
+        maximalIntegralCurve (maximalIntegralCurve q.1 t) (q.2 - t)) (y, t) :=
+    Filter.Tendsto.comp hflow hmap
+  have hsource : ∀ᶠ q in 𝓝 (y, t), t ∈ integralCurveDomain q.1 :=
+    hgood.1.prod_inl_nhds t
+  have hball : ∀ᶠ q in 𝓝 (y, t),
+      maximalIntegralCurve q.1 t ∈ Metric.ball (maximalIntegralCurve y t) r :=
+    hbase (Metric.ball_mem_nhds _ hr)
+  have htime : ∀ᶠ q in 𝓝 (y, t), q.2 - t ∈ Ioo (-δ) δ :=
+    (continuousAt_snd.sub continuousAt_const)
+      (by simpa using Ioo_mem_nhds (neg_lt_zero.mpr hδ) hδ)
+  apply hcomp.congr_of_eventuallyEq
+  filter_upwards [hsource, hball, htime] with q hqSource hqBall hqTime
+  have hqLocal := hlocalDom (maximalIntegralCurve q.1 t, q.2 - t)
+    ⟨Metric.ball_subset_closedBall hqBall, hqTime⟩
+  simpa only [show t + (q.2 - t) = q.2 by ring] using
+    (maximalIntegralCurve_add' hqSource hqLocal).symm
+
 /-- Continuous dependence at one fixed time, restricted to any compact set of
 initial points on which that time belongs to every maximal domain. -/
 theorem continuousOn_maximalIntegralCurve_const_time

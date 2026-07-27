@@ -88,9 +88,10 @@ the historical B5 algebraic core.
     `ForwardMaximalSheet` extends each transverse trajectory backward through `qSigma`, agrees
     exactly with the explicit branch on the overlap, and has only the `tMin = -∞` or finite norm
     escape alternatives at its lower end. These local ambient collars and the cocycle identity are
-    the continuation infrastructure, but continuity on arbitrary compact subsets of the maximal
-    time bundle has not yet been assembled. In particular, no global joint
-    transverse measurability, continuity, or smoothness on the full maximal domain is asserted.
+    the continuation infrastructure. The total maximal-flow domain is open and the selected flow
+    is jointly continuous at every point in it. For the translated `ForwardMaximalSheet`, the
+    variable domain is open, `Psi` is jointly continuous and injective there, and its anchor
+    coordinates are exactly `(a,s,c)`. No global smoothness is asserted.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
 one-dimensional real-analysis consequences. They do not constitute all of Program B.
@@ -106,16 +107,16 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - Unconditional A001 Theorem E. Although the canonical minimal `L²` core is constructed, its
   test-function domain is proved dense, and a nonzero `L²` branch candidate is now constructed,
   the repository does not prove that candidate lies in `Dom(H*)` or satisfies `H* u = ±i u`.
-  Finite-interval integration by parts, local joint continuity, and pointwise maximal lower-end
-  escape do not by themselves provide joint regularity across the full variable maximal-time
-  bundle needed for ambient change of variables or Fubini. The global representative-integral
-  identity is therefore still absent. Incompleteness
+  Finite-interval integration by parts, joint continuity on the open maximal-time bundle, and
+  pointwise maximal lower-end escape do not by themselves provide the measurable
+  change-of-variables, integrated endpoint limits, and Fubini identity needed for the weak
+  equation. The global representative-integral identity is therefore still absent. Incompleteness
   alone is not claimed to imply the operator conclusion.
 - A global A001 Theorem F sheet or measure-`1/2` conclusion, a concrete `Dom(H*)`
   vector satisfying the weak deficiency identity, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
-- That the pointwise `ForwardMaximalSheet` is a jointly smooth or globally measurable maximal
-  product flow. Local joint continuity is proved only on a common Picard collar. The explicit
+- That the `ForwardMaximalSheet` is jointly smooth or already carries the required global
+  measure change-of-variables theorem. Joint continuity on its open total domain is proved. The explicit
   branch sheet still has the regular lower trace at `qSigma`; finite-interval IBP
   retains it, and overlap agreement identifies the matching maximal-sheet trace. No boundary term
   is dropped, and no ambient cancellation theorem is claimed without the missing joint/Fubini API.

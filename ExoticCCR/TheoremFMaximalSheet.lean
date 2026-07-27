@@ -22,7 +22,7 @@ infrastructure is not claimed here.
 
 noncomputable section
 
-open Filter Set
+open Filter MvPolynomial Set
 open scoped EReal Topology
 
 namespace ExoticCCR
@@ -56,6 +56,55 @@ def ℓ (M : ForwardMaximalSheet) (x : ℝ × ℝ) : EReal :=
 def Psi (M : ForwardMaximalSheet) (p : (ℝ × ℝ) × ℝ) : R3 :=
   maximalIntegralCurve (M.S.qSigma p.1) (p.2 - M.s0 p.1)
 
+/-- The translated total domain of the maximal sheet. -/
+def D (M : ForwardMaximalSheet) : Set ((ℝ × ℝ) × ℝ) :=
+  {p | p.1 ∈ M.W ∧ p.2 - M.s0 p.1 ∈ integralCurveDomain (M.S.qSigma p.1)}
+
+theorem continuousAt_s0 (M : ForwardMaximalSheet) {x : ℝ × ℝ} (hx : x ∈ M.W) :
+    ContinuousAt M.s0 x := by
+  have hxS : x ∈ M.S.W := M.W_subset hx
+  have hxBranch : (x, M.S.τ₀) ∈ M.S.O.W := by
+    simpa [M.S.W_eq] using hxS
+  have hxU : x ∈ M.S.O.germ.U :=
+    M.S.O.germ.proj_mem _ (M.S.O.subset_V hxBranch)
+  exact ((M.S.O.germ.contDiff_β.contDiffAt
+    (M.S.O.germ.isOpen_U.mem_nhds hxU)).continuousAt).sub continuousAt_const
+
+/-- The translated maximal sheet has an open variable domain. -/
+theorem isOpen_D (M : ForwardMaximalSheet) : IsOpen M.D := by
+  rw [isOpen_iff_mem_nhds]
+  intro p hp
+  have hq : ContinuousAt M.S.qSigma p.1 :=
+    (M.S.contDiffOn_qSigma p.1 (M.W_subset hp.1)).contDiffAt
+      (M.S.isOpen_W.mem_nhds (M.W_subset hp.1)) |>.continuousAt
+  have hmap : ContinuousAt (fun q : (ℝ × ℝ) × ℝ =>
+      (M.S.qSigma q.1, q.2 - M.s0 q.1)) p :=
+    (hq.comp continuousAt_fst).prodMk
+      (continuousAt_snd.sub ((M.continuousAt_s0 hp.1).comp continuousAt_fst))
+  have hflowDomain :
+      {q : R3 × ℝ | q.2 ∈ integralCurveDomain q.1} ∈
+        𝓝 (M.S.qSigma p.1, p.2 - M.s0 p.1) :=
+    isOpen_maximalIntegralCurve_domain_bundle.mem_nhds hp.2
+  have hbase : {q : (ℝ × ℝ) × ℝ | q.1 ∈ M.W} ∈ 𝓝 p :=
+    (M.isOpen_W.preimage continuous_fst).mem_nhds hp.1
+  apply mem_of_superset (inter_mem hbase (hmap hflowDomain))
+  rintro q ⟨hqW, hqDom⟩
+  exact ⟨hqW, hqDom⟩
+
+/-- The translated maximal sheet is jointly continuous on its full open
+variable domain. -/
+theorem continuousOn_Psi (M : ForwardMaximalSheet) : ContinuousOn M.Psi M.D := by
+  intro p hp
+  have hq : ContinuousAt M.S.qSigma p.1 :=
+    (M.S.contDiffOn_qSigma p.1 (M.W_subset hp.1)).contDiffAt
+      (M.S.isOpen_W.mem_nhds (M.W_subset hp.1)) |>.continuousAt
+  have hmap : ContinuousAt (fun q : (ℝ × ℝ) × ℝ =>
+      (M.S.qSigma q.1, q.2 - M.s0 q.1)) p :=
+    (hq.comp continuousAt_fst).prodMk
+      (continuousAt_snd.sub ((M.continuousAt_s0 hp.1).comp continuousAt_fst))
+  exact (continuousAt_maximalIntegralCurve_of_mem hp.2).comp_of_eq hmap rfl
+    |>.continuousWithinAt
+
 /-- The translated maximal extension agrees exactly with the cross-section at
 the branch interface. -/
 @[simp] theorem Psi_s0 (M : ForwardMaximalSheet) (x : ℝ × ℝ) :
@@ -70,6 +119,35 @@ theorem hasDerivAt_Psi_s (M : ForwardMaximalSheet) {x : ℝ × ℝ} {s : ℝ}
     HasDerivAt (fun u : ℝ => M.Psi (x, u)) (X1 (M.Psi (x, s))) s := by
   have h := hasDerivAt_maximalIntegralCurve hs
   simpa only [Psi, sub_eq_add_neg] using h.comp_add_const s (-(M.s0 x))
+
+/-- The maximal sheet is a right inverse of the anchor map on its translated
+maximal domain.  Thus the two transverse anchor coordinates stay fixed and
+the middle anchor coordinate is exactly the sheet time. -/
+theorem evalMap_Psi (M : ForwardMaximalSheet) {x : ℝ × ℝ} (hx : x ∈ M.W)
+    {s : ℝ}
+    (hs : tMin (M.S.qSigma x) < ((s - M.s0 x : ℝ) : EReal) ∧
+      ((s - M.s0 x : ℝ) : EReal) < tMax (M.S.qSigma x)) :
+    evalMap (F ℝ) (M.Psi (x, s)) = ![x.1, s, x.2] := by
+  have ht : s - M.s0 x ∈ integralCurveDomain (M.S.qSigma x) :=
+    (mem_integralCurveDomain_iff _ _).2 hs
+  rw [Psi, evalMap_maximalIntegralCurve ht, M.S.evalMap_qSigma (M.W_subset hx)]
+  ext i
+  fin_cases i <;> simp [s0] <;> ring
+
+/-- Anchor coordinates make the maximal sheet injective on its full domain. -/
+theorem injOn_Psi (M : ForwardMaximalSheet) : Set.InjOn M.Psi M.D := by
+  intro p hp q hq hpq
+  have hpEval := M.evalMap_Psi hp.1
+    ((mem_integralCurveDomain_iff _ _).1 hp.2)
+  have hqEval := M.evalMap_Psi hq.1
+    ((mem_integralCurveDomain_iff _ _).1 hq.2)
+  have hcoords : (![p.1.1, p.2, p.1.2] : R3) = ![q.1.1, q.2, q.1.2] := by
+    rw [← hpEval, ← hqEval, hpq]
+  apply Prod.ext
+  · apply Prod.ext
+    · simpa using congrFun hcoords (0 : Fin 3)
+    · simpa using congrFun hcoords (2 : Fin 3)
+  · simpa using congrFun hcoords (1 : Fin 3)
 
 /-- On the forward overlap, the maximal extension is exactly the explicit
 square-root branch reparameterization.  This is the interface cancellation

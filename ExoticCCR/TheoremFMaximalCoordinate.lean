@@ -290,6 +290,38 @@ theorem isIntegralCurveFrom.evalMap_F_coord1
     simp [f, g, hα.2.2.2.1])
   exact hfg ht
 
+/-- The full anchor map is affine with velocity `(0,1,0)` on every connected
+open partial trajectory.  In particular, the two transverse anchor
+coordinates are constant along an `X1` trajectory. -/
+theorem isIntegralCurveFrom.evalMap_F
+    {x₀ : R3} {α : ℝ → R3} {I : Set ℝ}
+    (hα : isIntegralCurveFrom x₀ α I) {t : ℝ} (ht : t ∈ I) :
+    evalMap (F ℝ) (α t) = evalMap (F ℝ) x₀ + t • (![0, 1, 0] : R3) := by
+  funext i
+  let f : ℝ → ℝ := fun u => evalMap (F ℝ) (α u) i
+  let g : ℝ → ℝ := fun u => evalMap (F ℝ) x₀ i + u * (![0, 1, 0] : R3) i
+  have hf : DifferentiableOn ℝ f I := by
+    intro u hu
+    exact (hasDerivAt_pi.mp
+      (hasDerivAt_evalMap_F_of_hasDerivAt_X1 (hα.2.2.2.2 u hu)) i).differentiableAt
+      |>.differentiableWithinAt
+  have hg : DifferentiableOn ℝ g I := by
+    intro u hu
+    exact ((hasDerivAt_const u (evalMap (F ℝ) x₀ i)).add
+      ((hasDerivAt_id u).mul_const ((![0, 1, 0] : R3) i))).differentiableAt
+      |>.differentiableWithinAt
+  have hd : I.EqOn (deriv f) (deriv g) := by
+    intro u hu
+    rw [(hasDerivAt_pi.mp
+      (hasDerivAt_evalMap_F_of_hasDerivAt_X1 (hα.2.2.2.2 u hu)) i).deriv]
+    simpa [g] using (((hasDerivAt_const u (evalMap (F ℝ) x₀ i)).add
+      ((hasDerivAt_id u).mul_const ((![0, 1, 0] : R3) i))).deriv).symm
+  have hfg : I.EqOn f g := hα.2.1.eqOn_of_deriv_eq hα.2.2.1.2 hf hg hd hα.1 (by
+    simp [f, g, hα.2.2.2.1])
+  change evalMap (F ℝ) (α t) i =
+    evalMap (F ℝ) x₀ i + t * (![0, 1, 0] : R3) i
+  exact hfg ht
+
 /-- The chosen maximal representative has the same affine target coordinate
 throughout its maximal domain. -/
 theorem evalMap_maximalIntegralCurve_coord1
@@ -298,6 +330,16 @@ theorem evalMap_maximalIntegralCurve_coord1
   obtain ⟨α, I, hα, htI⟩ := ht
   rw [maximalIntegralCurve_eq_of_mem hα htI]
   exact hα.evalMap_F_coord1 htI
+
+/-- The chosen maximal representative is affine in all three anchor
+coordinates throughout its maximal domain. -/
+theorem evalMap_maximalIntegralCurve
+    {x₀ : R3} {t : ℝ} (ht : t ∈ integralCurveDomain x₀) :
+    evalMap (F ℝ) (maximalIntegralCurve x₀ t) =
+      evalMap (F ℝ) x₀ + t • (![0, 1, 0] : R3) := by
+  obtain ⟨α, I, hα, htI⟩ := ht
+  rw [maximalIntegralCurve_eq_of_mem hα htI]
+  exact hα.evalMap_F htI
 
 /-- For a cross-section initial point, flow time and target `s` differ by the
 fixed initial offset `β(x)-ε₀`. -/
