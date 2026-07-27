@@ -72,13 +72,11 @@ the historical B5 algebraic core.
     anchor value is exactly `(a, β(a,c)-ε₀, c)`. A compact transverse closed ball inside the
     cross-section admits a common positive Picard--Lindelöf lifetime and a jointly continuous
     two-sided local `X1` flow map. Connected open partial trajectories and their extended-real
-    forward/backward reachable-time extrema are defined, local trajectories are shown to inhabit
-    that interface, and `C¹` regularity of `X1` proves local uniqueness where two trajectories
-    agree. Joint smooth dependence and a glued maximal trajectory are not proved.
-    `ForwardSaturatedSheet` separately records the full interval-bundle, smooth injective flow
-    parameterization, exact anchor evaluation, `X1` integral-curve, upper-escape, and lower-end
-    conditions that would be needed before discarding endpoint terms. No inhabitant of this
-    structure is asserted.
+    forward/backward reachable-time extrema are defined, and local uniqueness glues them to a
+    pointwise maximal trajectory. Independently, square-root reparameterization of the explicit
+    vertical branch collar inhabits `ForwardSaturatedSheet`, with exact anchor evaluation,
+    `X1` integral curves, and upper escape. Its finite lower face converges to the regular
+    cross-section and is explicitly recorded as nonescaping boundary data.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
 one-dimensional real-analysis consequences. They do not constitute all of Program B.
@@ -101,13 +99,10 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - A global A001 Theorem F sheet or measure-`1/2` conclusion, a concrete `Dom(H*)`
   vector satisfying the weak deficiency identity, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
-- That the current `ForwardBranchOpen` collar extends to a jointly smooth maximal product flow
-  or a `ForwardSaturatedSheet`. A compact transverse ball has a jointly continuous local
-  flow with a common existence time, and local overlap uniqueness is proved, but no glued maximal
-  curve on the defined reachable-time interval, `escape_upper`,
-  or `lower_ok` escape alternative is constructed. Its local `s = β-τ²` parameter domain is not
-  proved to contain full flow intervals, and no theorem controls its other endpoint. Consequently
-  no integration-by-parts boundary term is dropped here.
+- That the `ForwardSaturatedSheet` extends to a jointly smooth **maximal** product flow, or that its
+  regular lower cross-section contributes no boundary residual. The explicit branch sheet is only
+  the finite collar `β-ε₀ < s < β`; its upper face escapes, while its lower face converges to
+  `qSigma`. Consequently no integration-by-parts boundary term is dropped here.
 - Full B001, B6/B7 analytic classification, von Neumann algebra (`vNa`) conclusions, or any
   operator realization derived from the B5 algebraic slice.
 - Experimental, hardware, or metrology claims.

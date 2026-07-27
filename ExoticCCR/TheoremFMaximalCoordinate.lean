@@ -406,4 +406,176 @@ theorem ForwardBranchOpen.exists_crossSection_tMax_qSigma_eq_ε₀
   exact S.tMax_qSigma_eq_ε₀_of_escape (hWsub hx) hvert
     (S.tendsto_norm_branchTimeCurve_of_one_le_rPlus x hr)
 
+/-- The explicit vertical branch collar, reparameterized by the anchor `s`
+coordinate, is a forward saturated sheet.  Its lower face is the regular
+cross-section and is recorded by the regular-limit alternative of `lower_ok`;
+it is not claimed to escape. -/
+theorem ForwardBranchOpen.exists_forwardSaturatedSheet (O : ForwardBranchOpen) :
+    Nonempty ForwardSaturatedSheet := by
+  obtain ⟨S, hSO, W', hWopen, hWne, hWsub, hcollar⟩ :=
+    O.exists_crossSection_with_verticalCollar_and_rPlus
+  let β : ℝ × ℝ → ℝ := S.O.germ.β
+  let ℓ : ℝ × ℝ → EReal := fun x => ((β x - S.ε₀ : ℝ) : EReal)
+  let D : Set ((ℝ × ℝ) × ℝ) :=
+    {p | p.1 ∈ W' ∧ β p.1 - S.ε₀ < p.2 ∧ p.2 < β p.1}
+  let Psi : ((ℝ × ℝ) × ℝ) → R3 := fun p =>
+    S.O.germ.branchMap (p.1, Real.sqrt (β p.1 - p.2))
+  have hU : W' ⊆ S.O.germ.U := by
+    intro x hx
+    have hxW : (x, S.τ₀) ∈ S.O.W := by simpa [S.W_eq] using hWsub hx
+    exact S.O.germ.proj_mem (x, S.τ₀) (S.O.subset_V hxW)
+  have hβdiff : ContDiffOn ℝ ⊤ β W' :=
+    S.O.germ.contDiff_β.mono hU
+  have hlower : ∀ x ∈ W', ℓ x < (β x : EReal) := by
+    intro x hx
+    simp only [ℓ, EReal.coe_lt_coe_iff]
+    linarith [S.ε₀_pos]
+  have hDeq : D = {p | p.1 ∈ W' ∧ ℓ p.1 < (p.2 : EReal) ∧ p.2 < β p.1} := by
+    ext p
+    simp only [D, ℓ, Set.mem_setOf_eq, EReal.coe_lt_coe_iff]
+  have hDopen : IsOpen D := by
+    rw [isOpen_iff_mem_nhds]
+    intro p hp
+    have hp' : p.1 ∈ W' ∧ β p.1 - S.ε₀ < p.2 ∧ p.2 < β p.1 := hp
+    have hβat : ContinuousAt β p.1 :=
+      (hβdiff p.1 hp'.1).contDiffAt (hWopen.mem_nhds hp'.1) |>.continuousAt
+    have hbase : {q : (ℝ × ℝ) × ℝ | q.1 ∈ W'} ∈ 𝓝 p :=
+      (hWopen.preimage continuous_fst).mem_nhds hp'.1
+    have hloCont : ContinuousAt (fun q : (ℝ × ℝ) × ℝ => β q.1 - S.ε₀ - q.2) p :=
+      ((hβat.comp continuousAt_fst).sub continuousAt_const).sub continuousAt_snd
+    have hlo : {q : (ℝ × ℝ) × ℝ | β q.1 - S.ε₀ < q.2} ∈ 𝓝 p := by
+      have heq : {q : (ℝ × ℝ) × ℝ | β q.1 - S.ε₀ < q.2} =
+          (fun q => β q.1 - S.ε₀ - q.2) ⁻¹' Iio 0 := by
+        ext q
+        simp only [Set.mem_setOf_eq, Set.mem_preimage, Set.mem_Iio]
+        constructor <;> intro h <;> linarith
+      rw [heq]
+      exact hloCont (Iio_mem_nhds (sub_neg.mpr hp'.2.1))
+    have hhiCont : ContinuousAt (fun q : (ℝ × ℝ) × ℝ => q.2 - β q.1) p :=
+      continuousAt_snd.sub (hβat.comp continuousAt_fst)
+    have hhi : {q : (ℝ × ℝ) × ℝ | q.2 < β q.1} ∈ 𝓝 p := by
+      have heq : {q : (ℝ × ℝ) × ℝ | q.2 < β q.1} =
+          (fun q => q.2 - β q.1) ⁻¹' Iio 0 := by
+        ext q
+        simp only [Set.mem_setOf_eq, Set.mem_preimage, Set.mem_Iio]
+        constructor <;> intro h <;> linarith
+      rw [heq]
+      exact hhiCont (Iio_mem_nhds (sub_neg.mpr hp'.2.2))
+    apply mem_of_superset (inter_mem hbase (inter_mem hlo hhi))
+    rintro q ⟨hqW, hqlo, hqhi⟩
+    exact ⟨hqW, hqlo, hqhi⟩
+  have hPsiDiff : ContDiffOn ℝ ⊤ Psi D := by
+    intro p hp
+    have hp' : p.1 ∈ W' ∧ β p.1 - S.ε₀ < p.2 ∧ p.2 < β p.1 := hp
+    have harg : 0 < β p.1 - p.2 := sub_pos.mpr hp'.2.2
+    have hτpos : 0 < Real.sqrt (β p.1 - p.2) := Real.sqrt_pos.2 harg
+    have hτle : Real.sqrt (β p.1 - p.2) ≤ S.τ₀ := by
+      rw [← S.sqrt_ε₀]
+      exact Real.sqrt_le_sqrt (by linarith [hp'.2.1])
+    have hmem : (p.1, Real.sqrt (β p.1 - p.2)) ∈ S.O.W :=
+      (hcollar p.1 hp'.1).1 _ ⟨hτpos, hτle⟩
+    have hβat : ContDiffAt ℝ ⊤ β p.1 :=
+      (hβdiff p.1 hp'.1).contDiffAt (hWopen.mem_nhds hp'.1)
+    have hinner : ContDiffAt ℝ ⊤
+        (fun q : (ℝ × ℝ) × ℝ => (q.1, Real.sqrt (β q.1 - q.2))) p := by
+      apply ContDiffAt.prodMk contDiffAt_fst
+      apply ContDiffAt.sqrt
+      · exact (hβat.comp p contDiffAt_fst).sub contDiffAt_snd
+      · exact ne_of_gt harg
+    have houter : ContDiffAt ℝ ⊤ S.O.germ.branchMap
+        (p.1, Real.sqrt (β p.1 - p.2)) :=
+      (S.O.contDiff_branchMap _ hmem).contDiffAt (S.O.isOpen_W.mem_nhds hmem)
+    exact (houter.comp p hinner).contDiffWithinAt
+  have hEval : ∀ p ∈ D,
+      evalMap (F ℝ) (Psi p) = ![p.1.1, p.2, p.1.2] := by
+    intro p hp
+    have hp' : p.1 ∈ W' ∧ β p.1 - S.ε₀ < p.2 ∧ p.2 < β p.1 := hp
+    have harg : 0 < β p.1 - p.2 := sub_pos.mpr hp'.2.2
+    have hτpos : 0 < Real.sqrt (β p.1 - p.2) := Real.sqrt_pos.2 harg
+    have hτle : Real.sqrt (β p.1 - p.2) ≤ S.τ₀ := by
+      rw [← S.sqrt_ε₀]
+      exact Real.sqrt_le_sqrt (by linarith [hp'.2.1])
+    have hmem : (p.1, Real.sqrt (β p.1 - p.2)) ∈ S.O.W :=
+      (hcollar p.1 hp'.1).1 _ ⟨hτpos, hτle⟩
+    simpa [Psi, β, ForwardBranchGerm.sCoord, Real.sq_sqrt harg.le] using
+      S.O.evalMap_branch hmem
+  have hInj : Set.InjOn Psi D := by
+    intro p hp q hq heq
+    have heval : (![p.1.1, p.2, p.1.2] : Fin 3 → ℝ) =
+        ![q.1.1, q.2, q.1.2] := by
+      rw [← hEval p hp, ← hEval q hq, heq]
+    have ha : p.1.1 = q.1.1 := by simpa using congrFun heval (0 : Fin 3)
+    have hs : p.2 = q.2 := by simpa using congrFun heval (1 : Fin 3)
+    have hc : p.1.2 = q.1.2 := by simpa using congrFun heval (2 : Fin 3)
+    exact Prod.ext (Prod.ext ha hc) hs
+  refine ⟨⟨W', hWopen, hWne, β, hβdiff, ℓ, hlower, D, hDeq, hDopen,
+    Psi, hPsiDiff, hInj, hEval, ?_, ?_, ?_⟩⟩
+  · intro x s hs
+    have hs' : x ∈ W' ∧ β x - S.ε₀ < s ∧ s < β x := hs
+    let t := s - (β x - S.ε₀)
+    have ht : t ∈ Ioo (0 : ℝ) S.ε₀ := by
+      dsimp [t]
+      constructor <;> linarith [hs'.2.1, hs'.2.2]
+    have hder := S.hasDerivAt_branchTimeCurve (hcollar x hs'.1).1 ht
+    have hshift := hder.comp_add_const s (-(β x - S.ε₀))
+    have hfun : (fun u : ℝ => S.branchTimeCurve x (u + -(β x - S.ε₀))) =
+        (fun u : ℝ => Psi (x, u)) := by
+      funext u
+      simp only [ForwardBranchCrossSection.branchTimeCurve, Psi, β]
+      apply congrArg (fun z => S.O.germ.branchMap (x, Real.sqrt z))
+      ring
+    rw [hfun] at hshift
+    have hval : S.branchTimeCurve x t = Psi (x, s) := by
+      simpa only [t, sub_eq_add_neg] using congrFun hfun s
+    exact hshift.congr_deriv (congrArg X1 hval)
+  · intro x hx
+    have hesc := S.tendsto_norm_branchTimeCurve_of_one_le_rPlus x
+      (by simpa [hSO] using (hcollar x hx).2)
+    have hshift : Tendsto (fun s : ℝ => s - (β x - S.ε₀))
+        (𝓝[<] β x) (𝓝[<] S.ε₀) := by
+      rw [tendsto_nhdsWithin_iff]
+      constructor
+      · have hc : ContinuousAt (fun s : ℝ => s - (β x - S.ε₀)) (β x) :=
+          continuousAt_id.sub continuousAt_const
+        have hct := hc.tendsto.mono_left
+          (show 𝓝[<] β x ≤ 𝓝 (β x) from inf_le_left)
+        convert hct using 1
+        rw [sub_sub_cancel]
+      · filter_upwards [self_mem_nhdsWithin] with s hs
+        change s - (β x - S.ε₀) < S.ε₀
+        calc
+          s - (β x - S.ε₀) < β x - (β x - S.ε₀) := sub_lt_sub_right hs _
+          _ = S.ε₀ := by ring
+    change Tendsto (fun s : ℝ =>
+      ‖S.O.germ.branchMap (x, Real.sqrt (β x - s))‖) (𝓝[<] β x) atTop
+    have hcomp := hesc.comp hshift
+    have hfun : (fun s : ℝ => ‖S.O.germ.branchMap (x, Real.sqrt (β x - s))‖) =
+        (fun t => ‖S.branchTimeCurve x t‖) ∘
+          (fun s : ℝ => s - (β x - S.ε₀)) := by
+      funext s
+      simp only [Function.comp_apply, ForwardBranchCrossSection.branchTimeCurve]
+      apply congrArg norm
+      apply congrArg (fun z => S.O.germ.branchMap (x, Real.sqrt z))
+      ring
+    rw [hfun]
+    exact hcomp
+  · intro x hx
+    right; right
+    refine ⟨β x - S.ε₀, rfl, S.qSigma x, ?_⟩
+    have hxW : (x, S.τ₀) ∈ S.O.W := by simpa [S.W_eq] using hWsub hx
+    have hbranch : ContinuousAt S.O.germ.branchMap (x, S.τ₀) :=
+      (S.O.contDiff_branchMap _ hxW).contDiffAt (S.O.isOpen_W.mem_nhds hxW) |>.continuousAt
+    have hinner : Tendsto (fun s : ℝ => (x, Real.sqrt (β x - s)))
+        (𝓝[>] (β x - S.ε₀)) (𝓝 (x, S.τ₀)) := by
+      have hc : ContinuousAt (fun s : ℝ => (x, Real.sqrt (β x - s)))
+          (β x - S.ε₀) := by fun_prop
+      have ht := hc.tendsto.mono_left
+        (show 𝓝[>] (β x - S.ε₀) ≤ 𝓝 (β x - S.ε₀) from inf_le_left)
+      convert ht using 1
+      rw [sub_sub_cancel, S.sqrt_ε₀]
+    change Tendsto (S.O.germ.branchMap ∘ fun s : ℝ =>
+      (x, Real.sqrt (β x - s))) (𝓝[>] (β x - S.ε₀))
+        (𝓝 (S.O.germ.branchMap (x, S.τ₀)))
+    exact hbranch.tendsto.comp hinner
+
 end ExoticCCR

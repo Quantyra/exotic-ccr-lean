@@ -11,18 +11,16 @@ import Mathlib.Data.EReal.Basic
 /-!
 # Forward saturated sheets
 
-This module first extracts an honest positive cross-section from the local
-forward branch, defines the extremal reachable times of `X1`, proves local
-uniqueness and Picard continuation for trajectories used in gluing, and records
-the geometric data that a full forward sheet would have to provide before an
-integration-by-parts argument can be attempted.
+This module extracts an honest positive cross-section from the local forward
+branch and records the geometric data of a forward sheet.  In
+`TheoremFMaximalCoordinate` the sheet is inhabited directly by the smooth local
+branch after square-root reparameterization; no abstract joint smoothness of a
+maximal flow is used.
 
-`ForwardBranchOpen` does not presently give an inhabitant of this structure.
-Its positive half-ball supplies vertical segments, and the resulting upper
-maximal endpoint is identified with the branch wall in
-`TheoremFMaximalCoordinate`.  Pointwise finite lower endpoints also escape.
-Jointly smooth maximal-flow dependence has not been established.  Thus this module
-deliberately proves no weak-adjoint statement and no Theorem E.
+The lower face of that sheet is the regular cross-section, not an escaping end.
+It must therefore be retained in any future integration-by-parts argument and
+handled by support or an estimate.  This module deliberately proves no
+integration-by-parts, weak-adjoint, or Theorem E statement.
 -/
 
 noncomputable section
@@ -610,8 +608,8 @@ theorem tendsto_norm_maximalIntegralCurve_at_tMin
 
 /-- The lower maximal endpoint is either negative infinity or a finite endpoint
 with norm escape from the right.  This is the pointwise lower-end alternative
-required by a saturated sheet; assembling it into a sheet still requires
-jointly smooth dependence on the transverse parameter. -/
+for the separate maximal-flow construction; the explicit branch sheet below
+instead has a regular finite cross-section end. -/
 theorem tMin_eq_bot_or_exists_escape (x₀ : R3) :
     tMin x₀ = ⊥ ∨ ∃ T : ℝ, tMin x₀ = (T : EReal) ∧
       Tendsto (fun t : ℝ => ‖maximalIntegralCurve x₀ t‖) (𝓝[>] T) atTop := by
@@ -753,12 +751,16 @@ structure ForwardSaturatedSheet where
   /-- Every upper endpoint escapes all compact norm balls. -/
   escape_upper : ∀ x ∈ W,
     Tendsto (fun s : ℝ => ‖Psi (x, s)‖) (𝓝[<] β x) atTop
-  /-- A lower endpoint is either `-∞`, or finite and escaping from the right.
-  This disjunction prevents a finite lower boundary from being silently
-  discarded in integration by parts. -/
+  /-- A lower endpoint is either `-∞`, finite and escaping from the right, or a
+  regular finite face with a limit point.  The third case is a genuine
+  cross-section boundary: future integration by parts must not discard it, but
+  must handle its residual by support or an estimate. -/
   lower_ok : ∀ x ∈ W,
-    ℓ x = ⊥ ∨ ∃ L : ℝ, ℓ x = (L : EReal) ∧
-      Tendsto (fun s : ℝ => ‖Psi (x, s)‖) (𝓝[>] L) atTop
+    ℓ x = ⊥ ∨
+      (∃ L : ℝ, ℓ x = (L : EReal) ∧
+        Tendsto (fun s : ℝ => ‖Psi (x, s)‖) (𝓝[>] L) atTop) ∨
+      (∃ L : ℝ, ℓ x = (L : EReal) ∧ ∃ q : R3,
+        Tendsto (fun s : ℝ => Psi (x, s)) (𝓝[>] L) (𝓝 q))
 
 namespace ForwardSaturatedSheet
 
