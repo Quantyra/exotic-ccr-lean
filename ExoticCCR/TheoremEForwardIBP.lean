@@ -5,6 +5,7 @@ Authors: Daniel Eric Fredriksen
 -/
 import ExoticCCR.TheoremFSaturatedSheet
 import ExoticCCR.TheoremFBranchDensity
+import ExoticCCR.TheoremFMaximalSheetDensity
 import ExoticCCR.TheoremEDeficiency
 import Mathlib.Analysis.InnerProductSpace.Calculus
 import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
@@ -110,5 +111,79 @@ theorem integral_density_mul_transport_eq_residuals
   · exact hXφ
 
 end ForwardSaturatedSheet
+
+namespace ForwardMaximalSheet
+
+/-- The `-i` deficiency density in maximal-sheet flow time. -/
+def deficiencyDensity (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ)
+    (p : (ℝ × ℝ) × ℝ) : ℂ :=
+  χ p.1 * Complex.exp (p.2 - M.S.O.germ.β p.1)
+
+/-- The maximal-sheet density solves `dρ/ds = ρ` on every fiber. -/
+theorem hasDerivAt_deficiencyDensity_s (M : ForwardMaximalSheet)
+    (χ : ℝ × ℝ → ℂ) (x : ℝ × ℝ) (s : ℝ) :
+    HasDerivAt (fun t : ℝ => M.deficiencyDensity χ (x, t))
+      (M.deficiencyDensity χ (x, s)) s := by
+  unfold deficiencyDensity
+  have hinner : HasDerivAt
+      (fun t : ℝ => ((t - M.S.O.germ.β x : ℝ) : ℂ)) 1 s := by
+    simpa using ((hasDerivAt_id s).sub_const (M.S.O.germ.β x)).ofReal_comp
+  simpa using (Complex.hasDerivAt_exp _).comp s hinner |>.const_mul (χ x)
+
+/-- Derivative of a test function restricted to a maximal-sheet characteristic. -/
+theorem hasDerivAt_test_comp_Psi_s (M : ForwardMaximalSheet)
+    (φ : CcinftyR3) {x : ℝ × ℝ} {s : ℝ} (hs : (x, s) ∈ M.D) :
+    HasDerivAt (fun t : ℝ => φ (M.Psi (x, t)))
+      (fderiv ℝ (φ : R3 → ℂ) (M.Psi (x, s)) (X1 (M.Psi (x, s)))) s := by
+  exact (φ.contDiff.differentiable (by simp)).differentiableAt.hasFDerivAt
+    |>.comp_hasDerivAt s
+      (M.hasDerivAt_Psi_s ((mem_integralCurveDomain_iff _ _).1 hs.2))
+
+/-- Product rule for the maximal-sheet density--test pairing. -/
+theorem hasDerivAt_density_pairing_s (M : ForwardMaximalSheet)
+    (χ : ℝ × ℝ → ℂ) (φ : CcinftyR3) {x : ℝ × ℝ} {s : ℝ}
+    (hs : (x, s) ∈ M.D) :
+    HasDerivAt
+      (fun t : ℝ => inner ℂ (M.deficiencyDensity χ (x, t)) (φ (M.Psi (x, t))))
+      (inner ℂ (M.deficiencyDensity χ (x, s))
+        (φ (M.Psi (x, s)) +
+          fderiv ℝ (φ : R3 → ℂ) (M.Psi (x, s)) (X1 (M.Psi (x, s))))) s := by
+  simpa only [inner_add_right, add_comm] using
+    (M.hasDerivAt_deficiencyDensity_s χ x s).inner ℂ
+      (M.hasDerivAt_test_comp_Psi_s φ hs)
+
+/-- Finite-interval integration by parts on a maximal characteristic, with
+both endpoint residuals retained explicitly. -/
+theorem integral_density_mul_transport_eq_residuals
+    (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ) (φ : CcinftyR3)
+    (x : ℝ × ℝ) (a b : ℝ)
+    (hab : ∀ s ∈ uIcc a b, (x, s) ∈ M.D)
+    (hφ : IntervalIntegrable (fun s : ℝ =>
+      inner ℂ (M.deficiencyDensity χ (x, s)) (φ (M.Psi (x, s)))) volume a b)
+    (hXφ : IntervalIntegrable (fun s : ℝ =>
+      inner ℂ (M.deficiencyDensity χ (x, s))
+        (fderiv ℝ (φ : R3 → ℂ) (M.Psi (x, s)) (X1 (M.Psi (x, s))))) volume a b) :
+    ∫ s in a..b, inner ℂ (M.deficiencyDensity χ (x, s))
+        (fderiv ℝ (φ : R3 → ℂ) (M.Psi (x, s)) (X1 (M.Psi (x, s)))) =
+      inner ℂ (M.deficiencyDensity χ (x, b)) (φ (M.Psi (x, b))) -
+        inner ℂ (M.deficiencyDensity χ (x, a)) (φ (M.Psi (x, a))) -
+      ∫ s in a..b, inner ℂ (M.deficiencyDensity χ (x, s)) (φ (M.Psi (x, s))) := by
+  have hftc :
+      ∫ s in a..b, inner ℂ (M.deficiencyDensity χ (x, s))
+          (φ (M.Psi (x, s)) +
+            fderiv ℝ (φ : R3 → ℂ) (M.Psi (x, s)) (X1 (M.Psi (x, s)))) =
+        inner ℂ (M.deficiencyDensity χ (x, b)) (φ (M.Psi (x, b))) -
+          inner ℂ (M.deficiencyDensity χ (x, a)) (φ (M.Psi (x, a))) := by
+    exact intervalIntegral.integral_eq_sub_of_hasDerivAt
+      (fun s hs => M.hasDerivAt_density_pairing_s χ φ (hab s hs))
+      (by simpa only [inner_add_right] using hφ.add hXφ)
+  simp_rw [inner_add_right] at hftc
+  rw [intervalIntegral.integral_add] at hftc
+  · apply eq_sub_iff_add_eq.mpr
+    simpa only [add_comm] using hftc
+  · exact hφ
+  · exact hXφ
+
+end ForwardMaximalSheet
 
 end ExoticCCR

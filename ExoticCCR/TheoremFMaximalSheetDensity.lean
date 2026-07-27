@@ -514,6 +514,93 @@ theorem exists_baseCutoff_tsupport_subset (M : ForwardMaximalSheet) (x : ℝ × 
     rw [b.one_of_mem_closedBall (Metric.mem_closedBall_self b.rIn_pos.le)]
     norm_num
 
+/-- A cutoff which is nonzero at one transverse point gives a strictly positive
+squared-norm integral on the maximal-sheet image. -/
+theorem lintegral_sq_norm_uMinus_image_pos (M : ForwardMaximalSheet)
+    (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ) {x : ℝ × ℝ}
+    (hx : x ∈ M.W) (hχx : χ x ≠ 0) :
+    0 < ∫⁻ q in M.PsiFin3 '' M.Dfin3,
+      ENNReal.ofReal (‖M.uMinus χ q‖ ^ 2) ∂volume := by
+  classical
+  let v0 : Fin 3 → ℝ := ![x.1, M.s0 x, x.2]
+  have hzero : 0 ∈ integralCurveDomain (M.S.qSigma x) := by
+    obtain ⟨α, I, hα⟩ := exists_isIntegralCurveFrom (M.S.qSigma x)
+    exact ⟨α, I, hα, hα.1⟩
+  have hv0 : v0 ∈ M.Dfin3 := by
+    change x ∈ M.W ∧ M.s0 x - M.s0 x ∈ integralCurveDomain (M.S.qSigma x)
+    simpa using And.intro hx hzero
+  let g : (Fin 3 → ℝ) → ℝ := fun v => ‖M.deficiencyDensityFin3 χ v‖ ^ 2
+  let r : (Fin 3 → ℝ) → ℝ := M.Dfin3.indicator g
+  let f : (Fin 3 → ℝ) → ℝ≥0∞ := fun v =>
+    ENNReal.ofReal (1 / 2 : ℝ) * ENNReal.ofReal (r v)
+  have hdens : M.deficiencyDensityFin3 χ v0 ≠ 0 := by
+    simp only [deficiencyDensityFin3, mul_ne_zero_iff]
+    exact ⟨by simpa [v0] using hχx, Complex.exp_ne_zero _⟩
+  have hg0 : 0 < g v0 := by
+    exact sq_pos_of_pos (norm_pos_iff.mpr hdens)
+  have hg : ContinuousOn g M.Dfin3 := by
+    intro v hv
+    exact ((M.continuousOn_deficiencyDensityFin3 χ hχ v hv).norm.pow 2)
+  let N : Set (Fin 3 → ℝ) := M.Dfin3 ∩ {v | 0 < g v}
+  have hNopen : IsOpen N := by
+    rw [isOpen_iff_mem_nhds]
+    intro v hv
+    exact inter_mem (M.isOpen_Dfin3.mem_nhds hv.1)
+      ((hg v hv.1).continuousAt (M.isOpen_Dfin3.mem_nhds hv.1)
+        (Ioi_mem_nhds hv.2))
+  have hvN : v0 ∈ N := ⟨hv0, hg0⟩
+  have hNpos : 0 < volume N := hNopen.measure_pos volume ⟨v0, hvN⟩
+  have hr : Measurable r := by
+    apply ContinuousOn.measurable_piecewise _ continuous_zero.continuousOn
+      M.measurableSet_Dfin3
+    intro v hv
+    exact hg v hv
+  have hf : Measurable f := by
+    apply Measurable.const_mul
+    apply ENNReal.measurable_ofReal.comp
+    exact hr
+  have hsub : N ⊆ Function.support f ∩ M.Dfin3 := by
+    intro v hv
+    refine ⟨?_, hv.1⟩
+    have hgv : 0 < g v := hv.2
+    simp only [Function.mem_support, f, ne_eq, mul_eq_zero,
+      ENNReal.ofReal_eq_zero]
+    exact not_or_intro (by norm_num) (not_le.mpr (by simpa [r, hv.1] using hgv))
+  rw [M.lintegral_image_PsiFin3_eq]
+  have hpos : 0 < ∫⁻ v in M.Dfin3, f v ∂volume := by
+    apply (setLIntegral_pos_iff hf).mpr
+    exact lt_of_lt_of_le hNpos (measure_mono hsub)
+  convert hpos using 1
+  apply setLIntegral_congr_fun M.measurableSet_Dfin3
+  intro v hv
+  simp [f, r, g, hv, M.uMinus_on_image χ hv]
+
+/-- Every maximal forward sheet carries a compactly supported cutoff whose
+zero extension determines a nonzero vector of ambient `L²(ℝ³)`. -/
+theorem exists_nonzero_L2_uMinus (M : ForwardMaximalSheet) :
+    ∃ (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ) (hχc : HasCompactSupport χ)
+        (hχW : tsupport χ ⊆ M.W),
+      (M.memLp_uMinus χ hχ hχc hχW).toLp (M.uMinus χ) ≠ 0 := by
+  obtain ⟨x, hx⟩ := M.nonempty_W
+  obtain ⟨χ, hχ, hχc, hχW, hχx⟩ := M.exists_baseCutoff_tsupport_subset x hx
+  refine ⟨χ, hχ, hχc, hχW, ?_⟩
+  let hu := M.memLp_uMinus χ hχ hχc hχW
+  have himage := M.lintegral_sq_norm_uMinus_image_pos χ hχ hx (by simpa [hχx])
+  intro hzero
+  rw [MeasureTheory.Lp.eq_zero_iff_ae_eq_zero] at hzero
+  have huae : M.uMinus χ =ᵐ[volume] 0 := hu.coeFn_toLp.symm.trans hzero
+  have hamb : ∫⁻ q : Fin 3 → ℝ,
+      ENNReal.ofReal (‖M.uMinus χ q‖ ^ 2) ∂volume = 0 := by
+    rw [← lintegral_zero]
+    apply lintegral_congr_ae
+    filter_upwards [huae] with q hq
+    simp [hq]
+  have hz : ∫⁻ q in M.PsiFin3 '' M.Dfin3,
+      ENNReal.ofReal (‖M.uMinus χ q‖ ^ 2) ∂volume = 0 := by
+    apply le_zero_iff.mp
+    exact (setLIntegral_le_lintegral _ _).trans_eq hamb
+  exact (ne_of_gt himage) hz
+
 /-- The maximal-sheet image is open. -/
 theorem isOpen_image_Psi (M : ForwardMaximalSheet) : IsOpen (M.Psi '' M.D) := by
   rw [← show M.PsiFin3 '' M.Dfin3 = M.Psi '' M.D by
