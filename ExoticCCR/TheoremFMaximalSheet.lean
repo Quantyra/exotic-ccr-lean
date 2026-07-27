@@ -11,10 +11,12 @@ import ExoticCCR.TheoremFMaximalCoordinate
 The local branch collar can be extended backward, point by point, with the
 canonical maximal integral curve through its regular lower face.  This module
 records that extension and proves exact agreement at the interface and on the
-overlap.  It deliberately does not package the result as a
-`ForwardSaturatedSheet`: the present ODE API supplies no joint smoothness (or
-even joint measurability) of the selected maximal curves in the transverse
-parameter.  Consequently no ambient change of variables is claimed here.
+overlap.  The local Picard collar in `TheoremFSaturatedSheet` now identifies
+the selected maximal curves with a jointly continuous flow on a nonempty open
+product collar.  It deliberately does not package the full extension as a
+`ForwardSaturatedSheet`: joint regularity has not been continued over the
+whole variable maximal domain.  Consequently no ambient change of variables
+is claimed here.
 -/
 
 noncomputable section
@@ -113,8 +115,9 @@ theorem lower_eq_bot_or_exists_escape (M : ForwardMaximalSheet) (x : ℝ × ℝ)
 end ForwardMaximalSheet
 
 /-- Every forward branch contains a nonempty pointwise maximal sheet.  This is
-not promoted to `ForwardSaturatedSheet` because joint transverse regularity of
-`maximalIntegralCurve (qSigma x)` has not been established. -/
+not promoted to `ForwardSaturatedSheet` because the available local joint
+continuity of `maximalIntegralCurve (qSigma x)` has not been continued over
+the whole maximal domain. -/
 theorem ForwardBranchOpen.exists_forwardMaximalSheet (O : ForwardBranchOpen) :
     Nonempty ForwardMaximalSheet := by
   obtain ⟨S, hSO, W, hWopen, hWne, hWsub, hcollar⟩ :=

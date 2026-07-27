@@ -660,6 +660,51 @@ theorem exists_flowLine (C : UniformLocalFlowCollar) (x : ℝ × ℝ) (hx : x �
   exact ⟨fun t => C.flowMap (x, t), C.flowMap_zero x hx,
     fun t ht => C.hasDerivAt_flowMap x hx t ht⟩
 
+/-- The jointly continuous Picard--Lindelöf flow in a uniform collar agrees
+with the canonical maximal integral curve wherever the collar is defined. -/
+theorem flowMap_eq_maximalIntegralCurve (C : UniformLocalFlowCollar)
+    {x : ℝ × ℝ} (hx : x ∈ C.W₀) {t : ℝ} (ht : t ∈ Ioo (-C.δ) C.δ) :
+    C.flowMap (x, t) = maximalIntegralCurve (C.S.qSigma x) t := by
+  let α : ℝ → R3 := fun u => C.flowMap (x, u)
+  have hα : isIntegralCurveFrom (C.S.qSigma x) α (Ioo (-C.δ) C.δ) := by
+    refine ⟨by simp [C.δ_pos], isOpen_Ioo,
+      isConnected_Ioo (by linarith [C.δ_pos]), C.flowMap_zero x hx, ?_⟩
+    intro u hu
+    exact C.hasDerivAt_flowMap x hx u hu
+  exact (maximalIntegralCurve_eq_of_mem hα ht).symm
+
+/-- Joint continuity of the selected maximal curves on the compact transverse
+core and their common Picard time interval. -/
+theorem continuousOn_maximalIntegralCurve (C : UniformLocalFlowCollar) :
+    ContinuousOn (fun p : (ℝ × ℝ) × ℝ =>
+      maximalIntegralCurve (C.S.qSigma p.1) p.2)
+      (C.W₀ ×ˢ Ioo (-C.δ) C.δ) := by
+  apply C.continuousOn_flowMap.congr
+  intro p hp
+  exact (C.flowMap_eq_maximalIntegralCurve hp.1 hp.2).symm
+
+/-- In particular, the canonical maximal flow is jointly continuous on a
+nonempty open product collar.  The smaller open ball is used only to make the
+transverse domain open; it remains inside the compact uniform core. -/
+theorem continuousOn_maximalIntegralCurve_local (C : UniformLocalFlowCollar) :
+    ContinuousOn (fun p : (ℝ × ℝ) × ℝ =>
+      maximalIntegralCurve (C.S.qSigma p.1) p.2)
+      (Metric.ball C.x₀ C.ρ ×ˢ Ioo (-C.δ) C.δ) := by
+  apply C.continuousOn_maximalIntegralCurve.mono
+  intro p hp
+  refine ⟨?_, hp.2⟩
+  rw [C.W₀_eq]
+  exact Metric.ball_subset_closedBall hp.1
+
+/-- The domain in `continuousOn_maximalIntegralCurve_local` is genuinely a
+nonempty open collar. -/
+theorem isOpen_nonempty_localFlowDomain (C : UniformLocalFlowCollar) :
+    IsOpen (Metric.ball C.x₀ C.ρ ×ˢ Ioo (-C.δ) C.δ) ∧
+      (Metric.ball C.x₀ C.ρ ×ˢ Ioo (-C.δ) C.δ).Nonempty := by
+  constructor
+  · exact (Metric.isOpen_ball.prod isOpen_Ioo)
+  · exact ⟨(C.x₀, 0), Metric.mem_ball_self C.ρ_pos, by simp [C.δ_pos]⟩
+
 end UniformLocalFlowCollar
 
 /-- Every positive branch cross-section contains a compact transverse ball on

@@ -71,7 +71,9 @@ the historical B5 algebraic core.
     smooth injective positive constant-`τ` cross-section. Its offset `ε₀=τ₀²` is positive and its
     anchor value is exactly `(a, β(a,c)-ε₀, c)`. A compact transverse closed ball inside the
     cross-section admits a common positive Picard--Lindelöf lifetime and a jointly continuous
-    two-sided local `X1` flow map. Connected open partial trajectories and their extended-real
+    two-sided local `X1` flow map. This flow map is proved to agree with the canonical selected
+    maximal curves, so those curves are jointly continuous on a nonempty open product collar.
+    Connected open partial trajectories and their extended-real
     forward/backward reachable-time extrema are defined, and local uniqueness glues them to a
     pointwise maximal trajectory. Independently, square-root reparameterization of the explicit
     vertical branch collar inhabits `ForwardSaturatedSheet`, with exact anchor evaluation,
@@ -82,8 +84,8 @@ the historical B5 algebraic core.
     density--test pairing satisfies FTC/IBP with both endpoint traces displayed. A separate
     `ForwardMaximalSheet` extends each transverse trajectory backward through `qSigma`, agrees
     exactly with the explicit branch on the overlap, and has only the `tMin = -∞` or finite norm
-    escape alternatives at its lower end. No joint transverse measurability, continuity, or
-    smoothness of this selected maximal family is asserted.
+    escape alternatives at its lower end. Beyond the local Picard product collar, no joint
+    transverse measurability, continuity, or smoothness on the full maximal domain is asserted.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
 one-dimensional real-analysis consequences. They do not constitute all of Program B.
@@ -99,15 +101,17 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - Unconditional A001 Theorem E. Although the canonical minimal `L²` core is constructed, its
   test-function domain is proved dense, and a nonzero `L²` branch candidate is now constructed,
   the repository does not prove that candidate lies in `Dom(H*)` or satisfies `H* u = ±i u`.
-  Finite-interval integration by parts and pointwise maximal lower-end escape do not by themselves
-  provide the joint measurable/smooth parameterization needed for ambient change of variables or
-  Fubini. The global representative-integral identity is therefore still absent. Incompleteness
+  Finite-interval integration by parts, local joint continuity, and pointwise maximal lower-end
+  escape do not by themselves provide joint regularity across the full variable maximal-time
+  bundle needed for ambient change of variables or Fubini. The global representative-integral
+  identity is therefore still absent. Incompleteness
   alone is not claimed to imply the operator conclusion.
 - A global A001 Theorem F sheet or measure-`1/2` conclusion, a concrete `Dom(H*)`
   vector satisfying the weak deficiency identity, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
-- That the pointwise `ForwardMaximalSheet` is a jointly smooth or measurable maximal product flow.
-  The explicit branch sheet still has the regular lower trace at `qSigma`; finite-interval IBP
+- That the pointwise `ForwardMaximalSheet` is a jointly smooth or globally measurable maximal
+  product flow. Local joint continuity is proved only on a common Picard collar. The explicit
+  branch sheet still has the regular lower trace at `qSigma`; finite-interval IBP
   retains it, and overlap agreement identifies the matching maximal-sheet trace. No boundary term
   is dropped, and no ambient cancellation theorem is claimed without the missing joint/Fubini API.
 - Full B001, B6/B7 analytic classification, von Neumann algebra (`vNa`) conclusions, or any
