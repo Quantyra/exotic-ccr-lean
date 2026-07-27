@@ -94,8 +94,9 @@ the historical B5 algebraic core.
     coordinates are exactly `(a,s,c)`. In standard anchor coordinates, the local inverse theorem
     proves strict differentiability with constant absolute Jacobian `1/2`; the image is open and
     measurable, and Mathlib's `lintegral` change-of-variables formula applies on the full variable
-    domain. The corresponding zero-extension is defined, but its measurability and `L²` estimate
-    are not yet asserted.
+    domain. The corresponding zero-extension is measurable and is in ambient `L²` for continuous
+    compactly supported cutoffs whose topological support is contained in the transverse open set;
+    such nonzero cutoffs exist. This does not yet assert that the resulting `L²` vector is nonzero.
 
 These are machine-checked polynomial identities, elementary field arithmetic, and the stated
 one-dimensional real-analysis consequences. They do not constitute all of Program B.
@@ -111,17 +112,18 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - Unconditional A001 Theorem E. Although the canonical minimal `L²` core is constructed, its
   test-function domain is proved dense, and a nonzero `L²` branch candidate is now constructed,
   the repository does not prove that candidate lies in `Dom(H*)` or satisfies `H* u = ±i u`.
-  Finite-interval integration by parts, maximal-sheet change of variables, and pointwise maximal
-  lower-end escape do not by themselves provide the measurable `L²` zero extension, integrated
-  endpoint limits, and Fubini identity needed for the weak equation. The global
+  Finite-interval integration by parts, maximal-sheet change of variables, and the now-proved
+  measurable `L²` zero extension do not by themselves provide a packaged nonzero maximal witness,
+  integrated endpoint limits, and the Fubini identity needed for the weak equation. The global
   representative-integral identity is therefore still absent. Incompleteness
   alone is not claimed to imply the operator conclusion.
 - A global A001 Theorem F sheet or measure-`1/2` conclusion, a concrete `Dom(H*)`
   vector satisfying the weak deficiency identity, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
-- That the `ForwardMaximalSheet` zero extension is already measurable, in `L²`, or a weak
-  deficiency vector. Joint continuity on its open total domain and standard-coordinate strict
-  differentiability and change of variables are proved. The explicit
+- That the `ForwardMaximalSheet` zero extension is already a nonzero weak deficiency vector.
+  Measurability and `L²` membership are proved under the stated compact-support-inside-`W`
+  hypothesis, alongside existence of suitable nonzero cutoffs. Joint continuity on its open total
+  domain and standard-coordinate strict differentiability and change of variables are proved. The explicit
   branch sheet still has the regular lower trace at `qSigma`; finite-interval IBP
   retains it, and overlap agreement identifies the matching maximal-sheet trace. No boundary term
   is dropped, and no ambient cancellation theorem is claimed without the missing joint/Fubini API.
