@@ -127,7 +127,8 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
   domain and standard-coordinate strict differentiability and change of variables are proved. The explicit
   branch sheet still has the regular lower trace at `qSigma`; finite-interval IBP
   retains it, and overlap agreement identifies the matching maximal-sheet trace. No boundary term
-  is dropped, and no ambient cancellation theorem is claimed without the missing joint/Fubini API.
+  is dropped. Fubini and integrated FTC are proved on compact transverse-support boxes contained
+  in the maximal-sheet domain, but endpoint exhaustion and ambient cancellation are not claimed.
 - Full B001, B6/B7 analytic classification, von Neumann algebra (`vNa`) conclusions, or any
   operator realization derived from the B5 algebraic slice.
 - Experimental, hardware, or metrology claims.

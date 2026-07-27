@@ -184,6 +184,71 @@ theorem integral_density_mul_transport_eq_residuals
   · exact hφ
   · exact hXφ
 
+/-- Transverse integration of the finite-fiber FTC identity.  The product
+integrand is continuous on the compact box, hence integrable; the proof uses
+Fubini to identify its integral with the iterated fiber integral before
+applying the one-dimensional identity on every transverse characteristic. -/
+theorem integral_compactBox_density_pairing_deriv_eq_endpoint_residuals
+    (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ)
+    (hχc : HasCompactSupport χ) (φ : CcinftyR3) (a b : ℝ) (hab : a ≤ b)
+    (hbox : tsupport χ ×ˢ Icc a b ⊆ M.D) :
+    ∫ p in tsupport χ ×ˢ Icc a b,
+        inner ℂ (M.deficiencyDensity χ p)
+          (φ (M.Psi p) + fderiv ℝ (φ : R3 → ℂ) (M.Psi p) (X1 (M.Psi p))) =
+      ∫ x in tsupport χ,
+        (inner ℂ (M.deficiencyDensity χ (x, b)) (φ (M.Psi (x, b))) -
+          inner ℂ (M.deficiencyDensity χ (x, a)) (φ (M.Psi (x, a)))) := by
+  let G : ((ℝ × ℝ) × ℝ) → ℂ := fun p =>
+    inner ℂ (M.deficiencyDensity χ p)
+      (φ (M.Psi p) + fderiv ℝ (φ : R3 → ℂ) (M.Psi p) (X1 (M.Psi p)))
+  have hGcont : ContinuousOn G (tsupport χ ×ˢ Icc a b) := by
+    intro p hp
+    have hβ : ContinuousAt M.S.O.germ.β p.1 := by
+      have hs0 := M.continuousAt_s0 (hbox hp).1
+      have heq : M.S.O.germ.β = fun x => M.s0 x + M.S.ε₀ := by
+        funext x
+        simp [ForwardMaximalSheet.s0]
+      rw [heq]
+      exact hs0.add continuousAt_const
+    have hdens : ContinuousWithinAt (M.deficiencyDensity χ)
+        (tsupport χ ×ˢ Icc a b) p := by
+      unfold deficiencyDensity
+      exact ((hχ.continuousAt.comp continuousAt_fst).mul
+        (Complex.continuous_exp.continuousAt.comp
+          ((Complex.continuous_ofReal.continuousAt.comp continuousAt_snd).sub
+            (Complex.continuous_ofReal.continuousAt.comp
+              (hβ.comp_of_eq continuousAt_fst rfl))))).continuousWithinAt
+    have hPsi : ContinuousWithinAt M.Psi (tsupport χ ×ˢ Icc a b) p :=
+      (M.continuousOn_Psi p (hbox hp)).mono hbox
+    have hφPsi : ContinuousWithinAt (fun q => φ (M.Psi q))
+        (tsupport χ ×ˢ Icc a b) p :=
+      φ.contDiff.continuous.continuousAt.continuousWithinAt.comp hPsi
+        (fun _ _ => mem_univ _)
+    have htransport : Continuous (fun q : R3 =>
+        fderiv ℝ (φ : R3 → ℂ) q (X1 q)) :=
+      (φ.contDiff.continuous_fderiv_apply (by simp)).comp
+        (continuous_id.prodMk contDiff_X1.continuous)
+    exact hdens.inner (hφPsi.add
+      (htransport.continuousAt.continuousWithinAt.comp hPsi
+        (fun _ _ => mem_univ _)))
+  have hGint : IntegrableOn G (tsupport χ ×ˢ Icc a b) volume :=
+    hGcont.integrableOn_compact (hχc.isCompact.prod isCompact_Icc)
+  rw [show (volume : Measure ((ℝ × ℝ) × ℝ)) =
+      (volume : Measure (ℝ × ℝ)).prod (volume : Measure ℝ) by
+        exact Measure.volume_eq_prod (ℝ × ℝ) ℝ]
+  rw [MeasureTheory.setIntegral_prod G hGint]
+  apply setIntegral_congr_fun hχc.isCompact.measurableSet
+  intro x hx
+  change (∫ s in Icc a b, G (x, s)) = _
+  rw [integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le hab]
+  apply intervalIntegral.integral_eq_sub_of_hasDerivAt
+  · intro s hs
+    simpa [G] using M.hasDerivAt_density_pairing_s χ φ
+      (hbox ⟨hx, by simpa [uIcc_of_le hab] using hs⟩)
+  · apply ContinuousOn.intervalIntegrable
+    exact hGcont.comp (continuous_const.prodMk continuous_id).continuousOn
+      (fun s hs => ⟨hx, by simpa [uIcc_of_le hab] using hs⟩)
+
 end ForwardMaximalSheet
 
 end ExoticCCR
