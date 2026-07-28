@@ -707,6 +707,262 @@ theorem integrable_norm_mul_const_on_tsupport (χ : ℝ × ℝ → ℂ)
     IntegrableOn (fun x : ℝ × ℝ => ‖χ x‖ * C) (tsupport χ) volume :=
   (hχ.norm.continuousOn.integrableOn_compact hχc).mul_const C
 
+/-!
+## Fixed-fiber improper integration by parts
+-/
+
+/-- An abstract exhaustion form of fixed-fiber integration by parts.  Both
+endpoint residuals are retained at every finite stage and are required to
+converge to zero. -/
+theorem integral_fiber_density_mul_transport_eq_neg_of_exhaustion
+    (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ) (φ : CcinftyR3)
+    (x : ℝ × ℝ) (fiber : Set ℝ) (a b : ℕ → ℝ)
+    (hmono : Monotone (fun n => Icc (a n) (b n)))
+    (hunion : (⋃ n, Icc (a n) (b n)) = fiber)
+    (hab : ∀ n, a n ≤ b n)
+    (hmem : ∀ n s, s ∈ Icc (a n) (b n) → (x, s) ∈ M.D)
+    (hpair : IntegrableOn (fun s : ℝ =>
+      inner ℂ (M.deficiencyDensity χ (x, s)) (φ (M.Psi (x, s)))) fiber volume)
+    (htransport : IntegrableOn (fun s : ℝ =>
+      inner ℂ (M.deficiencyDensity χ (x, s))
+        (fderiv ℝ (φ : R3 → ℂ) (M.Psi (x, s)) (X1 (M.Psi (x, s))))) fiber volume)
+    (ha0 : Tendsto (fun n =>
+      inner ℂ (M.deficiencyDensity χ (x, a n)) (φ (M.Psi (x, a n)))) atTop (𝓝 0))
+    (hb0 : Tendsto (fun n =>
+      inner ℂ (M.deficiencyDensity χ (x, b n)) (φ (M.Psi (x, b n)))) atTop (𝓝 0)) :
+    (∫ s in fiber, inner ℂ (M.deficiencyDensity χ (x, s))
+        (fderiv ℝ (φ : R3 → ℂ) (M.Psi (x, s)) (X1 (M.Psi (x, s)))) ∂volume) =
+      -(∫ s in fiber,
+        inner ℂ (M.deficiencyDensity χ (x, s)) (φ (M.Psi (x, s))) ∂volume) := by
+  let A : ℝ → ℂ := fun s =>
+    inner ℂ (M.deficiencyDensity χ (x, s)) (φ (M.Psi (x, s)))
+  let B : ℝ → ℂ := fun s =>
+    inner ℂ (M.deficiencyDensity χ (x, s))
+      (fderiv ℝ (φ : R3 → ℂ) (M.Psi (x, s)) (X1 (M.Psi (x, s))))
+  have hAI : Tendsto (fun n => ∫ s in Icc (a n) (b n), A s ∂volume) atTop
+      (𝓝 (∫ s in fiber, A s ∂volume)) := by
+    rw [← hunion]
+    exact tendsto_setIntegral_of_monotone (fun _ => measurableSet_Icc) hmono
+      (by simpa [A, hunion] using hpair)
+  have hBI : Tendsto (fun n => ∫ s in Icc (a n) (b n), B s ∂volume) atTop
+      (𝓝 (∫ s in fiber, B s ∂volume)) := by
+    rw [← hunion]
+    exact tendsto_setIntegral_of_monotone (fun _ => measurableSet_Icc) hmono
+      (by simpa [B, hunion] using htransport)
+  have hfinite : ∀ n,
+      (∫ s in Icc (a n) (b n), B s ∂volume) =
+        inner ℂ (M.deficiencyDensity χ (x, b n)) (φ (M.Psi (x, b n))) -
+          inner ℂ (M.deficiencyDensity χ (x, a n)) (φ (M.Psi (x, a n))) -
+            ∫ s in Icc (a n) (b n), A s ∂volume := by
+    intro n
+    have hsub : Icc (a n) (b n) ⊆ fiber := by
+      rw [← hunion]
+      exact Set.subset_iUnion (fun k : ℕ => Icc (a k) (b k)) n
+    have hAint : IntervalIntegrable A volume (a n) (b n) :=
+      (intervalIntegrable_iff_integrableOn_Icc_of_le (hab n)).2
+        (by simpa [A] using hpair.mono_set hsub)
+    have hBint : IntervalIntegrable B volume (a n) (b n) :=
+      (intervalIntegrable_iff_integrableOn_Icc_of_le (hab n)).2
+        (by simpa [B] using htransport.mono_set hsub)
+    have h := M.integral_density_mul_transport_eq_residuals χ φ x (a n) (b n)
+      (fun s hs => hmem n s (by simpa [uIcc_of_le (hab n)] using hs))
+      (by simpa [A] using hAint) (by simpa [B] using hBint)
+    rw [integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le (hab n),
+      integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le (hab n)]
+    exact h
+  have hrhs : Tendsto (fun n =>
+      inner ℂ (M.deficiencyDensity χ (x, b n)) (φ (M.Psi (x, b n))) -
+        inner ℂ (M.deficiencyDensity χ (x, a n)) (φ (M.Psi (x, a n))) -
+          ∫ s in Icc (a n) (b n), A s ∂volume) atTop
+      (𝓝 (-(∫ s in fiber, A s ∂volume))) := by
+    convert (hb0.sub ha0).sub hAI using 1 <;> simp
+  have hBI' := hrhs.congr' (Filter.Eventually.of_forall fun n => (hfinite n).symm)
+  simpa [A, B] using tendsto_nhds_unique hBI hBI'
+
+/-- Closed intervals whose lower endpoints tend to `-∞` and whose upper
+endpoints tend to a finite wall from below exhaust the corresponding open ray. -/
+theorem iUnion_Icc_eq_Iio_of_tendsto
+    {a b : ℕ → ℝ} {u : ℝ} (ha : Tendsto a atTop atBot)
+    (hb : Tendsto b atTop (𝓝 u)) (hbu : ∀ n, b n < u) :
+    (⋃ n, Icc (a n) (b n)) = Iio u := by
+  ext s
+  constructor
+  · intro hs
+    rw [Set.mem_iUnion] at hs
+    obtain ⟨n, hn⟩ := hs
+    exact hn.2.trans_lt (hbu n)
+  · intro hs
+    have hea : ∀ᶠ n in atTop, a n ≤ s := ha (Iic_mem_atBot s)
+    have heb : ∀ᶠ n in atTop, s ≤ b n := hb (Ici_mem_nhds hs)
+    have hev : ∀ᶠ n in atTop, a n ≤ s ∧ s ≤ b n := hea.and heb
+    obtain ⟨n, hn⟩ := Filter.Eventually.exists hev
+    exact Set.mem_iUnion.2 ⟨n, hn⟩
+
+/-- Closed intervals whose endpoints approach two finite walls from the
+interior exhaust the corresponding open interval. -/
+theorem iUnion_Icc_eq_Ioo_of_tendsto
+    {a b : ℕ → ℝ} {l u : ℝ} (ha : Tendsto a atTop (𝓝 l))
+    (hb : Tendsto b atTop (𝓝 u)) (hla : ∀ n, l < a n)
+    (hbu : ∀ n, b n < u) :
+    (⋃ n, Icc (a n) (b n)) = Ioo l u := by
+  ext s
+  constructor
+  · intro hs
+    rw [Set.mem_iUnion] at hs
+    obtain ⟨n, hn⟩ := hs
+    exact ⟨(hla n).trans_le hn.1, hn.2.trans_lt (hbu n)⟩
+  · intro hs
+    have hea : ∀ᶠ n in atTop, a n ≤ s := ha (Iic_mem_nhds hs.1)
+    have heb : ∀ᶠ n in atTop, s ≤ b n := hb (Ici_mem_nhds hs.2)
+    have hev : ∀ᶠ n in atTop, a n ≤ s ∧ s ≤ b n := hea.and heb
+    obtain ⟨n, hn⟩ := Filter.Eventually.exists hev
+    exact Set.mem_iUnion.2 ⟨n, hn⟩
+
+/-- Improper integration by parts on one fixed maximal-sheet fiber.  The lower
+endpoint alternative is chosen only after fixing `x`; no measurable selection
+of finite lower endpoints is used. -/
+theorem integral_fiber_density_mul_transport_eq_neg
+    (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ) (φ : CcinftyR3)
+    (x : ℝ × ℝ) (hx : x ∈ M.W)
+    (hpair : IntegrableOn (fun s : ℝ =>
+      inner ℂ (M.deficiencyDensity χ (x, s)) (φ (M.Psi (x, s))))
+      {s | (x, s) ∈ M.D} volume)
+    (htransport : IntegrableOn (fun s : ℝ =>
+      inner ℂ (M.deficiencyDensity χ (x, s))
+        (fderiv ℝ (φ : R3 → ℂ) (M.Psi (x, s)) (X1 (M.Psi (x, s)))))
+      {s | (x, s) ∈ M.D} volume) :
+    (∫ s in {s | (x, s) ∈ M.D}, inner ℂ (M.deficiencyDensity χ (x, s))
+        (fderiv ℝ (φ : R3 → ℂ) (M.Psi (x, s)) (X1 (M.Psi (x, s)))) ∂volume) =
+      -(∫ s in {s | (x, s) ∈ M.D},
+        inner ℂ (M.deficiencyDensity χ (x, s)) (φ (M.Psi (x, s))) ∂volume) := by
+  let b : ℕ → ℝ := fun n =>
+    M.S.O.germ.β x - M.S.ε₀ / ((n : ℝ) + 2)
+  have hden : Tendsto (fun n : ℕ => (n : ℝ) + 2) atTop atTop := by
+    exact tendsto_natCast_atTop_atTop.atTop_add tendsto_const_nhds
+  have hinv : Tendsto (fun n : ℕ => (((n : ℝ) + 2)⁻¹)) atTop (𝓝 0) :=
+    tendsto_inv_atTop_zero.comp hden
+  have hoff : Tendsto (fun n : ℕ => M.S.ε₀ / ((n : ℝ) + 2)) atTop (𝓝 0) := by
+    simpa [div_eq_mul_inv] using tendsto_const_nhds.mul hinv
+  have hb : Tendsto b atTop (𝓝 (M.S.O.germ.β x)) := by
+    simpa [b] using tendsto_const_nhds.sub hoff
+  have hbu : ∀ n, b n < M.S.O.germ.β x := by
+    intro n
+    simp only [b, sub_lt_self_iff]
+    exact div_pos M.S.ε₀_pos (by positivity)
+  have hbwithin : Tendsto b atTop (𝓝[<] M.S.O.germ.β x) := by
+    exact tendsto_nhdsWithin_of_tendsto_nhds_of_eventually_within b hb
+      (Filter.Eventually.of_forall hbu)
+  have hb0 : Tendsto (fun n =>
+      inner ℂ (M.deficiencyDensity χ (x, b n)) (φ (M.Psi (x, b n))))
+      atTop (𝓝 0) :=
+    (M.tendsto_inner_deficiencyDensity_test_zero_nhdsWithin_Iio_beta χ φ hx).comp hbwithin
+  have hbmono : Monotone b := by
+    intro m n hmn
+    apply sub_le_sub_left
+    apply mul_le_mul_of_nonneg_left _ M.S.ε₀_pos.le
+    simpa [one_div, div_eq_mul_inv] using
+      one_div_le_one_div_of_le (show 0 < (m : ℝ) + 2 by positivity)
+        (by exact_mod_cast (Nat.add_le_add_right hmn 2))
+  have hb_s0 : ∀ n, M.s0 x < b n := by
+    intro n
+    simp only [b, ForwardMaximalSheet.s0]
+    have hfrac : M.S.ε₀ / ((n : ℝ) + 2) ≤ M.S.ε₀ / 2 := by
+      apply mul_le_mul_of_nonneg_left _ M.S.ε₀_pos.le
+      simpa [one_div, div_eq_mul_inv] using
+        one_div_le_one_div_of_le (show (0 : ℝ) < 2 by norm_num)
+          (show (2 : ℝ) ≤ (n : ℝ) + 2 by norm_cast; omega)
+    linarith [M.S.ε₀_pos]
+  rcases M.lower_eq_bot_or_exists_escape x with hbot | ⟨T, hT, _⟩
+  · let a : ℕ → ℝ := fun n => M.s0 x - n
+    have ha : Tendsto a atTop atBot := by
+      have hneg : Tendsto (fun n : ℕ => -(n : ℝ)) atTop atBot :=
+        tendsto_neg_atTop_atBot.comp tendsto_natCast_atTop_atTop
+      simpa [a, sub_eq_add_neg, add_comm] using
+        tendsto_atBot_add_const_right atTop (M.s0 x) hneg
+    have hamono : Antitone a := by
+      intro m n hmn
+      dsimp [a]
+      exact sub_le_sub_left (by exact_mod_cast hmn) _
+    have hmono : Monotone (fun n => Icc (a n) (b n)) := by
+      intro m n hmn s hs
+      exact ⟨(hamono hmn).trans hs.1, hs.2.trans (hbmono hmn)⟩
+    have hunion : (⋃ n, Icc (a n) (b n)) = {s | (x, s) ∈ M.D} := by
+      rw [M.fiber_eq_Iio_of_tMin_eq_bot hx hbot]
+      exact iUnion_Icc_eq_Iio_of_tendsto ha hb hbu
+    have hab : ∀ n, a n ≤ b n := by
+      intro n
+      exact (show a n ≤ M.s0 x by simp [a]).trans (hb_s0 n).le
+    have hmem : ∀ n s, s ∈ Icc (a n) (b n) → (x, s) ∈ M.D := by
+      intro n s hs
+      show s ∈ {t : ℝ | (x, t) ∈ M.D}
+      rw [M.fiber_eq_Iio_of_tMin_eq_bot hx hbot]
+      exact hs.2.trans_lt (hbu n)
+    have ha0 : Tendsto (fun n =>
+        inner ℂ (M.deficiencyDensity χ (x, a n)) (φ (M.Psi (x, a n))))
+        atTop (𝓝 0) :=
+      (M.tendsto_inner_deficiencyDensity_test_zero_atBot χ φ x).comp ha
+    exact M.integral_fiber_density_mul_transport_eq_neg_of_exhaustion χ φ x
+      {s | (x, s) ∈ M.D} a b hmono hunion hab hmem hpair htransport ha0 hb0
+  · have hTneg : T < 0 := M.tMin_lt_zero_of_eq_coe x hT
+    let l : ℝ := M.s0 x + T
+    let a : ℕ → ℝ := fun n => l + (-T) / ((n : ℝ) + 2)
+    have ha : Tendsto a atTop (𝓝 l) := by
+      have htend : Tendsto (fun n : ℕ => (-T) / ((n : ℝ) + 2)) atTop (𝓝 0) := by
+        have hc : Tendsto (fun _ : ℕ => -T) atTop (𝓝 (-T)) := tendsto_const_nhds
+        simpa [div_eq_mul_inv] using hc.mul hinv
+      simpa [a] using tendsto_const_nhds.add htend
+    have hla : ∀ n, l < a n := by
+      intro n
+      simp only [a, lt_add_iff_pos_right]
+      exact div_pos (neg_pos.mpr hTneg) (by positivity)
+    have hamono : Antitone a := by
+      intro m n hmn
+      dsimp [a]
+      have hrecip : 1 / ((n : ℝ) + 2) ≤ 1 / ((m : ℝ) + 2) :=
+        one_div_le_one_div_of_le (show 0 < (m : ℝ) + 2 by positivity)
+          (by exact_mod_cast (Nat.add_le_add_right hmn 2))
+      have hfrac := mul_le_mul_of_nonneg_left hrecip (neg_nonneg.mpr hTneg.le)
+      calc
+        l + (-T) / ((n : ℝ) + 2) = (-T) * (1 / ((n : ℝ) + 2)) + l := by ring
+        _ ≤ (-T) * (1 / ((m : ℝ) + 2)) + l := add_le_add_left hfrac l
+        _ = l + (-T) / ((m : ℝ) + 2) := by ring
+    have ha_s0 : ∀ n, a n < M.s0 x := by
+      intro n
+      have hfrac : (-T) / ((n : ℝ) + 2) ≤ (-T) / 2 := by
+        apply mul_le_mul_of_nonneg_left _ (neg_nonneg.mpr hTneg.le)
+        simpa [one_div, div_eq_mul_inv] using
+          one_div_le_one_div_of_le (show (0 : ℝ) < 2 by norm_num)
+            (show (2 : ℝ) ≤ (n : ℝ) + 2 by norm_cast; omega)
+      dsimp [a, l]
+      linarith
+    have hmono : Monotone (fun n => Icc (a n) (b n)) := by
+      intro m n hmn s hs
+      exact ⟨(hamono hmn).trans hs.1, hs.2.trans (hbmono hmn)⟩
+    have hunion : (⋃ n, Icc (a n) (b n)) = {s | (x, s) ∈ M.D} := by
+      rw [M.fiber_eq_Ioo_of_tMin_eq_coe hx hT]
+      exact iUnion_Icc_eq_Ioo_of_tendsto ha hb hla hbu
+    have hab : ∀ n, a n ≤ b n := by
+      intro n
+      exact (ha_s0 n).le.trans (hb_s0 n).le
+    have hmem : ∀ n s, s ∈ Icc (a n) (b n) → (x, s) ∈ M.D := by
+      intro n s hs
+      show s ∈ {t : ℝ | (x, t) ∈ M.D}
+      rw [M.fiber_eq_Ioo_of_tMin_eq_coe hx hT]
+      exact ⟨(show M.s0 x + T = l by rfl) ▸ (hla n).trans_le hs.1,
+        hs.2.trans_lt (hbu n)⟩
+    have hawithin : Tendsto a atTop (𝓝[>] l) := by
+      exact tendsto_nhdsWithin_of_tendsto_nhds_of_eventually_within a ha
+        (Filter.Eventually.of_forall hla)
+    have ha0 : Tendsto (fun n =>
+        inner ℂ (M.deficiencyDensity χ (x, a n)) (φ (M.Psi (x, a n))))
+        atTop (𝓝 0) := by
+      have hlower : l = M.s0 x + T := rfl
+      rw [hlower] at hawithin
+      exact (M.tendsto_inner_deficiencyDensity_test_zero_nhdsWithin_Ioi_finite_lower
+        χ φ hx hT).comp hawithin
+    exact M.integral_fiber_density_mul_transport_eq_neg_of_exhaustion χ φ x
+      {s | (x, s) ∈ M.D} a b hmono hunion hab hmem hpair htransport ha0 hb0
+
 end ForwardMaximalSheet
 
 end ExoticCCR
