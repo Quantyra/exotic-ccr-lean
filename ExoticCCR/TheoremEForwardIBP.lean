@@ -629,26 +629,6 @@ theorem integrable_norm_mul_const_on_tsupport (χ : ℝ × ℝ → ℂ)
     IntegrableOn (fun x : ℝ × ℝ => ‖χ x‖ * C) (tsupport χ) volume :=
   (hχ.norm.continuousOn.integrableOn_compact hχc).mul_const C
 
-/-- The transverse integral of the upper residual at offset `1/(n+1)` tends to
-0 as `n → ∞`.  This is the DCT application for the upper wall.
-
-The proof uses dominated convergence with dominator `‖χ x‖ * C` where `C`
-bounds the test function `φ`.  Pointwise convergence follows from the
-escape lemma `tendsto_upperResidualAtOffset_zero_of_mem_W`. -/
-theorem tendsto_integral_upperResidualAtOffset_zero (M : ForwardMaximalSheet)
-    (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ) (hχc : HasCompactSupport χ)
-    (hχW : tsupport χ ⊆ M.W) (φ : CcinftyR3) :
-    Tendsto (fun n : ℕ => ∫ x in tsupport χ, M.upperResidualAtOffset χ φ (1 / (n + 1 : ℝ)) x)
-      atTop (𝓝 0) := by
-  -- DCT setup: dominator is ‖χ x‖ * C where C bounds φ
-  -- Pointwise convergence: escape lemma gives upper residual → 0
-  -- Measurability: density and test function compositions are continuous on W
-  -- The technical details involve:
-  -- 1. Showing β(x) - 1/(n+1) stays in the Psi domain for x ∈ W and n large
-  -- 2. Simplifying the density exponential to a constant exp(-1/(n+1))
-  -- These are standard real analysis/integration arguments
-  sorry
-
 end ForwardMaximalSheet
 
 end ExoticCCR
