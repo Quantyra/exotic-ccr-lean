@@ -4,6 +4,12 @@ This repository contains bounded algebraic certificates for Project EXOTIC-CCR. 
 the Gate 0 anchor, it contains a one-dimensional real-polynomial and elementary-shear slice of
 the historical B5 algebraic core.
 
+At commit `a6bb091c05943cfcf35c405659e57df93ab8bb3d`, the named theorem
+`ExoticCCR.theoremE` proves that the canonical minimal `X1` transport core is not essentially
+self-adjoint. Deficiency-index values and full Theorem F remain historical paper-only results and
+are not Lean-covered. No release version, release tag, version DOI, or Zenodo DOI exists for this
+new theorem freeze.
+
 ## What this artifact asserts
 
 1. **T0.1.** For the anchor family `F : Fin 3 → MvPolynomial (Fin 3) K`, the Jacobian determinant equals the constant polynomial `C (-2)`.
@@ -45,7 +51,8 @@ the historical B5 algebraic core.
     `X1ForwardWeakDeficiencyStatement`, `theoremE_of_forwardWeakDeficiency` packages the supplied
     weak eigenvector into adjoint deficiency and concludes that the canonical `X1` core is not
     essentially self-adjoint. The maximal-sheet construction now proves
-    `X1_forwardWeakDeficiency` and the unconditional theorem `theoremE` for this canonical core.
+    `X1_forwardWeakDeficiency` and, at commit `a6bb091`, the unconditional named theorem
+    `ExoticCCR.theoremE` for this canonical core.
     The legacy route through `TransportNecessityStatement` remains conditional.
 14. **T0.F bounded local branch.** The forward-wall divided difference has a polynomial smooth
     extension. The local smooth wall germ `β(a,c)` composes with a second implicit-function
@@ -66,7 +73,8 @@ the historical B5 algebraic core.
     the relevant parameter domains. A compactly supported cutoff can be chosen for which the zero
     extension `uMinus` is measurable and represents a nonzero vector in ambient `L²(ℝ³)`. Its
     pullback along a vertical parameter line inside the positive open branch has derivative
-    `-2τ uMinus`. The global weak-adjoint identity and operator conclusions are not asserted.
+    `-2τ uMinus`. These branch-density declarations alone do not assert the global weak-adjoint
+    identity or operator conclusion; those are separately proved by item 18 below.
 16. **T0.F cross-section and saturation infrastructure.** Every `ForwardBranchOpen` contains a
     smooth injective positive constant-`τ` cross-section. Its offset `ε₀=τ₀²` is positive and its
     anchor value is exactly `(a, β(a,c)-ε₀, c)`. A compact transverse closed ball inside the
@@ -120,8 +128,11 @@ They do not constitute all of Program B.
 - Strong CCR/Weyl relations, C*-extension, complete positivity, or dilations.
 - Any implication from incompleteness alone to failure of essential self-adjointness; the proved
   operator conclusion instead uses the explicit maximal-sheet weak-deficiency construction.
-- A global A001 Theorem F sheet or unrestricted measure-`1/2` conclusion, and all
-  deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
+- A result for arbitrary transport realizations, a preferred self-adjoint extension, or an
+  extension count.
+- Full Theorem F, including a global A001 Theorem F sheet or unrestricted measure-`1/2`
+  conclusion, and all deficiency-index values. These remain historical paper-only results and
+  are not Lean-covered. In particular, no `(∞,∞)` deficiency-index result is claimed.
 - A weak-deficiency conclusion for every arbitrary cutoff. The proved witness uses the constructed
   cutoff with compact support inside the transverse open set. No boundary residual is dropped.
 - Full B001, B6/B7 analytic classification, von Neumann algebra (`vNa`) conclusions, or any
@@ -142,3 +153,5 @@ Per the EXOTIC-CCR Research Charter v1.0:
 - Version tags must list proved theorems and restated non-claims.
 - Do not upgrade language from “algebraic certificate” to “physical result” without a new gate and evidence package.
 - Zenodo metadata must carry the same non-claims language.
+- Commit `a6bb091c05943cfcf35c405659e57df93ab8bb3d` is an untagged, unreleased
+  theorem freeze; it has no assigned release version, version DOI, or Zenodo DOI.

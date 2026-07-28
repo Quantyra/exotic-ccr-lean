@@ -1,20 +1,9 @@
 {
-    "title":  "exotic-ccr-lean: Lean 4 Gate-0 certificates for the EXOTIC-CCR Jacobian counterexample anchor",
-    "upload_type":  "software",
-    "creators":  [
-                     {
-                         "name":  "Fredriksen, Daniel Eric"
-                     }
-                 ],
-    "license":  "Apache-2.0",
-    "version":  "0.1.1",
-    "keywords":  [
-                     "lean4",
-                     "jacobian-conjecture",
-                     "multivariate-polynomials",
-                     "formal-verification",
-                     "exotic-ccr",
-                     "quantyra"
-                 ],
-    "description":  "\u003cp\u003e\u003cstrong\u003eexotic-ccr-lean v0.1.1\u003c/strong\u003e — Lean 4 Gate-0 algebraic certificates for Project EXOTIC-CCR (Quantyra).\u003c/p\u003e\u003cp\u003eProves finite exact identities for the Jacobian counterexample anchor map F : K³ → K³:\u003c/p\u003e\u003cul\u003e\u003cli\u003e\u003cstrong\u003eT0.1\u003c/strong\u003e — jacobianDet F = C(-2)\u003c/li\u003e\u003cli\u003e\u003cstrong\u003eT0.2\u003c/strong\u003e — three-point collision F(0,0,-1/4) = F(1,-3/2,13/2) = F(-1,3/2,13/2) = (-1/4,0,0)\u003c/li\u003e\u003cli\u003edet-1 normalization G with jacobianDet G = 1 and char-2 collision packaging\u003c/li\u003e\u003cli\u003estandard non-injectivity theorems: unit Jacobian determinant does not imply injectivity over any field\u003c/li\u003e\u003c/ul\u003e\u003cp\u003e\u003cstrong\u003eNon-claims:\u003c/strong\u003e This deposit asserts exact algebraic checks only. It does not claim full Jacobian-conjecture literature status beyond the finite identities proved; does not claim physical, operator-algebraic, channel, gate, or computational-advantage results; and does not claim Poisson/Weyl endomorphism, self-adjointness, CCR realization, or CP/dilation theorems (later EXOTIC-CCR gates).\u003c/p\u003e\u003cp\u003eIndependent Quantyra reimplementation. Provenance credits Alpöge announcement, Cureton Lean formalization, and Speyer note without claiming those works as Quantyra products. Apache-2.0.\u003c/p\u003e"
+  "title": "exotic-ccr-lean: Lean 4 Gate-0 certificates for the EXOTIC-CCR Jacobian counterexample anchor",
+  "upload_type": "software",
+  "creators": [{"name": "Fredriksen, Daniel Eric"}],
+  "license": "Apache-2.0",
+  "version": "0.1.1",
+  "keywords": ["lean4", "jacobian-conjecture", "multivariate-polynomials", "formal-verification", "exotic-ccr", "quantyra"],
+  "description": "\u003cp\u003e\u003cstrong\u003eexotic-ccr-lean v0.1.1\u003c/strong\u003e — Lean 4 Gate-0 algebraic certificates for Project EXOTIC-CCR (Quantyra). This is historical seed-release metadata, not metadata for the later theorem freeze.\u003c/p\u003e\u003cp\u003eProves finite exact identities for the Jacobian counterexample anchor map F : K³ → K³:\u003c/p\u003e\u003cul\u003e\u003cli\u003e\u003cstrong\u003eT0.1\u003c/strong\u003e — jacobianDet F = C(-2)\u003c/li\u003e\u003cli\u003e\u003cstrong\u003eT0.2\u003c/strong\u003e — three-point collision F(0,0,-1/4) = F(1,-3/2,13/2) = F(-1,3/2,13/2) = (-1/4,0,0)\u003c/li\u003e\u003cli\u003edet-1 normalization G with jacobianDet G = 1 and char-2 collision packaging\u003c/li\u003e\u003cli\u003estandard non-injectivity theorems: unit Jacobian determinant does not imply injectivity over any field\u003c/li\u003e\u003c/ul\u003e\u003cp\u003e\u003cstrong\u003eNon-claims for this v0.1.1 seed deposit:\u003c/strong\u003e This deposit asserts exact algebraic checks only. It does not claim full Jacobian-conjecture literature status beyond the finite identities proved; does not claim physical, operator-algebraic, channel, gate, or computational-advantage results; and does not claim Poisson/Weyl endomorphism, self-adjointness, CCR realization, or CP/dilation theorems (later EXOTIC-CCR gates).\u003c/p\u003e\u003cp\u003e\u003cstrong\u003eLater untagged theorem freeze (not this seed release):\u003c/strong\u003e At commit a6bb091, the named theorem ExoticCCR.theoremE proves that the canonical minimal X1 transport core is not essentially self-adjoint. Deficiency-index values and full Theorem F remain historical paper-grade results and are not Lean-covered. No release tag, version DOI, or Zenodo DOI exists for this new theorem freeze.\u003c/p\u003e\u003cp\u003eIndependent Quantyra reimplementation. Provenance credits Alpöge announcement, Cureton Lean formalization, and Speyer note without claiming those works as Quantyra products. Apache-2.0.\u003c/p\u003e"
 }

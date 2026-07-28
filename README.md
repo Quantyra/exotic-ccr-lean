@@ -7,7 +7,7 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 **Organization:** Quantyra Inc.  
 **Program:** EXOTIC-CCR research charter (Gate G0 / WP0)  
 **License:** Apache-2.0  
-**Version:** 0.1.7 (full algebraic Theorem B, including canonical Poisson generator brackets)
+**Theorem E freeze:** commit `a6bb091c05943cfcf35c405659e57df93ab8bb3d` (untagged, unreleased, and without an assigned release version)
 
 ## What is proved
 
@@ -27,7 +27,7 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 | T0.E-core | The canonical minimal transport core on embedded compactly supported smooth functions is constructed unconditionally. A nonzero adjoint eigenvector at `±i` unconditionally obstructs essential self-adjointness for any densely defined partial operator | `ExoticCCR.TransportCore`, `ExoticCCR.LinearPMapDeficiency`, `ExoticCCR.TheoremE` |
 | T0.E-density | Compactly supported smooth test functions are dense in `L²(ℝ³)`, and the canonical minimal transport core has dense domain | `ExoticCCR.TransportCore` |
 | T0.E-deficiency-conditional | Given a nonzero weak `-i` eigenvector for the canonical `X1` core, `theoremE_of_forwardWeakDeficiency` proves that core is not essentially self-adjoint | `ExoticCCR.TheoremEDeficiency` |
-| T0.E | A maximal forward sheet supplies a nonzero ambient `L²` weak `-i` eigenvector, and the canonical minimal transport core for `X1` is therefore not essentially self-adjoint | `ExoticCCR.TheoremEForwardIBP` |
+| T0.E | A maximal forward sheet supplies a nonzero ambient `L²` weak `-i` eigenvector, and `ExoticCCR.theoremE` proves that the canonical minimal `X1` transport core is not essentially self-adjoint | `ExoticCCR.TheoremEForwardIBP` |
 | T0.E-conditional | For any supplied `MinimalTransportRealization X1`, `theoremE_of_transportNecessity` derives failure of essential self-adjointness from the explicit hypothesis `TransportNecessityStatement` | `ExoticCCR.TheoremE` |
 | T0.F-wall-base | The forward-wall cubic vanishes at `(a,s,c) = (0,1/2,2)`, while its formal `s`-derivative expression equals `-1/2` there | `ExoticCCR.TheoremFForwardWall` |
 | T0.F-wall-reconstruction | A root of the displayed wall cubic reconstructs an explicit preimage of `(a,s,c)` under `F` whenever the reconstruction denominators are nonzero | `ExoticCCR.TheoremFForwardWall` |
@@ -63,11 +63,11 @@ See [INTEGRITY.md](INTEGRITY.md). In short:
 - These are bounded algebraic, real-analytic, and canonical transport-operator certificates.
 - This repo does **not** claim full status of the Jacobian conjecture literature beyond the identities proved here.
 - This repo does **not** claim physical, channel, gate, computational-advantage, or broader operator-algebraic results beyond the canonical `X1` conclusion stated above.
-- The canonical Poisson brackets of the transformed polynomial generators are proved. Exponentiated Weyl relations, deficiency-index values, and CP maps are **not proved**. T0.C.4 is only an abstract polynomial-algebra endomorphism.
+- The canonical Poisson brackets of the transformed polynomial generators are proved. Exponentiated Weyl relations, deficiency-index values, full Theorem F, and CP maps are **not proved in Lean**. Deficiency-index values and full Theorem F remain historical paper-only results. T0.C.4 is only an abstract polynomial-algebra endomorphism.
 - The transport layer constructs the canonical minimal core, proves its test-function domain dense, and proves the generic deficiency-to-not-essentially-self-adjoint bridge.
 - `X1ForwardWeakDeficiencyStatement` remains the proposition packaged by the now-proved theorem `X1_forwardWeakDeficiency`; the legacy `TransportNecessityStatement` remains only a definition used by a separate conditional route.
 - `ForwardSaturatedSheet` is inhabited from every `ForwardBranchOpen` by the explicit map `branchMap (x, sqrt (β x - s))` on `β x - ε₀ < s < β x`. Its upper face escapes and its lower face converges to `qSigma x`. Finite-interval IBP is proved with both traces retained, including directly on the maximal extension. A separate maximal extension agrees at `qSigma` and has only `-∞`/escape lower ends. Its translated total domain is open, and the translated map is jointly continuous, injective, and an exact right inverse of `F` in `(a,s,c)` coordinates. Its standard-coordinate Jacobian is `1/2`, its image is open and measurable, and change of variables is proved. For cutoffs compactly supported inside the transverse open set, the maximal zero extension is measurable and in `L²`; one such cutoff gives a nonzero `L²` class.
-- `theoremE` proves that the canonical minimal transport core for `X1` is not essentially self-adjoint, via the explicit maximal-sheet weak `-i` witness. This does **not** prove deficiency-index values such as `(∞,∞)`.
+- At commit `a6bb091`, `ExoticCCR.theoremE` proves that the canonical minimal `X1` transport core is not essentially self-adjoint, via the explicit maximal-sheet weak `-i` witness. This does **not** prove deficiency-index values such as `(∞,∞)`, full Theorem F, extension counts, or a result for arbitrary transport realizations.
 
 ## Build
 
@@ -95,9 +95,19 @@ Those works are **not** Quantyra products. This repository is a clean Quantyra a
 - Science scaffold (not merged here): [Quantyra-Jacobian-Weyl-QC](https://github.com/Quantyra) local path / planning lane
 - Planning: Quantyra-Planning2 story S013 / epic E005
 
+## Theorem E freeze status
+
+The untagged theorem freeze records the exact Lean declaration
+`ExoticCCR.theoremE` at commit `a6bb091`: the canonical minimal `X1` transport
+core is not essentially self-adjoint. This is a bounded canonical-core result.
+The historical paper-only deficiency-index value `(infinity,infinity)` and full
+Theorem F remain outside Lean coverage and are not asserted by this repository.
+No release version, release tag, version DOI, or Zenodo DOI exists for this new
+theorem freeze.
+
 ## Citation
 
-See [CITATION.cff](CITATION.cff). Zenodo DOI: pending GitHub–Zenodo integration (see [docs/zenodo-status.md](docs/zenodo-status.md)).
+See [CITATION.cff](CITATION.cff). The theorem freeze at commit `a6bb091` has no release tag, version DOI, or Zenodo DOI (see [docs/zenodo-status.md](docs/zenodo-status.md)).
 
 ## License
 

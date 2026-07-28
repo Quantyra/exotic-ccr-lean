@@ -6,8 +6,6 @@ authors:
   - family-names: Fredriksen
     given-names: Daniel Eric
     affiliation: "Quantyra Inc"
-version: 0.1.7
-date-released: 2026-07-24
 url: "https://github.com/Quantyra/exotic-ccr-lean"
 repository-code: "https://github.com/Quantyra/exotic-ccr-lean"
 license: Apache-2.0
@@ -25,5 +23,12 @@ abstract: >-
   (and det-1 form G), the full algebraic cotangent-lift Theorem B including
   canonical Poisson generator brackets, real-vector-field incompleteness,
   canonical minimal transport core, and a deficiency-to-not-ESS operator
-  bridge. Unconditional Theorem E remains open (needs density + Dom(H*)
-  deficiency vector); no deficiency indices, channels, or physical claims.
+  bridge. At the untagged, unreleased commit
+  a6bb091c05943cfcf35c405659e57df93ab8bb3d, the named theorem
+  ExoticCCR.theoremE proves that the canonical minimal X1 transport core is
+  not essentially self-adjoint. Deficiency-index values and full Theorem F
+  remain historical paper-only results and are not Lean-covered. No result for
+  arbitrary transport realizations, preferred extension, extension count,
+  strong CCR/Weyl, C-star, CP, channels, gates, physical significance, or
+  computational advantage is claimed. No release version, release tag,
+  version DOI, or Zenodo DOI exists for this new theorem freeze.
