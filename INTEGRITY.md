@@ -40,13 +40,13 @@ the historical B5 algebraic core.
     supported smooth functions is constructed without analytic existence assumptions. For a
     densely defined partial operator, a supplied nonzero adjoint eigenvector at either `i` or
     `-i` unconditionally obstructs essential self-adjointness.
-13. **T0.E density and conditional bridge.** Compactly supported smooth test functions are dense
+13. **T0.E density, bridge, and witness.** Compactly supported smooth test functions are dense
     in `L²(ℝ³)`, so the canonical minimal transport core has dense domain. Given
     `X1ForwardWeakDeficiencyStatement`, `theoremE_of_forwardWeakDeficiency` packages the supplied
     weak eigenvector into adjoint deficiency and concludes that the canonical `X1` core is not
-    essentially self-adjoint. The weak-deficiency statement remains a definition/hypothesis, not
-    an axiom or unconditional theorem. The legacy route through `TransportNecessityStatement` is
-    likewise conditional.
+    essentially self-adjoint. The maximal-sheet construction now proves
+    `X1_forwardWeakDeficiency` and the unconditional theorem `theoremE` for this canonical core.
+    The legacy route through `TransportNecessityStatement` remains conditional.
 14. **T0.F bounded local branch.** The forward-wall divided difference has a polynomial smooth
     extension. The local smooth wall germ `β(a,c)` composes with a second implicit-function
     construction to give a smooth nonzero `r+` germ through `√2`. There is an open positive
@@ -98,9 +98,17 @@ the historical B5 algebraic core.
     compactly supported cutoffs whose topological support is contained in the transverse open set;
     a cutoff is constructed for which the resulting `L²` vector is nonzero. Finite-interval IBP
     with both endpoint residuals is also proved directly on maximal-sheet characteristics.
+18. **T0.E full weak identity (bounded claim).** Fiber-first improper IBP exhausts every fixed
+    maximal-sheet fiber, treating the `tMin = -∞` and finite-escape alternatives locally and
+    retaining both residuals before taking their proved limits. Indicator-based Fubini gives the
+    full parameter-domain cancellation without a measurable lower-endpoint selection. Bochner
+    change of variables with absolute Jacobian `1/2` transfers the test and transport pairings to
+    ambient space. A constructed nonzero `L²` zero extension is a weak `-i` eigenvector, so the
+    canonical minimal transport core for `X1` is not essentially self-adjoint.
 
-These are machine-checked polynomial identities, elementary field arithmetic, and the stated
-one-dimensional real-analysis consequences. They do not constitute all of Program B.
+These are machine-checked polynomial identities, elementary field arithmetic, the stated
+real-analysis consequences, and the bounded canonical transport-operator conclusion above.
+They do not constitute all of Program B.
 
 ## What this artifact does **not** assert
 
@@ -109,26 +117,13 @@ one-dimensional real-analysis consequences. They do not constitute all of Progra
 - Physical significance, quantum channels, gates, continuous-variable protocols, or computational advantage.
 - Analytic/operator CCR realizations or exponentiated Weyl relations beyond the proved
   polynomial generator Poisson brackets and abstract polynomial Weyl-algebra endomorphism.
-- Essential self-adjointness, strong CCR/Weyl relations, C*-extension, complete positivity, or dilations.
-- Unconditional A001 Theorem E. Although the canonical minimal `L²` core is constructed, its
-  test-function domain is proved dense, and a nonzero `L²` branch candidate is now constructed,
-  the repository does not prove that candidate lies in `Dom(H*)` or satisfies `H* u = ±i u`.
-  Finite-interval integration by parts, maximal-sheet change of variables, and the now-proved
-  measurable nonzero `L²` zero extension do not by themselves provide integrated endpoint limits
-  and the transverse Fubini identity needed for the weak equation. The global
-  representative-integral identity is therefore still absent. Incompleteness
-  alone is not claimed to imply the operator conclusion.
-- A global A001 Theorem F sheet or measure-`1/2` conclusion, a concrete `Dom(H*)`
-  vector satisfying the weak deficiency identity, and all
+- Strong CCR/Weyl relations, C*-extension, complete positivity, or dilations.
+- Any implication from incompleteness alone to failure of essential self-adjointness; the proved
+  operator conclusion instead uses the explicit maximal-sheet weak-deficiency construction.
+- A global A001 Theorem F sheet or unrestricted measure-`1/2` conclusion, and all
   deficiency-index values. In particular, no `(∞,∞)` deficiency-index result is claimed.
-- That the `ForwardMaximalSheet` zero extension is already a weak deficiency vector.
-  Measurability, `L²` membership, and existence of a cutoff giving a nonzero `L²` class are proved
-  under the stated compact-support-inside-`W` hypothesis. Joint continuity on its open total
-  domain and standard-coordinate strict differentiability and change of variables are proved. The explicit
-  branch sheet still has the regular lower trace at `qSigma`; finite-interval IBP
-  retains it, and overlap agreement identifies the matching maximal-sheet trace. No boundary term
-  is dropped. Fubini and integrated FTC are proved on compact transverse-support boxes contained
-  in the maximal-sheet domain, but endpoint exhaustion and ambient cancellation are not claimed.
+- A weak-deficiency conclusion for every arbitrary cutoff. The proved witness uses the constructed
+  cutoff with compact support inside the transverse open set. No boundary residual is dropped.
 - Full B001, B6/B7 analytic classification, von Neumann algebra (`vNa`) conclusions, or any
   operator realization derived from the B5 algebraic slice.
 - Experimental, hardware, or metrology claims.

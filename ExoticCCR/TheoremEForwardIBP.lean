@@ -1087,4 +1087,56 @@ theorem integral_D_density_mul_transport_eq_neg
 
 end ForwardMaximalSheet
 
+/-!
+## Forward weak deficiency witness and Theorem E
+-/
+
+/-- The representative weak `-i` identity for the maximal-sheet zero
+extension. -/
+theorem representative_integral_identity (M : ForwardMaximalSheet)
+    (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ) (hχc : HasCompactSupport χ)
+    (hχW : tsupport χ ⊆ M.W) (φ : CcinftyR3) :
+    inner ℂ ((-Complex.I) • (M.memLp_uMinus χ hχ hχc hχW).toLp (M.uMinus χ))
+        (testFunctionToL2 φ) =
+      ∫ q : R3, inner ℂ (M.uMinus χ q)
+        (minimalTransportExpression X1 φ q) ∂volume := by
+  have hmin :
+      (∫ p in M.D, inner ℂ (M.deficiencyDensity χ p)
+        (minimalTransportExpression X1 φ (M.Psi p)) ∂volume) =
+        (-Complex.I) • ∫ p in M.D, inner ℂ (M.deficiencyDensity χ p)
+          (fderiv ℝ (φ : R3 → ℂ) (M.Psi p) (X1 (M.Psi p))) ∂volume := by
+    rw [← integral_smul]
+    apply setIntegral_congr_fun M.isOpen_D.measurableSet
+    intro p _
+    change inner ℂ (M.deficiencyDensity χ p)
+      ((-Complex.I) • fderiv ℝ (φ : R3 → ℂ) (M.Psi p) (X1 (M.Psi p))) = _
+    rw [inner_smul_right]
+    rfl
+  rw [inner_smul_left]
+  simp only [map_neg, Complex.conj_I, neg_neg]
+  rw [inner_toLp_testFunctionToL2_eq_integral (M.memLp_uMinus χ hχ hχc hχW) φ]
+  rw [M.integral_inner_uMinus_test_eq_half_smul_integral_D χ φ]
+  rw [M.integral_inner_uMinus_minimalTransportExpression_eq_half_smul_integral_D χ φ]
+  rw [hmin, M.integral_D_density_mul_transport_eq_neg χ hχ hχc hχW φ]
+  simp [smul_eq_mul]
+  ring
+
+/-- A nonzero maximal-sheet zero extension is a weak `-i` eigenvector for the
+canonical minimal transport core of `X1`. -/
+theorem X1_forwardWeakDeficiency : X1ForwardWeakDeficiencyStatement := by
+  obtain ⟨O⟩ := exists_forwardBranchOpen
+  obtain ⟨M⟩ := O.exists_forwardMaximalSheet
+  obtain ⟨χ, hχ, hχc, hχW, hu_ne⟩ := M.exists_nonzero_L2_uMinus
+  let u := (M.memLp_uMinus χ hχ hχc hχW).toLp (M.uMinus χ)
+  refine ⟨u, hu_ne, ?_⟩
+  apply weakAdjoint_negI_of_representative_integrals
+    (M.memLp_uMinus χ hχ hχc hχW)
+  intro φ
+  exact representative_integral_identity M χ hχ hχc hχW φ
+
+/-- **A001 Theorem E.** The canonical minimal transport core for `X1` is not
+essentially self-adjoint. -/
+theorem theoremE : ¬ H_X1_min.IsEssentiallySelfAdjoint :=
+  theoremE_of_forwardWeakDeficiency X1_forwardWeakDeficiency
+
 end ExoticCCR
