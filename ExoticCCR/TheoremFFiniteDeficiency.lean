@@ -13,8 +13,12 @@ independent `L²` weak `-i` adjoint eigenvectors for the canonical minimal
 transport core of `X1`.  The construction uses transverse bump functions with
 pairwise disjoint compact supports inside one maximal forward sheet.
 
-It does not assert an infinite family, a deficiency-index value, the `+i`
-deficiency space, or full Theorem F.
+It also packages weak eigenvectors as a submodule and proves that its weak
+`-i` eigenspace is not finite-dimensional.  It does not assert a countably
+infinite family, a deficiency-index value, the `+i` deficiency space, or full
+Theorem F.  The `+i` step is blocked on an explicit sign-correct construction
+for the conjugate/dual deficiency space; no such result is currently exported
+by the transport-core API.
 -/
 
 noncomputable section
@@ -22,6 +26,27 @@ noncomputable section
 open MeasureTheory Set
 
 namespace ExoticCCR
+
+/-- The weak adjoint eigenspace at `z`, expressed without choosing an adjoint
+domain representative. -/
+def weakAdjointEigenspace (H : L2R3 →ₗ.[ℂ] L2R3) (z : ℂ) : Submodule ℂ L2R3 where
+  carrier := {u | WeakAdjointEigenvector H z u}
+  zero_mem' := by simp [WeakAdjointEigenvector]
+  add_mem' := by
+    intro u v hu hv x
+    simp only [smul_add, inner_add_left]
+    rw [hu x, hv x]
+  smul_mem' := by
+    intro c u hu x
+    change WeakAdjointEigenvector H z u at hu
+    simp only [smul_smul, inner_smul_left]
+    rw [map_mul]
+    have hux : (starRingEnd ℂ z) * inner ℂ u (x : L2R3) =
+        inner ℂ u (H x) := by
+      simpa [inner_smul_left] using hu x
+    calc
+      _ = (starRingEnd ℂ c) * ((starRingEnd ℂ z) * inner ℂ u (x : L2R3)) := by ring
+      _ = _ := by rw [hux]
 
 private def finiteCutoffRadius (ε : ℝ) (n : ℕ) : ℝ :=
   ε / (16 * ((n : ℝ) + 1))
@@ -48,8 +73,11 @@ private theorem finiteCutoffRadius_add_centerDist_lt {ε : ℝ} (hε : 0 < ε)
       (n : ℝ) * finiteCutoffRadius ε n := mul_lt_mul_of_pos_right hi hρ
   have hscale := finiteCutoffRadius_scale hε n
   rw [Prod.dist_eq]
-  simp only [finiteCutoffCenter, Real.dist_eq, dist_self, max_zero_right,
-    abs_of_nonneg (mul_nonneg (by positivity) hρ.le)]
+  simp only [finiteCutoffCenter, Real.dist_eq, dist_self]
+  rw [max_eq_left (abs_nonneg _)]
+  rw [show x.1 + 4 * (i : ℝ) * finiteCutoffRadius ε n - x.1 =
+      4 * (i : ℝ) * finiteCutoffRadius ε n by ring]
+  rw [abs_of_nonneg (by positivity)]
   nlinarith
 
 private theorem finiteCutoffCenter_dist_gt {ε : ℝ} (hε : 0 < ε) (n : ℕ)
@@ -62,14 +90,16 @@ private theorem finiteCutoffCenter_dist_gt {ε : ℝ} (hε : 0 < ε) (n : ℕ)
   · have hcast : (i.val : ℝ) + 1 ≤ (j.val : ℝ) := by
       exact_mod_cast (Nat.succ_le_iff.mpr hlt)
     rw [Prod.dist_eq]
-    simp only [finiteCutoffCenter, Real.dist_eq, dist_self, max_zero_right]
+    simp only [finiteCutoffCenter, Real.dist_eq, dist_self]
+    rw [max_eq_left (abs_nonneg _)]
     rw [abs_of_nonpos]
     · nlinarith
     · nlinarith
   · have hcast : (j.val : ℝ) + 1 ≤ (i.val : ℝ) := by
       exact_mod_cast (Nat.succ_le_iff.mpr hgt)
     rw [Prod.dist_eq]
-    simp only [finiteCutoffCenter, Real.dist_eq, dist_self, max_zero_right]
+    simp only [finiteCutoffCenter, Real.dist_eq, dist_self]
+    rw [max_eq_left (abs_nonneg _)]
     rw [abs_of_nonneg]
     · nlinarith
     · nlinarith
@@ -197,5 +227,29 @@ theorem exists_finite_weakAdjointEigenvector_negI_family (n : ℕ) :
     M.exists_finite_weakAdjointEigenvector_negI_family n
   exact ⟨fun i => (M.memLp_uMinus (χ i) (hχ i) (hχc i) (hχW i)).toLp
     (M.uMinus (χ i)), hu⟩
+
+/-- Arbitrarily large finite linearly independent weak eigenspace families
+force the corresponding weak eigenspace not to be finite-dimensional. -/
+theorem weakAdjointEigenspace_not_finiteDimensional_of_finite_families
+    (H : L2R3 →ₗ.[ℂ] L2R3) (z : ℂ)
+    (hfamilies : ∀ n : ℕ, ∃ u : Fin n → L2R3,
+      LinearIndependent ℂ u ∧ ∀ i, WeakAdjointEigenvector H z (u i)) :
+    ¬ FiniteDimensional ℂ (weakAdjointEigenspace H z) := by
+  intro hfinite
+  let n := Module.finrank ℂ (weakAdjointEigenspace H z) + 1
+  obtain ⟨u, hu, huEig⟩ := hfamilies n
+  let v : Fin n → weakAdjointEigenspace H z := fun i => ⟨u i, huEig i⟩
+  have hv : LinearIndependent ℂ v :=
+    LinearIndependent.of_comp (weakAdjointEigenspace H z).subtype hu
+  letI : FiniteDimensional ℂ (weakAdjointEigenspace H z) := hfinite
+  have hle := hv.fintype_card_le_finrank
+  simp [n] at hle
+
+/-- The weak `-i` deficiency eigenspace of the canonical minimal transport
+core is not finite-dimensional. -/
+theorem weakAdjointEigenspace_negI_not_finiteDimensional :
+    ¬ FiniteDimensional ℂ (weakAdjointEigenspace H_X1_min (-Complex.I)) := by
+  apply weakAdjointEigenspace_not_finiteDimensional_of_finite_families
+  exact exists_finite_weakAdjointEigenvector_negI_family
 
 end ExoticCCR
