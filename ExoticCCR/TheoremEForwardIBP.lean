@@ -516,6 +516,104 @@ theorem lower_residual_vanishing_alternatives (M : ForwardMaximalSheet)
   · right
     exact ⟨T, hT, M.tendsto_inner_deficiencyDensity_test_zero_nhdsWithin_Ioi_finite_lower χ φ hx hT⟩
 
+/-!
+## Transverse integration of upper residual vanishing
+
+For a compactly supported transverse cutoff χ, the upper endpoint residual
+`∫ x in K, inner ρ(x,b) φ(Psi(x,b))` can be shown to vanish as `b(x) → β(x)⁻`
+uniformly.  The key is that:
+
+1. **Uniform bound**: On the compact support `K = tsupport χ`, the residual
+   magnitude is bounded by `‖χ x‖ · ‖φ‖∞`, which is integrable over `K`.
+
+2. **Pointwise convergence**: For each `x ∈ K ⊆ W`, the pointwise lemma
+   `tendsto_inner_deficiencyDensity_test_zero_nhdsWithin_Iio_beta` gives
+   convergence to 0 as `s → β(x)⁻`.
+
+3. **DCT application**: Dominated convergence on the compact set `K` then
+   yields convergence of the integral.
+
+We work with the approximating sequence `b_n(x) = β(x) - 1/n` which stays
+uniformly below the wall while approaching it.
+-/
+
+/-- Uniform bound on the norm of a compactly supported test function. -/
+theorem exists_bound_CcinftyR3 (φ : CcinftyR3) :
+    ∃ C : ℝ, 0 ≤ C ∧ ∀ q : R3, ‖(φ : R3 → ℂ) q‖ ≤ C := by
+  have hK : IsCompact (tsupport (φ : R3 → ℂ)) := φ.hasCompactSupport
+  have hcont : Continuous (φ : R3 → ℂ) := φ.contDiff.continuous
+  obtain ⟨R, hR⟩ := (hK.image hcont.norm).isBounded.exists_norm_le
+  refine ⟨max R 0, le_max_right R 0, fun q => ?_⟩
+  by_cases hmem : q ∈ tsupport (φ : R3 → ℂ)
+  · have := hR ‖(φ : R3 → ℂ) q‖ (Set.mem_image_of_mem _ hmem)
+    rw [Real.norm_of_nonneg (norm_nonneg _)] at this
+    exact this.trans (le_max_left R 0)
+  · have hzero : (φ : R3 → ℂ) q = 0 := by
+      by_contra h
+      exact hmem (subset_tsupport _ (Function.mem_support.mpr h))
+    simp only [hzero, norm_zero]
+    exact le_max_right R 0
+
+/-- The integrand for the upper residual at a fixed offset below the wall.
+This is the function `x ↦ inner ρ(x, β(x) - δ) φ(Psi(x, β(x) - δ))`. -/
+def upperResidualAtOffset (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ)
+    (φ : CcinftyR3) (δ : ℝ) (x : ℝ × ℝ) : ℂ :=
+  inner ℂ (M.deficiencyDensity χ (x, M.S.O.germ.β x - δ))
+    (φ (M.Psi (x, M.S.O.germ.β x - δ)))
+
+/-- Uniform bound on the upper residual at any offset δ > 0: the residual magnitude
+is bounded by `‖χ x‖ · C` where C bounds the test function. -/
+theorem norm_upperResidualAtOffset_le (M : ForwardMaximalSheet)
+    (χ : ℝ × ℝ → ℂ) (φ : CcinftyR3) {C : ℝ} (hC_pos : 0 ≤ C) (hC : ∀ q, ‖(φ : R3 → ℂ) q‖ ≤ C)
+    (δ : ℝ) (hδ : 0 < δ) (x : ℝ × ℝ) :
+    ‖M.upperResidualAtOffset χ φ δ x‖ ≤ ‖χ x‖ * C := by
+  unfold upperResidualAtOffset
+  -- The deficiency density at (x, β(x) - δ) is χ(x) * exp((β(x) - δ) - β(x)) = χ(x) * exp(-δ)
+  have hdens : M.deficiencyDensity χ (x, M.S.O.germ.β x - δ) =
+      χ x * Complex.exp (-δ) := by
+    unfold deficiencyDensity
+    congr 1
+    simp only [Complex.ofReal_sub]
+    ring
+  rw [hdens]
+  calc ‖inner ℂ (χ x * Complex.exp (-δ)) (φ (M.Psi (x, M.S.O.germ.β x - δ)))‖
+      ≤ ‖χ x * Complex.exp (-δ)‖ * ‖φ (M.Psi (x, M.S.O.germ.β x - δ))‖ := norm_inner_le_norm _ _
+    _ ≤ ‖χ x * Complex.exp (-δ)‖ * C := by
+        apply mul_le_mul_of_nonneg_left (hC _) (norm_nonneg _)
+    _ = ‖χ x‖ * ‖Complex.exp (-δ)‖ * C := by rw [norm_mul]
+    _ = ‖χ x‖ * Real.exp (-δ) * C := by
+        rw [Complex.norm_exp]
+        simp only [Complex.neg_re, Complex.ofReal_re]
+    _ ≤ ‖χ x‖ * 1 * C := by
+        apply mul_le_mul_of_nonneg_right _ hC_pos
+        apply mul_le_mul_of_nonneg_left _ (norm_nonneg _)
+        exact Real.exp_le_one_iff.mpr (neg_nonpos.mpr hδ.le)
+    _ = ‖χ x‖ * C := by ring
+
+/-- Pointwise upper residual convergence: for each x in the transverse support,
+the upper residual at offset 1/(n+1) tends to 0 as n → ∞. This follows from
+the escape lemma and the fact that β(x) - 1/(n+1) → β(x)⁻. -/
+theorem tendsto_upperResidualAtOffset_zero_of_mem_W (M : ForwardMaximalSheet)
+    (χ : ℝ × ℝ → ℂ) (φ : CcinftyR3) {x : ℝ × ℝ} (hx : x ∈ M.W) :
+    Tendsto (fun n : ℕ => M.upperResidualAtOffset χ φ (1 / (n + 1 : ℝ)) x) atTop (𝓝 0) := by
+  have htends := M.tendsto_inner_deficiencyDensity_test_zero_nhdsWithin_Iio_beta χ φ hx
+  -- The sequence β(x) - 1/(n+1) → β(x)⁻
+  have h1n : Tendsto (fun n : ℕ => (1 : ℝ) / (n + 1)) atTop (𝓝 0) := by
+    have : Tendsto (fun n : ℕ => (n + 1 : ℝ)⁻¹) atTop (𝓝 0) := by
+      apply tendsto_inv_atTop_zero.comp
+      have h : Tendsto (fun n : ℕ => (n : ℝ)) atTop atTop := tendsto_natCast_atTop_atTop
+      exact h.atTop_add tendsto_const_nhds
+    simpa [one_div] using this
+  have hseq : Tendsto (fun n : ℕ => M.S.O.germ.β x - 1 / (n + 1 : ℝ)) atTop
+      (𝓝[<] M.S.O.germ.β x) := by
+    apply tendsto_nhdsWithin_of_tendsto_nhds_of_eventually_within
+    · simpa using tendsto_const_nhds.sub h1n
+    · filter_upwards with n
+      simp only [mem_Iio, sub_lt_self_iff]
+      positivity
+  unfold upperResidualAtOffset
+  exact htends.comp hseq
+
 end ForwardMaximalSheet
 
 end ExoticCCR
