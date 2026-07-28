@@ -2,12 +2,14 @@
 
 ## Theorem E freeze
 
-At commit `a6bb091`, the named theorem `ExoticCCR.theoremE` proves that the
-canonical minimal `X1` transport core is not essentially self-adjoint.
-Deficiency-index values and full Theorem F remain historical paper-grade
-results and are not Lean-covered. No release tag, version DOI, or Zenodo DOI
-exists for this new theorem freeze. Do not create a release or DOI from this
-metadata until all review roles pass and Dan approves the packet.
+At commit `a6bb091c05943cfcf35c405659e57df93ab8bb3d`, the named theorem
+`ExoticCCR.theoremE` proves that the canonical minimal `X1` transport core is
+not essentially self-adjoint. Deficiency-index values and full Theorem F remain
+historical paper-only results and are not Lean-covered. No result is claimed
+for arbitrary transport realizations, preferred extensions, or extension
+counts. No release version, release tag, version DOI, or Zenodo DOI exists for
+this new theorem freeze. Do not create a release or DOI from this metadata
+until all review roles pass and Dan approves the packet.
 
 | Field | Value |
 |-------|-------|
@@ -17,13 +19,14 @@ metadata until all review roles pass and Dan approves the packet.
 | Historical seed releases | [v0.1.0](https://github.com/Quantyra/exotic-ccr-lean/releases/tag/v0.1.0), [v0.1.1](https://github.com/Quantyra/exotic-ccr-lean/releases/tag/v0.1.1) |
 | Historical seed concept DOI | **not yet public** |
 | Historical seed version DOI | **not yet public** |
-| Theorem-freeze commit | `a6bb091` |
+| Theorem-freeze commit | `a6bb091c05943cfcf35c405659e57df93ab8bb3d` |
+| Theorem-freeze release version | **none assigned** |
 | Theorem-freeze tag/release | **none; review blocked** |
 | Theorem-freeze version DOI | **none** |
 | Theorem-freeze Zenodo DOI | **none** |
 
 The historical seed releases do not tag or archive the theorem freeze at
-commit `a6bb091`.
+commit `a6bb091c05943cfcf35c405659e57df93ab8bb3d`.
 
 ## Historical seed status
 
