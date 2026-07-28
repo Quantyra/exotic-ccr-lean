@@ -114,10 +114,45 @@ end ForwardSaturatedSheet
 
 namespace ForwardMaximalSheet
 
-/-- The `-i` deficiency density in maximal-sheet flow time. -/
-def deficiencyDensity (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ)
-    (p : (ℝ × ℝ) × ℝ) : ℂ :=
-  χ p.1 * Complex.exp (p.2 - M.S.O.germ.β p.1)
+/-- The ambient pairing of the maximal-sheet representative with a compactly
+supported smooth test function is integrable. -/
+theorem integrable_inner_uMinus_test (M : ForwardMaximalSheet)
+    (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ) (hχc : HasCompactSupport χ)
+    (hχW : tsupport χ ⊆ M.W) (φ : CcinftyR3) :
+    Integrable (fun q : R3 => inner ℂ (M.uMinus χ q) (φ q)) volume :=
+  M.integrable_inner_uMinus χ hχ hχc hχW (testFunctionMemLp φ)
+
+/-- The ambient pairing with the minimal `X1` transport expression is
+integrable by the same `L² × L² → L¹` estimate. -/
+theorem integrable_inner_uMinus_minimalTransportExpression
+    (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ)
+    (hχ : Continuous χ) (hχc : HasCompactSupport χ)
+    (hχW : tsupport χ ⊆ M.W) (φ : CcinftyR3) :
+    Integrable (fun q : R3 =>
+      inner ℂ (M.uMinus χ q) (minimalTransportExpression X1 φ q)) volume :=
+  M.integrable_inner_uMinus χ hχ hχc hχW
+    (transportExpressionMemLp X1 contDiff_X1.continuous φ)
+
+/-- Change of variables for the exact ambient test-function pairing used in
+the representative weak identity. -/
+theorem integral_inner_uMinus_test_eq_half_smul_integral_D
+    (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ) (φ : CcinftyR3) :
+    (∫ q : R3, inner ℂ (M.uMinus χ q) (φ q) ∂volume) =
+      (1 / 2 : ℝ) • ∫ p in M.D,
+        inner ℂ (M.deficiencyDensity χ p) (φ (M.Psi p)) ∂volume :=
+  M.integral_inner_uMinus_eq_half_smul_integral_D χ (φ : R3 → ℂ)
+
+/-- Change of variables for the exact ambient minimal-transport pairing used
+in the representative weak identity. -/
+theorem integral_inner_uMinus_minimalTransportExpression_eq_half_smul_integral_D
+    (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ) (φ : CcinftyR3) :
+    (∫ q : R3,
+      inner ℂ (M.uMinus χ q) (minimalTransportExpression X1 φ q) ∂volume) =
+      (1 / 2 : ℝ) • ∫ p in M.D,
+        inner ℂ (M.deficiencyDensity χ p)
+          (minimalTransportExpression X1 φ (M.Psi p)) ∂volume :=
+  M.integral_inner_uMinus_eq_half_smul_integral_D χ
+    (minimalTransportExpression X1 φ)
 
 /-- The maximal-sheet density solves `dρ/ds = ρ` on every fiber. -/
 theorem hasDerivAt_deficiencyDensity_s (M : ForwardMaximalSheet)

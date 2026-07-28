@@ -254,6 +254,11 @@ theorem measurableSet_image_Psi (M : ForwardMaximalSheet) :
   exact measurable_image_of_fderivWithin M.measurableSet_Dfin3
     (fun v hv => M.hasFDerivWithinAt_PsiFin3 hv) M.injOn_PsiFin3
 
+/-- The `-i` deficiency density in maximal-sheet flow parameters. -/
+def deficiencyDensity (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ)
+    (p : (ℝ × ℝ) × ℝ) : ℂ :=
+  χ p.1 * Complex.exp (p.2 - M.S.O.germ.β p.1)
+
 /-- The flow-time deficiency density in standard anchor coordinates. -/
 def deficiencyDensityFin3 (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ)
     (v : Fin 3 → ℝ) : ℂ :=
@@ -618,6 +623,72 @@ theorem isOpen_image_Psi (M : ForwardMaximalSheet) : IsOpen (M.Psi '' M.D) := by
     simpa [e] using M.hasStrictFDerivAt_PsiFin3 hv
   rw [← hstrict.map_nhds_eq_of_equiv]
   exact Filter.image_mem_map (M.isOpen_Dfin3.mem_nhds hv)
+
+/-!
+## Bochner pairings and change of variables
+
+These lemmas expose the maximal-sheet change of variables for complex-valued
+pairings.  The second argument is kept generic so both the test function and
+its minimal transport expression can use the same wrapper.
+-/
+
+/-- The pointwise inner product of the maximal-sheet `L²` representative with
+any other chosen `L²` representative is Bochner integrable. -/
+theorem integrable_inner_uMinus (M : ForwardMaximalSheet)
+    (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ) (hχc : HasCompactSupport χ)
+    (hχW : tsupport χ ⊆ M.W) {g : R3 → ℂ}
+    (hg : MemLp g 2 (volume : Measure R3)) :
+    Integrable (fun q : R3 => inner ℂ (M.uMinus χ q) (g q)) volume := by
+  let hu := M.memLp_uMinus χ hχ hχc hχW
+  have hi := MeasureTheory.L2.integrable_inner (𝕜 := ℂ)
+    (hu.toLp (M.uMinus χ)) (hg.toLp g)
+  apply hi.congr
+  filter_upwards [hu.coeFn_toLp, hg.coeFn_toLp] with q huq hgq
+  simp only [huq, hgq]
+
+/-- Bochner change of variables for a generic pairing with the maximal-sheet
+zero extension.  The ambient integral is supported on the sheet image; the
+constant absolute Jacobian contributes the factor `1/2`, and the final step
+returns from standard `Fin 3` coordinates to flow parameters. -/
+theorem integral_inner_uMinus_eq_half_smul_integral_D
+    (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ) (g : R3 → ℂ) :
+    (∫ q : R3, inner ℂ (M.uMinus χ q) (g q) ∂volume) =
+      (1 / 2 : ℝ) • ∫ p in M.D,
+        inner ℂ (M.deficiencyDensity χ p) (g (M.Psi p)) ∂volume := by
+  let S := M.PsiFin3 '' M.Dfin3
+  let f : R3 → ℂ := fun q => inner ℂ (M.uMinus χ q) (g q)
+  have hSmeas : MeasurableSet S := by
+    exact measurable_image_of_fderivWithin M.measurableSet_Dfin3
+      (fun v hv => M.hasFDerivWithinAt_PsiFin3 hv) M.injOn_PsiFin3
+  have hind : S.indicator f = f := by
+    funext q
+    by_cases hq : q ∈ S
+    · simp [hq]
+    · simp [S, f, hq, M.uMinus_off_image χ hq]
+  change (∫ q : R3, f q ∂volume) = _
+  rw [← hind, integral_indicator hSmeas]
+  change (∫ q in M.PsiFin3 '' M.Dfin3, f q ∂volume) = _
+  rw [integral_image_eq_integral_abs_det_fderiv_smul volume
+    M.measurableSet_Dfin3 (fun v hv => M.hasFDerivWithinAt_PsiFin3 hv)
+    M.injOn_PsiFin3]
+  have hcoord := measurePreserving_flowParamToFin3_symm.setIntegral_preimage_emb
+    flowParamToFin3.symm.toHomeomorph.measurableEmbedding
+    (fun p : (ℝ × ℝ) × ℝ =>
+      inner ℂ (M.deficiencyDensity χ p) (g (M.Psi p))) M.D
+  calc
+    (∫ v in M.Dfin3, |(fderiv ℝ M.PsiFin3 v).det| • f (M.PsiFin3 v) ∂volume) =
+        ∫ v in M.Dfin3, (1 / 2 : ℝ) •
+          inner ℂ (M.deficiencyDensityFin3 χ v) (g (M.PsiFin3 v)) ∂volume := by
+      apply setIntegral_congr_fun M.measurableSet_Dfin3
+      intro v hv
+      dsimp only [f]
+      rw [M.abs_det_fderiv_PsiFin3 hv, M.uMinus_on_image χ hv]
+    _ = (1 / 2 : ℝ) • ∫ v in M.Dfin3,
+        inner ℂ (M.deficiencyDensityFin3 χ v) (g (M.PsiFin3 v)) ∂volume :=
+      integral_smul _ _
+    _ = _ := congrArg ((1 / 2 : ℝ) • ·)
+      (by simpa [Dfin3, deficiencyDensityFin3, deficiencyDensity, PsiFin3,
+        flowParamToFin3] using hcoord)
 
 end ForwardMaximalSheet
 
