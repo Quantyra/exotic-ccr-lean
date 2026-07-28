@@ -10,6 +10,8 @@ import ExoticCCR.TheoremEDeficiency
 import Mathlib.Analysis.InnerProductSpace.Calculus
 import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
 
+set_option Elab.async false
+
 /-!
 # Finite-interval integration by parts on a forward sheet
 

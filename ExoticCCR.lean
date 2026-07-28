@@ -32,3 +32,4 @@ import ExoticCCR.TheoremFMaximalCoordinate
 import ExoticCCR.TheoremEForwardIBP
 import ExoticCCR.TheoremFMaximalSheet
 import ExoticCCR.TheoremFMaximalSheetDensity
+import ExoticCCR.TheoremFWeakDeficiency

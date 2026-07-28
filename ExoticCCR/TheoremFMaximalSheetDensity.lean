@@ -6,6 +6,8 @@ Authors: Daniel Eric Fredriksen
 import ExoticCCR.TheoremFMaximalSheet
 import Mathlib.MeasureTheory.Function.Jacobian
 
+set_option Elab.async false
+
 /-!
 # Change of variables on the maximal forward sheet
 
