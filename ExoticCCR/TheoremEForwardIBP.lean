@@ -517,6 +517,49 @@ theorem lower_residual_vanishing_alternatives (M : ForwardMaximalSheet)
     exact ⟨T, hT, M.tendsto_inner_deficiencyDensity_test_zero_nhdsWithin_Ioi_finite_lower χ φ hx hT⟩
 
 /-!
+## Fiber geometry
+
+The following identities expose the translated maximal-curve domain as an
+ordinary interval.  They are deliberately pointwise in the transverse
+variable; in particular, the finite lower endpoint is not selected globally.
+-/
+
+/-- If the maximal curve has lower endpoint `-∞`, its translated fiber is the
+open ray below the upper wall. -/
+theorem fiber_eq_Iio_of_tMin_eq_bot (M : ForwardMaximalSheet)
+    {x : ℝ × ℝ} (hx : x ∈ M.W) (hbot : tMin (M.S.qSigma x) = ⊥) :
+    {s : ℝ | (x, s) ∈ M.D} = Iio (M.S.O.germ.β x) := by
+  ext s
+  simp only [mem_setOf_eq, D, hx, true_and, mem_Iio]
+  rw [mem_integralCurveDomain_iff, hbot, M.tMax_eq x hx]
+  simp only [EReal.bot_lt_coe, true_and, EReal.coe_lt_coe_iff]
+  simp only [ForwardMaximalSheet.s0]
+  constructor <;> intro h <;> linarith
+
+/-- A finite lower endpoint is strictly negative, since every maximal curve
+domain contains time zero as an interior point. -/
+theorem tMin_lt_zero_of_eq_coe (M : ForwardMaximalSheet) (x : ℝ × ℝ)
+    {T : ℝ} (hT : tMin (M.S.qSigma x) = (T : EReal)) : T < 0 := by
+  obtain ⟨α, I, hα⟩ := exists_isIntegralCurveFrom (M.S.qSigma x)
+  have hzero : 0 ∈ integralCurveDomain (M.S.qSigma x) := ⟨α, I, hα, hα.1⟩
+  have hlo := ((mem_integralCurveDomain_iff (M.S.qSigma x) 0).1 hzero).1
+  rw [hT] at hlo
+  exact EReal.coe_lt_coe_iff.mp (by simpa using hlo)
+
+/-- If the maximal curve has finite lower endpoint `T`, its translated fiber
+is the open interval from `s0 + T` to the upper wall. -/
+theorem fiber_eq_Ioo_of_tMin_eq_coe (M : ForwardMaximalSheet)
+    {x : ℝ × ℝ} (hx : x ∈ M.W) {T : ℝ}
+    (hT : tMin (M.S.qSigma x) = (T : EReal)) :
+    {s : ℝ | (x, s) ∈ M.D} = Ioo (M.s0 x + T) (M.S.O.germ.β x) := by
+  ext s
+  simp only [mem_setOf_eq, D, hx, true_and, mem_Ioo]
+  rw [mem_integralCurveDomain_iff, hT, M.tMax_eq x hx]
+  simp only [EReal.coe_lt_coe_iff]
+  simp only [ForwardMaximalSheet.s0]
+  constructor <;> rintro ⟨hlo, hhi⟩ <;> constructor <;> linarith
+
+/-!
 ## Transverse integration of upper residual vanishing
 
 For a compactly supported transverse cutoff χ, the upper endpoint residual
