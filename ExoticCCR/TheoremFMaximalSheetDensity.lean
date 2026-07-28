@@ -646,6 +646,47 @@ theorem integrable_inner_uMinus (M : ForwardMaximalSheet)
   filter_upwards [hu.coeFn_toLp, hg.coeFn_toLp] with q huq hgq
   simp only [huq, hgq]
 
+/-- Reverse integrability through the maximal-sheet change of variables.  The
+nonzero constant Jacobian allows ambient `L¹` integrability of the pairing to
+be pulled back to the full flow-parameter domain. -/
+theorem integrableOn_inner_deficiencyDensity_comp_Psi
+    (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ)
+    (hχ : Continuous χ) (hχc : HasCompactSupport χ)
+    (hχW : tsupport χ ⊆ M.W) {g : R3 → ℂ}
+    (hg : MemLp g 2 (volume : Measure R3)) :
+    IntegrableOn (fun p : (ℝ × ℝ) × ℝ =>
+      inner ℂ (M.deficiencyDensity χ p) (g (M.Psi p))) M.D volume := by
+  let f : R3 → ℂ := fun q => inner ℂ (M.uMinus χ q) (g q)
+  have himage : IntegrableOn f (M.PsiFin3 '' M.Dfin3) volume :=
+    (M.integrable_inner_uMinus χ hχ hχc hχW hg).integrableOn
+  have hweighted :=
+    (integrableOn_image_iff_integrableOn_abs_det_fderiv_smul volume
+      M.measurableSet_Dfin3 (fun v hv => M.hasFDerivWithinAt_PsiFin3 hv)
+      M.injOn_PsiFin3 f).1 himage
+  have hhalf : IntegrableOn (fun v : Fin 3 → ℝ => (1 / 2 : ℝ) •
+      inner ℂ (M.deficiencyDensityFin3 χ v) (g (M.PsiFin3 v))) M.Dfin3 volume := by
+    apply hweighted.congr_fun _ M.measurableSet_Dfin3
+    intro v hv
+    dsimp only [f]
+    rw [M.abs_det_fderiv_PsiFin3 hv, M.uMinus_on_image χ hv]
+  have hfin3 : IntegrableOn (fun v : Fin 3 → ℝ =>
+      inner ℂ (M.deficiencyDensityFin3 χ v) (g (M.PsiFin3 v))) M.Dfin3 volume := by
+    have htwo := Integrable.smul (2 : ℝ) hhalf
+    apply htwo.congr
+    filter_upwards with v
+    change (2 : ℝ) • ((1 / 2 : ℝ) •
+      inner ℂ (M.deficiencyDensityFin3 χ v) (g (M.PsiFin3 v))) = _
+    rw [smul_smul]
+    norm_num
+  apply (measurePreserving_flowParamToFin3_symm.integrableOn_comp_preimage
+    flowParamToFin3.symm.toHomeomorph.measurableEmbedding).1
+  change IntegrableOn (fun v : Fin 3 → ℝ =>
+    inner ℂ (M.deficiencyDensity χ (flowParamToFin3.symm v))
+      (g (M.Psi (flowParamToFin3.symm v)))) M.Dfin3 volume
+  apply IntegrableOn.congr_fun hfin3 _ M.measurableSet_Dfin3
+  intro v _
+  rfl
+
 /-- Bochner change of variables for a generic pairing with the maximal-sheet
 zero extension.  The ambient integral is supported on the sheet image; the
 constant absolute Jacobian contributes the factor `1/2`, and the final step

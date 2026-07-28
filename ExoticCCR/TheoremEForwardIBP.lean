@@ -963,6 +963,128 @@ theorem integral_fiber_density_mul_transport_eq_neg
     exact M.integral_fiber_density_mul_transport_eq_neg_of_exhaustion χ φ x
       {s | (x, s) ∈ M.D} a b hmono hunion hab hmem hpair htransport ha0 hb0
 
+/-!
+## Full-domain Fubini
+-/
+
+/-- The unscaled directional derivative appearing after fiberwise integration
+by parts is an ambient `L²` function. -/
+theorem memLp_test_fderiv_X1 (φ : CcinftyR3) :
+    MemLp (fun q : R3 => fderiv ℝ (φ : R3 → ℂ) q (X1 q)) 2 volume := by
+  have hcont : Continuous (fun q : R3 => fderiv ℝ (φ : R3 → ℂ) q (X1 q)) :=
+    (φ.contDiff.continuous_fderiv_apply (by simp)).comp
+      (continuous_id.prodMk contDiff_X1.continuous)
+  have hsupp : HasCompactSupport
+      (fun q : R3 => fderiv ℝ (φ : R3 → ℂ) q (X1 q)) := by
+    apply (φ.hasCompactSupport.fderiv ℝ).mono'
+    intro q hq
+    apply subset_tsupport
+    change fderiv ℝ (φ : R3 → ℂ) q ≠ 0
+    intro hz
+    apply hq
+    simp [hz]
+  exact hcont.memLp_of_hasCompactSupport hsupp
+
+/-- The density--test pairing is integrable on the full variable parameter
+domain, obtained by reversing the nonzero-Jacobian Bochner change of variables. -/
+theorem integrableOn_D_density_test (M : ForwardMaximalSheet)
+    (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ) (hχc : HasCompactSupport χ)
+    (hχW : tsupport χ ⊆ M.W) (φ : CcinftyR3) :
+    IntegrableOn (fun p : (ℝ × ℝ) × ℝ =>
+      inner ℂ (M.deficiencyDensity χ p) (φ (M.Psi p))) M.D volume :=
+  M.integrableOn_inner_deficiencyDensity_comp_Psi χ hχ hχc hχW
+    (testFunctionMemLp φ)
+
+/-- The density--directional-derivative pairing is integrable on the full
+variable parameter domain. -/
+theorem integrableOn_D_density_transport (M : ForwardMaximalSheet)
+    (χ : ℝ × ℝ → ℂ) (hχ : Continuous χ) (hχc : HasCompactSupport χ)
+    (hχW : tsupport χ ⊆ M.W) (φ : CcinftyR3) :
+    IntegrableOn (fun p : (ℝ × ℝ) × ℝ =>
+      inner ℂ (M.deficiencyDensity χ p)
+        (fderiv ℝ (φ : R3 → ℂ) (M.Psi p) (X1 (M.Psi p)))) M.D volume :=
+  M.integrableOn_inner_deficiencyDensity_comp_Psi χ hχ hχc hχW
+    (memLp_test_fderiv_X1 φ)
+
+/-- Full-domain integration by parts.  Fubini supplies section integrability
+almost everywhere, and the lower endpoint alternative is resolved only inside
+the already-fixed fiber theorem. -/
+theorem integral_D_density_mul_transport_eq_neg
+    (M : ForwardMaximalSheet) (χ : ℝ × ℝ → ℂ)
+    (hχ : Continuous χ) (hχc : HasCompactSupport χ)
+    (hχW : tsupport χ ⊆ M.W) (φ : CcinftyR3) :
+    (∫ p in M.D, inner ℂ (M.deficiencyDensity χ p)
+        (fderiv ℝ (φ : R3 → ℂ) (M.Psi p) (X1 (M.Psi p))) ∂volume) =
+      -(∫ p in M.D,
+        inner ℂ (M.deficiencyDensity χ p) (φ (M.Psi p)) ∂volume) := by
+  let A : ((ℝ × ℝ) × ℝ) → ℂ := fun p =>
+    inner ℂ (M.deficiencyDensity χ p) (φ (M.Psi p))
+  let B : ((ℝ × ℝ) × ℝ) → ℂ := fun p =>
+    inner ℂ (M.deficiencyDensity χ p)
+      (fderiv ℝ (φ : R3 → ℂ) (M.Psi p) (X1 (M.Psi p)))
+  let AI := M.D.indicator A
+  let BI := M.D.indicator B
+  have hDm : MeasurableSet M.D := M.isOpen_D.measurableSet
+  have hAI : Integrable AI volume := by
+    rw [integrable_indicator_iff hDm]
+    simpa [A, AI] using M.integrableOn_D_density_test χ hχ hχc hχW φ
+  have hBI : Integrable BI volume := by
+    rw [integrable_indicator_iff hDm]
+    simpa [B, BI] using M.integrableOn_D_density_transport χ hχ hχc hχW φ
+  have hvol : (volume : Measure ((ℝ × ℝ) × ℝ)) =
+      (volume : Measure (ℝ × ℝ)).prod (volume : Measure ℝ) :=
+    Measure.volume_eq_prod (ℝ × ℝ) ℝ
+  rw [hvol] at hAI hBI
+  have hsection : ∀ᵐ x : ℝ × ℝ,
+      (∫ s : ℝ, BI (x, s) ∂volume) = -(∫ s : ℝ, AI (x, s) ∂volume) := by
+    filter_upwards [hAI.prod_right_ae, hBI.prod_right_ae] with x hAx hBx
+    by_cases hx : x ∈ M.W
+    · have hfiber : MeasurableSet {s : ℝ | (x, s) ∈ M.D} :=
+        M.isOpen_D.preimage (continuous_const.prodMk continuous_id) |>.measurableSet
+      have hAind : Integrable ({s : ℝ | (x, s) ∈ M.D}.indicator
+          (fun s => A (x, s))) volume := by
+        apply hAx.congr
+        filter_upwards with s
+        simp only [AI, Set.indicator, A]
+        rfl
+      have hBind : Integrable ({s : ℝ | (x, s) ∈ M.D}.indicator
+          (fun s => B (x, s))) volume := by
+        apply hBx.congr
+        filter_upwards with s
+        simp only [BI, Set.indicator, B]
+        rfl
+      have hAon : IntegrableOn (fun s => A (x, s)) {s | (x, s) ∈ M.D} volume :=
+        (integrable_indicator_iff hfiber).1 hAind
+      have hBon : IntegrableOn (fun s => B (x, s)) {s | (x, s) ∈ M.D} volume :=
+        (integrable_indicator_iff hfiber).1 hBind
+      rw [show (∫ s, BI (x, s) ∂volume) = ∫ s in {s | (x, s) ∈ M.D}, B (x, s) ∂volume by
+          rw [← integral_indicator hfiber]
+          apply integral_congr_ae
+          filter_upwards with s
+          simp only [BI, Set.indicator, B]
+          rfl]
+      rw [show (∫ s, AI (x, s) ∂volume) = ∫ s in {s | (x, s) ∈ M.D}, A (x, s) ∂volume by
+          rw [← integral_indicator hfiber]
+          apply integral_congr_ae
+          filter_upwards with s
+          simp only [AI, Set.indicator, A]
+          rfl]
+      simpa [A, B] using
+        M.integral_fiber_density_mul_transport_eq_neg χ φ x hx
+          (by simpa [A] using hAon) (by simpa [B] using hBon)
+    · have hempty : {s : ℝ | (x, s) ∈ M.D} = ∅ := by
+        ext s
+        simp [ForwardMaximalSheet.D, hx]
+      simp [AI, BI, A, B, ForwardMaximalSheet.D, hx]
+  rw [← integral_indicator hDm, ← integral_indicator hDm]
+  change (∫ p, BI p ∂volume) = -(∫ p, AI p ∂volume)
+  rw [hvol, integral_prod BI hBI, integral_prod AI hAI]
+  calc
+    (∫ x : ℝ × ℝ, ∫ s : ℝ, BI (x, s) ∂volume ∂volume) =
+        ∫ x : ℝ × ℝ, -(∫ s : ℝ, AI (x, s) ∂volume) ∂volume :=
+      integral_congr_ae hsection
+    _ = -(∫ x : ℝ × ℝ, ∫ s : ℝ, AI (x, s) ∂volume ∂volume) := integral_neg _
+
 end ForwardMaximalSheet
 
 end ExoticCCR
