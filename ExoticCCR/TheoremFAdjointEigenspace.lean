@@ -73,8 +73,8 @@ theorem aleph0_le_standardDeficiencyIndex_of_not_finiteDimensional
     {H : L2R3 →ₗ.[ℂ] L2R3} {z : ℂ}
     (h : ¬ FiniteDimensional ℂ (adjointEigenspace H z)) :
     ℵ₀ ≤ standardDeficiencyIndex H z := by
-  rw [standardDeficiencyIndex, ← not_lt, Module.rank_lt_aleph0_iff]
-  exact h
+  rw [standardDeficiencyIndex, ← not_lt]
+  exact fun hrank => h (Module.rank_lt_aleph0_iff.mp hrank)
 
 /-- On a densely defined operator the weak adjoint eigenspace is exactly the
 standard eigenspace of the adjoint. -/
