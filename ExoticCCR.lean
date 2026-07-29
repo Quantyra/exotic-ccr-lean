@@ -41,3 +41,4 @@ import ExoticCCR.TheoremFHilbertIndex
 import ExoticCCR.TheoremFConditionalClassification
 import ExoticCCR.TheoremFSymmetricCore
 import ExoticCCR.TheoremFVonNeumannGraph
+import ExoticCCR.TheoremFVonNeumannFormula
