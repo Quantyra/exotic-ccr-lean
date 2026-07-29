@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Eric Fredriksen
 -/
 import ExoticCCR.TheoremFVonNeumannExtension
+import Mathlib.Analysis.Normed.Operator.Extend
 
 /-!
 # Converse von Neumann boundary relation for Theorem F
@@ -367,6 +368,372 @@ theorem selfAdjointExtensionBoundaryPMap_dense_domain
   have hn := norm_eq_of_mem_selfAdjointExtensionBoundaryRelation E huRel
   rw [norm_zero] at hn
   exact norm_eq_zero.mp hn
+
+/-! ### Completion to a total boundary isometry -/
+
+/-- The extracted boundary relation is closed.  This is the point where
+closedness of the arbitrary self-adjoint extension enters the converse
+classification. -/
+theorem selfAdjointExtensionBoundaryRelation_isClosed
+    (E : SelfAdjointExtension H_X1_min) :
+    IsClosed (selfAdjointExtensionBoundaryRelation E :
+      Set (TheoremFPlusSpace × TheoremFMinusSpace)) := by
+  exact E.selfAdjoint.isClosed.preimage (by
+    change Continuous fun pq : TheoremFPlusSpace × TheoremFMinusSpace =>
+      (((pq.1 : TheoremFPlusSpace) : L2R3) +
+          ((pq.2 : TheoremFMinusSpace) : L2R3),
+        Complex.I • (((pq.1 : TheoremFPlusSpace) : L2R3)) -
+          Complex.I • (((pq.2 : TheoremFMinusSpace) : L2R3)))
+    fun_prop)
+
+/-- The continuous linear extension of the densely defined boundary
+isometry. -/
+noncomputable def selfAdjointExtensionBoundaryCLM
+    (E : SelfAdjointExtension H_X1_min) :
+    TheoremFPlusSpace →L[ℂ] TheoremFMinusSpace := by
+  letI : IsClosed (TheoremFMinusSpace : Set L2R3) :=
+    adjointEigenspace_isClosed H_X1_min H_X1_min_dense_domain (-Complex.I)
+  letI : CompleteSpace TheoremFMinusSpace :=
+    IsClosed.completeSpace_coe
+  exact (selfAdjointExtensionBoundaryPMap E).toFun.extendOfNorm
+    (selfAdjointExtensionBoundaryPMap E).domain.subtypeₗᵢ
+
+/-- The total extension agrees with the partial boundary map on its dense
+domain. -/
+theorem selfAdjointExtensionBoundaryCLM_apply_domain
+    (E : SelfAdjointExtension H_X1_min)
+    (p : (selfAdjointExtensionBoundaryPMap E).domain) :
+    selfAdjointExtensionBoundaryCLM E (p : TheoremFPlusSpace) =
+      selfAdjointExtensionBoundaryPMap E p := by
+  letI : IsClosed (TheoremFMinusSpace : Set L2R3) :=
+    adjointEigenspace_isClosed H_X1_min H_X1_min_dense_domain (-Complex.I)
+  letI : CompleteSpace TheoremFMinusSpace :=
+    IsClosed.completeSpace_coe
+  apply LinearMap.extendOfNorm_eq
+  · simpa using
+      (selfAdjointExtensionBoundaryPMap_dense_domain E).denseRange_val
+  · refine ⟨1, ?_⟩
+    intro x
+    change ‖selfAdjointExtensionBoundaryPMap E x‖ ≤
+      1 * ‖(x : TheoremFPlusSpace)‖
+    rw [selfAdjointExtensionBoundaryPMap_norm]
+    simp
+
+/-- The continuous extension remains an isometry on the whole positive
+deficiency space. -/
+theorem selfAdjointExtensionBoundaryCLM_norm
+    (E : SelfAdjointExtension H_X1_min)
+    (p : TheoremFPlusSpace) :
+    ‖selfAdjointExtensionBoundaryCLM E p‖ = ‖p‖ :=
+  Dense.induction (selfAdjointExtensionBoundaryPMap_dense_domain E)
+    (fun x hx => by
+      let x' : (selfAdjointExtensionBoundaryPMap E).domain := ⟨x, hx⟩
+      have hext :
+          selfAdjointExtensionBoundaryCLM E x =
+            selfAdjointExtensionBoundaryPMap E x' := by
+        exact selfAdjointExtensionBoundaryCLM_apply_domain E x'
+      rw [hext, selfAdjointExtensionBoundaryPMap_norm]
+      rfl)
+    (isClosed_eq (continuous_norm.comp
+      (selfAdjointExtensionBoundaryCLM E).continuous) continuous_norm)
+    p
+
+/-- The total isometric embedding obtained by completion of the partial
+boundary map. -/
+noncomputable def selfAdjointExtensionBoundaryIsometry
+    (E : SelfAdjointExtension H_X1_min) :
+    TheoremFPlusSpace →ₗᵢ[ℂ] TheoremFMinusSpace where
+  __ := (selfAdjointExtensionBoundaryCLM E).toLinearMap
+  norm_map' := selfAdjointExtensionBoundaryCLM_norm E
+
+/-- Every graph point of the completed isometry remains in the extracted
+closed boundary relation. -/
+theorem selfAdjointExtensionBoundaryIsometry_mem_relation
+    (E : SelfAdjointExtension H_X1_min)
+    (p : TheoremFPlusSpace) :
+    (p, selfAdjointExtensionBoundaryIsometry E p) ∈
+      selfAdjointExtensionBoundaryRelation E :=
+  Dense.induction (selfAdjointExtensionBoundaryPMap_dense_domain E)
+    (fun x hx => by
+      let x' : (selfAdjointExtensionBoundaryPMap E).domain := ⟨x, hx⟩
+      rw [show selfAdjointExtensionBoundaryIsometry E x =
+          selfAdjointExtensionBoundaryPMap E x' by
+        exact selfAdjointExtensionBoundaryCLM_apply_domain E x']
+      rw [← selfAdjointExtensionBoundaryPMap_graph]
+      exact (selfAdjointExtensionBoundaryPMap E).mem_graph x')
+    ((selfAdjointExtensionBoundaryRelation_isClosed E).preimage (by
+      change Continuous fun p : TheoremFPlusSpace =>
+        (p, selfAdjointExtensionBoundaryIsometry E p)
+      fun_prop))
+    p
+
+/-- The extracted boundary relation is exactly the graph of the completed
+isometry. -/
+theorem mem_selfAdjointExtensionBoundaryRelation_iff_isometry
+    (E : SelfAdjointExtension H_X1_min)
+    {p : TheoremFPlusSpace} {q : TheoremFMinusSpace} :
+    (p, q) ∈ selfAdjointExtensionBoundaryRelation E ↔
+      q = selfAdjointExtensionBoundaryIsometry E p := by
+  constructor
+  · intro hpq
+    have hdiff :
+        (0, q - selfAdjointExtensionBoundaryIsometry E p) ∈
+          selfAdjointExtensionBoundaryRelation E := by
+      simpa using (selfAdjointExtensionBoundaryRelation E).sub_mem hpq
+        (selfAdjointExtensionBoundaryIsometry_mem_relation E p)
+    exact sub_eq_zero.mp
+      (selfAdjointExtensionBoundaryRelation_functional E
+        (0, q - selfAdjointExtensionBoundaryIsometry E p) hdiff rfl)
+  · intro hq
+    rw [hq]
+    exact selfAdjointExtensionBoundaryIsometry_mem_relation E p
+
+/-- The completed boundary isometry has dense range.  Maximal neutrality
+rules out a nonzero vector orthogonal to its range. -/
+theorem selfAdjointExtensionBoundaryIsometry_denseRange
+    (E : SelfAdjointExtension H_X1_min) :
+    DenseRange (selfAdjointExtensionBoundaryIsometry E) := by
+  letI : IsClosed (TheoremFMinusSpace : Set L2R3) :=
+    adjointEigenspace_isClosed H_X1_min H_X1_min_dense_domain (-Complex.I)
+  letI : CompleteSpace TheoremFMinusSpace :=
+    IsClosed.completeSpace_coe
+  change Dense ((LinearMap.range
+    (selfAdjointExtensionBoundaryIsometry E).toLinearMap :
+      Submodule ℂ TheoremFMinusSpace) : Set TheoremFMinusSpace)
+  rw [Submodule.dense_iff_topologicalClosure_eq_top,
+    Submodule.topologicalClosure_eq_top_iff]
+  apply (Submodule.eq_bot_iff _).mpr
+  intro q hq
+  have hzeroRel :
+      ((0 : TheoremFPlusSpace), q) ∈
+        selfAdjointExtensionBoundaryRelation E := by
+    apply selfAdjointExtensionBoundaryRelation_maximal E
+    intro r s hrs
+    have hs : s = selfAdjointExtensionBoundaryIsometry E r :=
+      (mem_selfAdjointExtensionBoundaryRelation_iff_isometry E).mp hrs
+    have hinner :
+        inner ℂ (selfAdjointExtensionBoundaryIsometry E r) q = 0 := by
+      have hqr := (Submodule.mem_orthogonal' _ _).mp hq
+        (selfAdjointExtensionBoundaryIsometry E r)
+        ⟨r, rfl⟩
+      have hstar := congrArg (starRingEnd ℂ) hqr
+      simpa only [map_zero, inner_conj_symm] using hstar
+    change inner ℂ (s : L2R3) (q : L2R3) -
+      inner ℂ (r : L2R3) (0 : L2R3) = 0
+    rw [inner_zero_right, sub_zero, hs]
+    exact hinner
+  have hn := norm_eq_of_mem_selfAdjointExtensionBoundaryRelation E hzeroRel
+  rw [norm_zero] at hn
+  exact norm_eq_zero.mp hn.symm
+
+/-- Maximality upgrades the completed isometric embedding to a surjective
+linear isometry equivalence. -/
+noncomputable def selfAdjointExtensionBoundaryEquiv
+    (E : SelfAdjointExtension H_X1_min) :
+    TheoremFPlusSpace ≃ₗᵢ[ℂ] TheoremFMinusSpace := by
+  let U := selfAdjointExtensionBoundaryIsometry E
+  have hsurj : Function.Surjective U := by
+    letI : IsClosed (TheoremFPlusSpace : Set L2R3) :=
+      adjointEigenspace_isClosed H_X1_min H_X1_min_dense_domain Complex.I
+    letI : CompleteSpace TheoremFPlusSpace :=
+      IsClosed.completeSpace_coe
+    have hclosed : IsClosed (Set.range U) :=
+      U.isometry.isUniformInducing.isComplete_range.isClosed
+    intro q
+    have hq : q ∈ closure (Set.range U) :=
+      selfAdjointExtensionBoundaryIsometry_denseRange E q
+    rw [hclosed.closure_eq] at hq
+    exact hq
+  exact LinearIsometryEquiv.ofSurjective U hsurj
+
+/-- The graph of the recovered equivalence is the original boundary
+relation. -/
+theorem mem_selfAdjointExtensionBoundaryRelation_iff_equiv
+    (E : SelfAdjointExtension H_X1_min)
+    {p : TheoremFPlusSpace} {q : TheoremFMinusSpace} :
+    (p, q) ∈ selfAdjointExtensionBoundaryRelation E ↔
+      q = selfAdjointExtensionBoundaryEquiv E p := by
+  rw [mem_selfAdjointExtensionBoundaryRelation_iff_isometry]
+  rfl
+
+/-! ### Converse classification -/
+
+/-- Self-adjoint extension witnesses are determined by their operator
+field; the remaining fields are propositions. -/
+theorem SelfAdjointExtension.ext_op
+    {E F : SelfAdjointExtension H_X1_min} (h : E.op = F.op) :
+    E = F := by
+  cases E with
+  | mk opE extendsE selfAdjointE =>
+      cases F with
+      | mk opF extendsF selfAdjointF =>
+          simp only at h
+          cases h
+          rfl
+
+/-- The graph of an arbitrary self-adjoint extension is the von Neumann
+graph selected by its recovered boundary equivalence. -/
+theorem selfAdjointExtension_graph_eq_vonNeumannExtensionGraph
+    (E : SelfAdjointExtension H_X1_min) :
+    E.op.graph =
+      vonNeumannExtensionGraph (selfAdjointExtensionBoundaryEquiv E) := by
+  ext z
+  constructor
+  · intro hz
+    obtain ⟨x, p, q, hpq, hzEq⟩ :=
+      (mem_selfAdjointExtension_graph_iff E).mp hz
+    have hzEq' :
+        z =
+          ((x : L2R3) + (p : L2R3) + (q : L2R3),
+            H_X1_min.closure x +
+              Complex.I • (p : L2R3) - Complex.I • (q : L2R3)) := by
+      simpa using hzEq
+    rw [hzEq']
+    have hq : q = selfAdjointExtensionBoundaryEquiv E p :=
+      (mem_selfAdjointExtensionBoundaryRelation_iff_equiv E).mp hpq
+    rw [hq, mem_vonNeumannExtensionGraph_iff]
+    exact ⟨x, p, rfl⟩
+  · intro hz
+    obtain ⟨x, p, rfl⟩ :=
+      (mem_vonNeumannExtensionGraph_iff
+        (selfAdjointExtensionBoundaryEquiv E)).mp hz
+    rw [mem_selfAdjointExtension_graph_iff]
+    exact ⟨x, p, selfAdjointExtensionBoundaryEquiv E p,
+      (mem_selfAdjointExtensionBoundaryRelation_iff_equiv E).mpr rfl, rfl⟩
+
+/-- Every arbitrary self-adjoint extension is recovered exactly from its
+boundary equivalence. -/
+theorem selfAdjointExtension_eq_vonNeumannSelfAdjointExtension
+    (E : SelfAdjointExtension H_X1_min) :
+    E = vonNeumannSelfAdjointExtension
+      (selfAdjointExtensionBoundaryEquiv E) := by
+  let F := vonNeumannSelfAdjointExtension
+    (selfAdjointExtensionBoundaryEquiv E)
+  change E = F
+  have hop : E.op = F.op := by
+    change E.op =
+      vonNeumannExtension (selfAdjointExtensionBoundaryEquiv E)
+    apply LinearPMap.eq_of_eq_graph
+    rw [selfAdjointExtension_graph_eq_vonNeumannExtensionGraph,
+      vonNeumannExtension_graph]
+  exact SelfAdjointExtension.ext_op hop
+
+/-- The recovered boundary equivalence of the extension constructed from
+`U` is exactly `U`. -/
+theorem selfAdjointExtensionBoundaryEquiv_vonNeumannSelfAdjointExtension
+    (U : TheoremFPlusSpace ≃ₗᵢ[ℂ] TheoremFMinusSpace) :
+    selfAdjointExtensionBoundaryEquiv
+      (vonNeumannSelfAdjointExtension U) = U := by
+  apply LinearIsometryEquiv.ext
+  intro p
+  have hpRel :
+      (p, U p) ∈ selfAdjointExtensionBoundaryRelation
+        (vonNeumannSelfAdjointExtension U) := by
+    rw [mem_selfAdjointExtensionBoundaryRelation_iff]
+    change
+      ((p : L2R3) + (U p : L2R3),
+        Complex.I • (p : L2R3) - Complex.I • (U p : L2R3)) ∈
+          (vonNeumannExtension U).graph
+    rw [vonNeumannExtension_graph, mem_vonNeumannExtensionGraph_iff]
+    refine ⟨0, p, ?_⟩
+    simp
+  exact ((mem_selfAdjointExtensionBoundaryRelation_iff_equiv
+    (vonNeumannSelfAdjointExtension U)).mp hpRel).symm
+
+/-- The unconditional von Neumann classification for the verified Theorem F
+minimal operator. -/
+noncomputable def theoremFVonNeumannClassification :
+    SelfAdjointExtension H_X1_min ≃
+      (TheoremFPlusSpace ≃ₗᵢ[ℂ] TheoremFMinusSpace) where
+  toFun := selfAdjointExtensionBoundaryEquiv
+  invFun := vonNeumannSelfAdjointExtension
+  left_inv := fun E =>
+    (selfAdjointExtension_eq_vonNeumannSelfAdjointExtension E).symm
+  right_inv :=
+    selfAdjointExtensionBoundaryEquiv_vonNeumannSelfAdjointExtension
+
+/-- The formerly conditional classification interface is inhabited
+unconditionally. -/
+noncomputable def theoremFClassificationHypothesis :
+    TheoremFClassificationHypothesis where
+  classification := theoremFVonNeumannClassification
+
+/-- The construction of von Neumann self-adjoint extensions is injective. -/
+theorem vonNeumannSelfAdjointExtension_injective :
+    Function.Injective
+      (vonNeumannSelfAdjointExtension :
+        (TheoremFPlusSpace ≃ₗᵢ[ℂ] TheoremFMinusSpace) →
+          SelfAdjointExtension H_X1_min) :=
+  theoremFVonNeumannClassification.symm.injective
+
+/-! ### Unconditional multiplicity -/
+
+/-- Sign transport carries each adjoint eigenspace onto the eigenspace at
+the opposite eigenvalue. -/
+theorem sigmaL2_mem_adjointEigenspace_neg
+    {z : ℂ} {u : L2R3}
+    (hu : u ∈ adjointEigenspace H_X1_min z) :
+    sigmaL2 u ∈ adjointEigenspace H_X1_min (-z) := by
+  rw [← weakAdjointEigenspace_eq_adjointEigenspace H_X1_min
+    H_X1_min_dense_domain (-z)]
+  apply weakAdjointEigenvector_sigmaL2
+  change u ∈ weakAdjointEigenspace H_X1_min z
+  rw [weakAdjointEigenspace_eq_adjointEigenspace H_X1_min
+    H_X1_min_dense_domain z]
+  exact hu
+
+/-- The sign involution gives an explicit linear isometry equivalence
+between the two deficiency spaces. -/
+noncomputable def theoremFDeficiencySigmaEquiv :
+    TheoremFPlusSpace ≃ₗᵢ[ℂ] TheoremFMinusSpace where
+  toFun p :=
+    ⟨sigmaL2 (p : L2R3), by
+      simpa using sigmaL2_mem_adjointEigenspace_neg p.property⟩
+  invFun q :=
+    ⟨sigmaL2 (q : L2R3), by
+      have h := sigmaL2_mem_adjointEigenspace_neg q.property
+      simpa using h⟩
+  left_inv p := by
+    apply Subtype.ext
+    exact sigmaL2_sigmaL2 p
+  right_inv q := by
+    apply Subtype.ext
+    exact sigmaL2_sigmaL2 q
+  map_add' p r := by
+    apply Subtype.ext
+    exact sigmaL2.map_add p r
+  map_smul' c p := by
+    apply Subtype.ext
+    exact sigmaL2.map_smul c p
+  norm_map' p := by
+    change ‖sigmaL2 (p : L2R3)‖ = ‖(p : L2R3)‖
+    exact MeasureTheory.Lp.norm_compMeasurePreserving _
+      measurePreserving_sigmaMap
+
+/-- The positive deficiency space is nontrivial. -/
+theorem theoremFPlusSpace_nontrivial :
+    Nontrivial TheoremFPlusSpace := by
+  obtain ⟨u, huLI, huEig⟩ :=
+    exists_finite_weakAdjointEigenvector_posI_family 1
+  let p : TheoremFPlusSpace :=
+    ⟨u 0, by
+      change u 0 ∈ adjointEigenspace H_X1_min Complex.I
+      rw [← weakAdjointEigenspace_eq_adjointEigenspace H_X1_min
+        H_X1_min_dense_domain Complex.I]
+      exact huEig 0⟩
+  have hp : p ≠ 0 := by
+    intro hp0
+    have hu0 : u 0 = 0 := congrArg Subtype.val hp0
+    exact huLI.ne_zero 0 hu0
+  exact ⟨⟨p, 0, hp⟩⟩
+
+/-- The verified Theorem F operator has at least two distinct self-adjoint
+extensions, with no remaining classification hypothesis. -/
+theorem theoremF_exists_two_distinct_selfAdjointExtensions :
+    ∃ A B : SelfAdjointExtension H_X1_min, A ≠ B := by
+  letI : Nontrivial TheoremFPlusSpace := theoremFPlusSpace_nontrivial
+  exact theoremF_exists_two_distinct_extensions_of_classification
+    theoremFClassificationHypothesis theoremFDeficiencySigmaEquiv
 
 
 end ExoticCCR
