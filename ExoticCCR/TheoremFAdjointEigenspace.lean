@@ -72,9 +72,9 @@ finite-family arguments without asserting exact equality with `ℵ₀`. -/
 theorem aleph0_le_standardDeficiencyIndex_of_not_finiteDimensional
     {H : L2R3 →ₗ.[ℂ] L2R3} {z : ℂ}
     (h : ¬ FiniteDimensional ℂ (adjointEigenspace H z)) :
-    ℵ₀ ≤ standardDeficiencyIndex H z := by
+    Cardinal.aleph0 ≤ standardDeficiencyIndex H z := by
   rw [standardDeficiencyIndex, ← not_lt]
-  exact fun hrank => h (Module.rank_lt_aleph0_iff.mp hrank)
+  exact fun hrank => h (Module.rank_lt_aleph0_iff.mp (by simpa only using hrank))
 
 /-- On a densely defined operator the weak adjoint eigenspace is exactly the
 standard eigenspace of the adjoint. -/
@@ -103,7 +103,7 @@ theorem adjointEigenspace_negI_not_finiteDimensional :
 /-- The forward branch therefore gives a countable lower bound for the
 standard `-i` deficiency index. -/
 theorem aleph0_le_standardDeficiencyIndex_negI :
-    ℵ₀ ≤ standardDeficiencyIndex H_X1_min (-Complex.I) :=
+    Cardinal.aleph0 ≤ standardDeficiencyIndex H_X1_min (-Complex.I) :=
   aleph0_le_standardDeficiencyIndex_of_not_finiteDimensional
     adjointEigenspace_negI_not_finiteDimensional
 
