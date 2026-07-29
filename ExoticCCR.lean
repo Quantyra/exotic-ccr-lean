@@ -34,3 +34,6 @@ import ExoticCCR.TheoremFMaximalSheet
 import ExoticCCR.TheoremFMaximalSheetDensity
 import ExoticCCR.TheoremFWeakDeficiency
 import ExoticCCR.TheoremFFiniteDeficiency
+import ExoticCCR.TheoremFAdjointEigenspace
+import ExoticCCR.TheoremFSigmaSymmetry
+import ExoticCCR.TheoremFPlusITransport
