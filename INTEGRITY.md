@@ -4,12 +4,16 @@ This repository contains bounded algebraic certificates for Project EXOTIC-CCR. 
 the Gate 0 anchor, it contains a one-dimensional real-polynomial and elementary-shear slice of
 the historical B5 algebraic core.
 
-At proposed Lean source commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34`, the named theorem
+Commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34` first introduced the complete bounded theorem
+source. The current synchronized artifact candidate containing this text includes that source,
+the executable axiom audit, and the following current exports. The named theorem
 `ExoticCCR.theoremE` proves that the canonical minimal `X1` transport core is not essentially
 self-adjoint. For the specific canonical minimal operator `H_X1_min`, the chosen Hilbert-basis
 deficiency indices at `+i` and `-i` equal `Cardinal.aleph0`, and all
 `SelfAdjointExtension H_X1_min` witnesses are classified bijectively by complex-linear isometric
 equivalences from the `+i` to the `-i` adjoint eigenspace; at least two distinct witnesses exist.
+The sign involution gives an explicit isometric equivalence between those eigenspaces, and
+unitary complex phases inject into distinct self-adjoint extension witnesses.
 The algebraic `Module.rank` statements remain lower bounds, not an exact Hamel-rank computation.
 No release version, release tag, version DOI, or Zenodo DOI exists for this proposed theorem
 freeze.
@@ -123,8 +127,10 @@ freeze.
     distinct from the algebraic `Module.rank` results, which prove lower bounds and do not compute
     an exact Hamel rank. Lean proves a bijection between all `SelfAdjointExtension H_X1_min`
     witnesses (self-adjoint `LinearPMap`s extending `H_X1_min`) and complex-linear isometric
-    equivalences from the `+i` to the `-i` adjoint eigenspace. It also proves that at least two
-    distinct such extension witnesses exist.
+    equivalences from the `+i` to the `-i` adjoint eigenspace. The explicit sign involution gives
+    one such equivalence. Multiplication by unitary complex phases gives an injective
+    phase-parameterized family of distinct extension witnesses; in particular, at least two
+    distinct witnesses exist.
 
 These are machine-checked polynomial identities, elementary field arithmetic, the stated
 real-analysis consequences, and the bounded canonical transport-operator conclusion above.
@@ -141,9 +147,9 @@ They do not constitute all of Program B.
 - Any implication from incompleteness alone to failure of essential self-adjointness; the proved
   operator conclusion instead uses the explicit maximal-sheet weak-deficiency construction.
 - A von Neumann classification for arbitrary operators or transport realizations, a preferred
-  self-adjoint extension, or an exact extension cardinality or inequivalence classification. The
-  proved result is for `H_X1_min` and establishes only that at least two distinct extension
-  witnesses exist.
+  self-adjoint extension, an exact cardinality of the full extension type, or an inequivalence
+  classification. The proved multiplicity result is the injective unit-phase family for
+  `H_X1_min`; no exact-cardinality theorem is asserted.
 - Full Theorem F, including a global A001 Theorem F sheet or unrestricted measure-`1/2`
   conclusion. The exact chosen Hilbert-basis indices for `H_X1_min` are Lean-covered as stated
   above, but no exact algebraic/Hamel-rank value is claimed.
@@ -167,6 +173,8 @@ Per the EXOTIC-CCR Research Charter v1.0:
 - Version tags must list proved theorems and restated non-claims.
 - Do not upgrade language from “algebraic certificate” to “physical result” without a new gate and evidence package.
 - Zenodo metadata must carry the same non-claims language.
-- Lean source commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34` is the proposed
-  untagged, unreleased theorem freeze; it has no assigned release version,
-  version DOI, or Zenodo DOI.
+- Lean source commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34` is the theorem-source
+  root. The current commit containing this text is the synchronized artifact candidate. Neither
+  has an assigned release version, release tag, version DOI, or Zenodo DOI.
+- `0.1.8-dev` is Lean package-development metadata only. It is not a release version; the paper
+  package's `v0.3.9-referee-revision` candidate label is maintained in the separate paper repository.

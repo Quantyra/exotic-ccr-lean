@@ -23,17 +23,22 @@ abstract: >-
   (and det-1 form G), the full algebraic cotangent-lift Theorem B including
   canonical Poisson generator brackets, real-vector-field incompleteness,
   canonical minimal transport core, and a deficiency-to-not-ESS operator
-  bridge. At the proposed untagged, unreleased Lean source commit
-  ff50f4a2a312591c2e5b26e71eb390ade9164b34, the named theorem
+  bridge. Commit ff50f4a2a312591c2e5b26e71eb390ade9164b34 first introduced
+  the complete bounded theorem source. The current synchronized artifact
+  candidate containing this metadata includes those sources, executable axiom
+  auditing, and build provenance. The named theorem
   ExoticCCR.theoremE proves that the canonical minimal X1 transport core is
   not essentially self-adjoint. For that specific canonical minimal operator,
   the chosen Hilbert-basis deficiency indices at +i and -i equal aleph0, and
   all SelfAdjointExtension witnesses are classified bijectively by
   complex-linear isometric equivalences between those eigenspaces; at least
-  two distinct witnesses exist. The algebraic Module.rank statements remain
+  two distinct witnesses exist, and unitary complex phases inject into
+  distinct extension witnesses. The algebraic Module.rank statements remain
   lower bounds, not an exact Hamel-rank result. No arbitrary-operator theorem,
-  preferred extension, exact extension cardinality or inequivalence result,
+  preferred extension, exact cardinality of the full extension type or
+  inequivalence result,
   full historical Theorem F package, strong CCR/Weyl, C-star, CP, channels,
   gates, physical significance, or computational advantage is claimed. No
   release version, release tag, version DOI, or Zenodo DOI exists for this
-  proposed theorem freeze.
+  proposed theorem freeze. The lakefile version 0.1.8-dev is development
+  metadata only, not a release or Zenodo version.

@@ -2,16 +2,20 @@
 
 ## Proposed Theorem F classification freeze
 
-At Lean source commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34`, the named theorem
+Commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34` first introduced the complete
+bounded theorem source. The current synchronized artifact candidate containing
+this text adds synchronized documentation, executable axiom auditing, build
+provenance, and the unit-phase multiplicity corollary. The named theorem
 `ExoticCCR.theoremE` proves that the canonical minimal `X1` transport core is
 not essentially self-adjoint. For the specific canonical minimal operator
 `H_X1_min`, the chosen Hilbert-basis deficiency indices at `+i` and `-i` equal
 `Cardinal.aleph0`, and Lean proves a bijective classification of all
 `SelfAdjointExtension H_X1_min` witnesses by complex-linear isometric
 equivalences from the `+i` to the `-i` adjoint eigenspace. Lean also proves
-that at least two distinct such witnesses exist. The algebraic `Module.rank`
+that at least two distinct such witnesses exist, and unitary complex phases
+inject into distinct extension witnesses. The algebraic `Module.rank`
 results remain lower bounds, not an exact Hamel-rank computation. No
-arbitrary-operator theorem, preferred extension, exact extension cardinality
+arbitrary-operator theorem, preferred extension, exact cardinality of the full extension type
 or inequivalence result, or full historical Theorem F package is claimed. No
 release version, release tag, version DOI, or Zenodo DOI exists for this
 proposed theorem freeze. Do not create a release or DOI from this metadata
@@ -25,15 +29,16 @@ until all review roles pass and Dan approves the packet.
 | Historical seed releases | [v0.1.0](https://github.com/Quantyra/exotic-ccr-lean/releases/tag/v0.1.0), [v0.1.1](https://github.com/Quantyra/exotic-ccr-lean/releases/tag/v0.1.1) |
 | Historical seed concept DOI | **not yet public** |
 | Historical seed version DOI | **not yet public** |
-| Proposed theorem-freeze Lean source commit | `ff50f4a2a312591c2e5b26e71eb390ade9164b34` |
+| Theorem source root | `ff50f4a2a312591c2e5b26e71eb390ade9164b34` |
+| Synchronized artifact | current commit containing this status file |
+| Lean package metadata | `0.1.8-dev` (development only; not a release) |
 | Theorem-freeze release version | **none assigned** |
 | Theorem-freeze tag/release | **none; review blocked** |
 | Theorem-freeze version DOI | **none** |
 | Theorem-freeze Zenodo DOI | **none** |
 
-The historical seed releases do not tag or archive the proposed theorem
-freeze at Lean source commit
-`ff50f4a2a312591c2e5b26e71eb390ade9164b34`.
+The historical seed releases do not tag or archive either the theorem-source
+root or the current synchronized artifact candidate.
 
 ## Historical seed status
 
