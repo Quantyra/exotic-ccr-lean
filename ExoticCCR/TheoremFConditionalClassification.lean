@@ -7,10 +7,11 @@ import ExoticCCR.TheoremFHilbertIndex
 /-!
 # Conditional von Neumann extension classification for Theorem F
 
-This module records the remaining extension-theoretic formulation as an
-explicit hypothesis.  It does not assert that the hypothesis holds for
-`H_X1_min`, and it does not construct a self-adjoint extension of that
-operator.
+This module records a generic extension-theoretic formulation as an explicit
+hypothesis.  The generic API does not by itself prove that the hypothesis
+holds or construct a self-adjoint extension.  For the specific canonical
+minimal operator `H_X1_min`, the hypothesis is now constructed and the
+classification is proved in `ExoticCCR.TheoremFVonNeumannClassification`.
 
 The generic consequence below is deliberately modest: if a classification
 equivalence identifies self-adjoint extension witnesses with linear isometry
@@ -43,11 +44,12 @@ variable [NormedAddCommGroup Nplus] [NormedSpace ℂ Nplus]
 variable [NormedAddCommGroup Nminus] [NormedSpace ℂ Nminus]
 
 /--
-The von Neumann classification statement is an input datum, not a theorem.
+The generic von Neumann classification statement is an input datum.
 
 In particular, constructing a value of this structure requires independently
-proving the classification equivalence; this module supplies no such value
-for `H_X1_min`.
+proving the classification equivalence.  The later
+`ExoticCCR.TheoremFVonNeumannClassification` module supplies such a value for
+the specific canonical minimal operator `H_X1_min`.
 -/
 structure VonNeumannClassificationHypothesis
     (S : L2R3 →ₗ.[ℂ] L2R3)
@@ -94,17 +96,16 @@ theorem exists_two_distinct_extensions_of_classification
   apply he
   simpa using congrArg hClass.classification h
 
-/-! ### Theorem F specialization (still conditional) -/
+/-! ### Theorem F specialization of the generic conditional API -/
 
 /-- The two adjoint eigenspaces used by the verified Theorem F module. -/
 abbrev TheoremFPlusSpace := adjointEigenspace H_X1_min Complex.I
 abbrev TheoremFMinusSpace := adjointEigenspace H_X1_min (-Complex.I)
 
 /--
-The classification interface for Theorem F, with no inhabitant asserted.
-
-This is a type alias for the conditional hypothesis only; in particular,
-there is intentionally no declaration proving or constructing it.
+The generic classification interface specialized to the canonical Theorem F
+minimal operator.  This module only defines the alias; an inhabitant is
+constructed later in `ExoticCCR.TheoremFVonNeumannClassification`.
 -/
 abbrev TheoremFClassificationHypothesis :=
   VonNeumannClassificationHypothesis H_X1_min TheoremFPlusSpace TheoremFMinusSpace
@@ -112,7 +113,9 @@ abbrev TheoremFClassificationHypothesis :=
 /--
 The generic two-witness consequence specialized to Theorem F's deficiency
 spaces.  The classification equivalence remains an explicit argument, and
-the `Nontrivial` instance remains an explicit conditional requirement.
+the `Nontrivial` instance remains an explicit argument of this generic
+consequence.  Both are discharged for `H_X1_min` in
+`ExoticCCR.TheoremFVonNeumannClassification`.
 -/
 theorem theoremF_exists_two_distinct_extensions_of_classification
     (hClass : TheoremFClassificationHypothesis)

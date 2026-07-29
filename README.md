@@ -9,6 +9,8 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 **License:** Apache-2.0  
 **Theorem E freeze:** commit `a6bb091c05943cfcf35c405659e57df93ab8bb3d` (untagged, unreleased, and without an assigned release version)
 
+**Proposed Theorem F classification freeze:** Lean source commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34` (untagged, unreleased, and without an assigned release version)
+
 ## What is proved
 
 | ID | Statement | Module |
@@ -35,6 +37,8 @@ This repository formalizes finite exact algebraic identities used as the frozen 
 | T0.F-branch-density-data | The Fréchet derivative of real `evalMap F` is the evaluated polynomial Jacobian with determinant `-2`; on the open branch domain its chain derivative equals the target-map derivative. The reciprocal factor is `1/2`. The positive parameter domain is open, the standard-coordinate branch derivative is bijective with Jacobian `|τ|`, and consequently the branch image is open (and measurable). Mathlib's Jacobian change-of-variables formula is applied to the squared norm of `uMinus` on the image. For continuous compactly supported `χ`, the Gaussian candidate density and its `|τ|`-weighted square are integrable on the relevant parameter domains; a compactly supported cutoff can be chosen so that the measurable zero extension `uMinus` determines a nonzero vector of ambient `L²(ℝ³)`. Locally, `d(branchMap)/dτ=(-2τ)X1`, and reparameterization by the target coordinate `s=β-τ²` gives the pointwise characteristic identity `d uMinus/ds=uMinus`. A separate theorem records the exact unresolved finite-boundary condition: continuity of the zero extension at an artificial branch boundary would force the parameter density to tend to zero there | `ExoticCCR.TheoremFJacobianFDeriv`, `ExoticCCR.TheoremFBranchDensity` |
 | T0.F-saturation-infrastructure | Every `ForwardBranchOpen` records the positive half-ball present in its construction. Shrinking it gives a nonempty open transverse set with full vertical segments and fixed-parameter wall escape. Square-root reparameterization by the anchor `s` coordinate produces an inhabited `ForwardSaturatedSheet` directly from this branch collar, with smoothness and injectivity inherited from `branchMap`. Its lower face is the regular cross-section and is explicitly retained as a finite limit, not mislabeled as escape. Picard--Lindelöf agrees with the canonical selected maximal curves on a common local collar through every ambient initial point; the total maximal-flow domain is open, and the selected flow is jointly continuous at every point of that domain (hence on every compact `K × Icc a b` lying fiberwise in it). The separate maximal-curve development still proves `tMax(qSigma x)=ε₀` and finite endpoint escape | `ExoticCCR.TheoremFSaturatedSheet`, `ExoticCCR.TheoremFMaximalCoordinate` |
 | T0.F-forward-IBP | On finite maximal-sheet intervals, FTC/IBP retains both endpoint traces. Pointwise maximal extension leaves only `-∞` or finite escape at the lower end. Fiber exhaustion proves improper IBP without a globally selected lower endpoint; full-domain indicator Fubini then proves the parameter-space cancellation. The standard-coordinate sheet has constant absolute Jacobian `1/2`, and Bochner change of variables transfers both exact weak pairings to ambient space. For a suitable compactly supported cutoff, the measurable nonzero `L²` zero extension satisfies the representative weak `-i` identity | `ExoticCCR.TheoremEForwardIBP`, `ExoticCCR.TheoremFMaximalSheet`, `ExoticCCR.TheoremFMaximalSheetDensity` |
+| T0.F-Hilbert-index | For the specific canonical minimal operator `H_X1_min`, the chosen Hilbert-basis deficiency indices at `+i` and `-i` both equal `Cardinal.aleph0`. This is an exact Hilbert-space dimension statement; the algebraic `Module.rank` results remain lower bounds, not an exact Hamel-rank computation | `ExoticCCR.TheoremFHilbertIndex` |
+| T0.F-von-Neumann | For the specific canonical minimal operator `H_X1_min`, all `SelfAdjointExtension H_X1_min` witnesses are classified bijectively by complex-linear isometric equivalences from the `+i` to the `-i` adjoint eigenspace, and at least two distinct extension witnesses exist | `ExoticCCR.TheoremFVonNeumannClassification` |
 | T0.Collision | Three-point collision packaging + gate0 algebra bundle | `ExoticCCR.Collision` |
 | T0.B5.2 | A real polynomial with nowhere-zero derivative is strictly monotone in one orientation, injective, surjective, and bijective | `ExoticCCR.PolyDiffeo1D` |
 | T0.B5.3 | The coordinatewise product map is bijective; its diagonal polynomial Jacobian has determinant `p'(x) * q'(y)`, nonzero under the derivative hypotheses | `ExoticCCR.PolyDiffeo1D` |
@@ -63,11 +67,11 @@ See [INTEGRITY.md](INTEGRITY.md). In short:
 - These are bounded algebraic, real-analytic, and canonical transport-operator certificates.
 - This repo does **not** claim full status of the Jacobian conjecture literature beyond the identities proved here.
 - This repo does **not** claim physical, channel, gate, computational-advantage, or broader operator-algebraic results beyond the canonical `X1` conclusion stated above.
-- The canonical Poisson brackets of the transformed polynomial generators are proved. Exponentiated Weyl relations, deficiency-index values, full Theorem F, and CP maps are **not proved in Lean**. Deficiency-index values and full Theorem F remain historical paper-only results. T0.C.4 is only an abstract polynomial-algebra endomorphism.
+- The canonical Poisson brackets of the transformed polynomial generators are proved. Exponentiated Weyl relations, the full historical Theorem F package, and CP maps are **not proved in Lean**. For `H_X1_min`, the chosen Hilbert-basis deficiency indices at `±i` are exactly `Cardinal.aleph0`; the separate algebraic `Module.rank` statements are only lower bounds and do not compute an exact Hamel rank. T0.C.4 is only an abstract polynomial-algebra endomorphism.
 - The transport layer constructs the canonical minimal core, proves its test-function domain dense, and proves the generic deficiency-to-not-essentially-self-adjoint bridge.
 - `X1ForwardWeakDeficiencyStatement` remains the proposition packaged by the now-proved theorem `X1_forwardWeakDeficiency`; the legacy `TransportNecessityStatement` remains only a definition used by a separate conditional route.
 - `ForwardSaturatedSheet` is inhabited from every `ForwardBranchOpen` by the explicit map `branchMap (x, sqrt (β x - s))` on `β x - ε₀ < s < β x`. Its upper face escapes and its lower face converges to `qSigma x`. Finite-interval IBP is proved with both traces retained, including directly on the maximal extension. A separate maximal extension agrees at `qSigma` and has only `-∞`/escape lower ends. Its translated total domain is open, and the translated map is jointly continuous, injective, and an exact right inverse of `F` in `(a,s,c)` coordinates. Its standard-coordinate Jacobian is `1/2`, its image is open and measurable, and change of variables is proved. For cutoffs compactly supported inside the transverse open set, the maximal zero extension is measurable and in `L²`; one such cutoff gives a nonzero `L²` class.
-- At commit `a6bb091`, `ExoticCCR.theoremE` proves that the canonical minimal `X1` transport core is not essentially self-adjoint, via the explicit maximal-sheet weak `-i` witness. This does **not** prove deficiency-index values such as `(∞,∞)`, full Theorem F, extension counts, or a result for arbitrary transport realizations.
+- At Lean source commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34`, the specific canonical minimal operator `H_X1_min` has a proved bijective von Neumann classification of `SelfAdjointExtension H_X1_min` witnesses by complex-linear isometric equivalences between its `+i` and `-i` adjoint eigenspaces, and at least two distinct witnesses are proved to exist. This does **not** select a preferred extension, compute the exact cardinality or inequivalence classes of extensions, or prove a corresponding theorem for arbitrary operators or transport realizations.
 
 ## Build
 
@@ -95,19 +99,23 @@ Those works are **not** Quantyra products. This repository is a clean Quantyra a
 - Science scaffold (not merged here): [Quantyra-Jacobian-Weyl-QC](https://github.com/Quantyra) local path / planning lane
 - Planning: Quantyra-Planning2 story S013 / epic E005
 
-## Theorem E freeze status
+## Lean freeze status
 
 The untagged theorem freeze records the exact Lean declaration
 `ExoticCCR.theoremE` at commit `a6bb091`: the canonical minimal `X1` transport
 core is not essentially self-adjoint. This is a bounded canonical-core result.
-The historical paper-only deficiency-index value `(infinity,infinity)` and full
-Theorem F remain outside Lean coverage and are not asserted by this repository.
 No release version, release tag, version DOI, or Zenodo DOI exists for this new
 theorem freeze.
 
+The proposed untagged Theorem F classification freeze is Lean source commit
+`ff50f4a2a312591c2e5b26e71eb390ade9164b34`.  It adds the bounded canonical
+`H_X1_min` classification and at-least-two result stated above.  It does not
+freeze the full historical Theorem F package, an exact Hamel rank, an exact
+extension cardinality, or any physical or operator-algebraic consequence.
+
 ## Citation
 
-See [CITATION.cff](CITATION.cff). The theorem freeze at commit `a6bb091` has no release tag, version DOI, or Zenodo DOI (see [docs/zenodo-status.md](docs/zenodo-status.md)).
+See [CITATION.cff](CITATION.cff). The proposed classification freeze at Lean source commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34` has no release tag, version DOI, or Zenodo DOI (see [docs/zenodo-status.md](docs/zenodo-status.md)).
 
 ## License
 

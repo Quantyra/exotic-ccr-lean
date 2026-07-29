@@ -4,11 +4,15 @@ This repository contains bounded algebraic certificates for Project EXOTIC-CCR. 
 the Gate 0 anchor, it contains a one-dimensional real-polynomial and elementary-shear slice of
 the historical B5 algebraic core.
 
-At commit `a6bb091c05943cfcf35c405659e57df93ab8bb3d`, the named theorem
+At proposed Lean source commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34`, the named theorem
 `ExoticCCR.theoremE` proves that the canonical minimal `X1` transport core is not essentially
-self-adjoint. Deficiency-index values and full Theorem F remain historical paper-only results and
-are not Lean-covered. No release version, release tag, version DOI, or Zenodo DOI exists for this
-new theorem freeze.
+self-adjoint. For the specific canonical minimal operator `H_X1_min`, the chosen Hilbert-basis
+deficiency indices at `+i` and `-i` equal `Cardinal.aleph0`, and all
+`SelfAdjointExtension H_X1_min` witnesses are classified bijectively by complex-linear isometric
+equivalences from the `+i` to the `-i` adjoint eigenspace; at least two distinct witnesses exist.
+The algebraic `Module.rank` statements remain lower bounds, not an exact Hamel-rank computation.
+No release version, release tag, version DOI, or Zenodo DOI exists for this proposed theorem
+freeze.
 
 ## What this artifact asserts
 
@@ -113,6 +117,14 @@ new theorem freeze.
     change of variables with absolute Jacobian `1/2` transfers the test and transport pairings to
     ambient space. A constructed nonzero `L²` zero extension is a weak `-i` eigenvector, so the
     canonical minimal transport core for `X1` is not essentially self-adjoint.
+19. **T0.F Hilbert indices and canonical von Neumann classification (bounded claim).** For the
+    specific canonical minimal operator `H_X1_min`, the chosen Hilbert-basis deficiency indices
+    at `+i` and `-i` both equal `Cardinal.aleph0`. This exact Hilbert-space dimension statement is
+    distinct from the algebraic `Module.rank` results, which prove lower bounds and do not compute
+    an exact Hamel rank. Lean proves a bijection between all `SelfAdjointExtension H_X1_min`
+    witnesses (self-adjoint `LinearPMap`s extending `H_X1_min`) and complex-linear isometric
+    equivalences from the `+i` to the `-i` adjoint eigenspace. It also proves that at least two
+    distinct such extension witnesses exist.
 
 These are machine-checked polynomial identities, elementary field arithmetic, the stated
 real-analysis consequences, and the bounded canonical transport-operator conclusion above.
@@ -128,11 +140,13 @@ They do not constitute all of Program B.
 - Strong CCR/Weyl relations, C*-extension, complete positivity, or dilations.
 - Any implication from incompleteness alone to failure of essential self-adjointness; the proved
   operator conclusion instead uses the explicit maximal-sheet weak-deficiency construction.
-- A result for arbitrary transport realizations, a preferred self-adjoint extension, or an
-  extension count.
+- A von Neumann classification for arbitrary operators or transport realizations, a preferred
+  self-adjoint extension, or an exact extension cardinality or inequivalence classification. The
+  proved result is for `H_X1_min` and establishes only that at least two distinct extension
+  witnesses exist.
 - Full Theorem F, including a global A001 Theorem F sheet or unrestricted measure-`1/2`
-  conclusion, and all deficiency-index values. These remain historical paper-only results and
-  are not Lean-covered. In particular, no `(∞,∞)` deficiency-index result is claimed.
+  conclusion. The exact chosen Hilbert-basis indices for `H_X1_min` are Lean-covered as stated
+  above, but no exact algebraic/Hamel-rank value is claimed.
 - A weak-deficiency conclusion for every arbitrary cutoff. The proved witness uses the constructed
   cutoff with compact support inside the transverse open set. No boundary residual is dropped.
 - Full B001, B6/B7 analytic classification, von Neumann algebra (`vNa`) conclusions, or any
@@ -153,5 +167,6 @@ Per the EXOTIC-CCR Research Charter v1.0:
 - Version tags must list proved theorems and restated non-claims.
 - Do not upgrade language from “algebraic certificate” to “physical result” without a new gate and evidence package.
 - Zenodo metadata must carry the same non-claims language.
-- Commit `a6bb091c05943cfcf35c405659e57df93ab8bb3d` is an untagged, unreleased
-  theorem freeze; it has no assigned release version, version DOI, or Zenodo DOI.
+- Lean source commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34` is the proposed
+  untagged, unreleased theorem freeze; it has no assigned release version,
+  version DOI, or Zenodo DOI.
