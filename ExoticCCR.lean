@@ -39,3 +39,4 @@ import ExoticCCR.TheoremFSigmaSymmetry
 import ExoticCCR.TheoremFPlusITransport
 import ExoticCCR.TheoremFHilbertIndex
 import ExoticCCR.TheoremFConditionalClassification
+import ExoticCCR.TheoremFSymmetricCore
