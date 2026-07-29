@@ -1,5 +1,14 @@
 # Formalization Backlog
 
+> **Historical snapshot — superseded 2026-07-29.** The inventory below
+> predates the current theorem freeze and must not be used as current Lean
+> coverage. Since this snapshot, the repository has formalized the full
+> polynomial Theorem B Poisson relations, Theorem C algebraic commutation and
+> Weyl endomorphism, Theorem D incompleteness, the `j = 1` compact-core formal
+> symmetry in `ExoticCCR.TheoremFSymmetricCore`, and the bounded canonical
+> Theorems E--F surfaces described in `README.md` and `INTEGRITY.md`. An
+> all-`j` analytic minimal-operator package remains outside the current freeze.
+
 This matrix records Lean coverage only. A historical paper result is not Lean-covered merely
 because a related algebraic lemma appears in this repository.
 

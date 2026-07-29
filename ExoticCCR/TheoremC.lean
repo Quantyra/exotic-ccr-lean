@@ -12,7 +12,10 @@ The rows of the polynomial dual matrix define directional polynomial
 derivations.  This file proves their action on the anchor coordinates, the
 Piola row-divergence identity, and full commutation on all multivariate
 polynomials.  The associated abstract polynomial Weyl-algebra endomorphism is
-constructed in `ExoticCCR.TheoremCWeyl`; analytic operators remain open.
+constructed in `ExoticCCR.TheoremCWeyl`.  An all-`j` analytic minimal-operator
+package is not formalized in this module or the current freeze.  For `j = 1`,
+the compact-core formal symmetry used by Theorems E--F is formalized separately
+in `ExoticCCR.TheoremFSymmetricCore`.
 -/
 
 noncomputable section
