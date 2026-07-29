@@ -269,6 +269,24 @@ theorem weakAdjointEigenspace_posI_not_finiteDimensional :
   weakAdjointEigenspace_not_finiteDimensional_of_finite_families
     H_X1_min Complex.I exists_finite_weakAdjointEigenvector_posI_family
 
+/-- The sign-transport construction gives a countable lower bound for the
+standard `+i` deficiency index. -/
+theorem aleph0_le_standardDeficiencyIndex_posI :
+    ℵ₀ ≤ standardDeficiencyIndex H_X1_min Complex.I :=
+  aleph0_le_standardDeficiencyIndex_of_not_finiteDimensional
+    (by
+      rw [← weakAdjointEigenspace_eq_adjointEigenspace H_X1_min
+        (minimalTransportCore_dense_domain X1 contDiff_X1.continuous) Complex.I]
+      exact weakAdjointEigenspace_posI_not_finiteDimensional)
+
+/-- Both cardinal-valued standard deficiency indices have the lower bound
+supported by the current finite-family constructions. -/
+theorem aleph0_le_standardDeficiencyIndex_X1 :
+    ℵ₀ ≤ standardDeficiencyIndex H_X1_min Complex.I ∧
+      ℵ₀ ≤ standardDeficiencyIndex H_X1_min (-Complex.I) :=
+  ⟨aleph0_le_standardDeficiencyIndex_posI,
+    aleph0_le_standardDeficiencyIndex_negI⟩
+
 /-- **A001 Theorem F, bounded Lean form.**  Both eigenspaces of mathlib's
 `LinearPMap.adjoint` at `+i` and `-i` for the canonical minimal transport
 core of `X1` are infinite dimensional.  These are the deficiency subspaces
