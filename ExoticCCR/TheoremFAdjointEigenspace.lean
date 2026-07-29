@@ -57,23 +57,23 @@ theorem mem_adjointEigenspace_iff {H : L2R3 →ₗ.[ℂ] L2R3} {z : ℂ} {u : L2
     u ∈ adjointEigenspace H z ↔
       ∃ hu : u ∈ (H†).domain, H† ⟨u, hu⟩ = z • u := Iff.rfl
 
-/-! ### Cardinal-valued standard deficiency indices -/
+/-! ### Cardinal-valued algebraic deficiency ranks -/
 
-/-- The standard cardinal-valued deficiency index at `z`, defined as the
-dimension of the standard adjoint eigenspace.  The usual deficiency indices
-are obtained by evaluating this at `+i` and `-i` for a densely defined
-symmetric operator. -/
-def standardDeficiencyIndex (H : L2R3 →ₗ.[ℂ] L2R3) (z : ℂ) : Cardinal :=
+/-- The cardinal-valued algebraic (Hamel) rank of the adjoint eigenspace at
+`z`.  This is `Module.rank`; it is not the usual Hilbert-space deficiency
+index.  The latter is defined separately using a Hilbert-basis cardinal in
+`TheoremFHilbertIndex`. -/
+def hamelDeficiencyRank (H : L2R3 →ₗ.[ℂ] L2R3) (z : ℂ) : Cardinal :=
   Module.rank ℂ (adjointEigenspace H z)
 
 /-- A non-finite-dimensional standard eigenspace has at least countable
-cardinal dimension.  This records the consequence supported by the
-finite-family arguments without asserting exact equality with `ℵ₀`. -/
-theorem aleph0_le_standardDeficiencyIndex_of_not_finiteDimensional
+algebraic rank.  This records the consequence supported by the finite-family
+arguments without asserting an exact Hamel-rank value. -/
+theorem aleph0_le_hamelDeficiencyRank_of_not_finiteDimensional
     {H : L2R3 →ₗ.[ℂ] L2R3} {z : ℂ}
     (h : ¬ FiniteDimensional ℂ (adjointEigenspace H z)) :
-    Cardinal.aleph0 ≤ standardDeficiencyIndex H z := by
-  rw [standardDeficiencyIndex, ← not_lt]
+    Cardinal.aleph0 ≤ hamelDeficiencyRank H z := by
+  rw [hamelDeficiencyRank, ← not_lt]
   exact fun hrank => h (Module.rank_lt_aleph0_iff.mp (by simpa only using hrank))
 
 /-- On a densely defined operator the weak adjoint eigenspace is exactly the
@@ -101,10 +101,10 @@ theorem adjointEigenspace_negI_not_finiteDimensional :
   exact weakAdjointEigenspace_negI_not_finiteDimensional
 
 /-- The forward branch therefore gives a countable lower bound for the
-standard `-i` deficiency index. -/
-theorem aleph0_le_standardDeficiencyIndex_negI :
-    Cardinal.aleph0 ≤ standardDeficiencyIndex H_X1_min (-Complex.I) :=
-  aleph0_le_standardDeficiencyIndex_of_not_finiteDimensional
+algebraic (Hamel) rank of the standard `-i` deficiency subspace. -/
+theorem aleph0_le_hamelDeficiencyRank_negI :
+    Cardinal.aleph0 ≤ hamelDeficiencyRank H_X1_min (-Complex.I) :=
+  aleph0_le_hamelDeficiencyRank_of_not_finiteDimensional
     adjointEigenspace_negI_not_finiteDimensional
 
 /-- The remaining obligation for the `+i` side of Theorem F: arbitrarily large

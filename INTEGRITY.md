@@ -14,8 +14,13 @@ deficiency indices at `+i` and `-i` equal `Cardinal.aleph0`, and all
 equivalences from the `+i` to the `-i` adjoint eigenspace; at least two distinct witnesses exist.
 The sign involution gives an explicit isometric equivalence between those eigenspaces, and
 unitary complex phases inject into distinct self-adjoint extension witnesses.
-The algebraic `Module.rank` statements remain lower bounds, not an exact Hamel-rank computation.
-No release version, release tag, version DOI, or Zenodo DOI exists for this proposed theorem
+Lean proves this injection; describing the parameter family as continuum-sized additionally
+uses the external classical fact that the complex unit circle has continuum cardinality.
+The algebraic `hamelDeficiencyRank` (`Module.rank`) statements remain lower bounds, not an
+exact Hamel-rank computation.
+The historical Theorem E tag `v0.1.8-theorem-e` targets `be4f330980f15a503aa582cbadc09c36ecf2ea10`,
+whose reviewed theorem source anchor is `a6bb091c05943cfcf35c405659e57df93ab8bb3d`.
+No release version, release tag, version DOI, or Zenodo DOI exists for the proposed Theorem F
 freeze.
 
 ## What this artifact asserts
@@ -59,8 +64,9 @@ freeze.
     `X1ForwardWeakDeficiencyStatement`, `theoremE_of_forwardWeakDeficiency` packages the supplied
     weak eigenvector into adjoint deficiency and concludes that the canonical `X1` core is not
     essentially self-adjoint. The maximal-sheet construction now proves
-    `X1_forwardWeakDeficiency` and, at commit `a6bb091`, the unconditional named theorem
-    `ExoticCCR.theoremE` for this canonical core.
+    `X1_forwardWeakDeficiency` and, at source anchor `a6bb091`, the unconditional named theorem
+    `ExoticCCR.theoremE` for this canonical core. Historical release tag `v0.1.8-theorem-e`
+    targets the later metadata commit `be4f330`.
     The legacy route through `TransportNecessityStatement` remains conditional.
 14. **T0.F bounded local branch.** The forward-wall divided difference has a polynomial smooth
     extension. The local smooth wall germ `β(a,c)` composes with a second implicit-function
@@ -124,13 +130,15 @@ freeze.
 19. **T0.F Hilbert indices and canonical von Neumann classification (bounded claim).** For the
     specific canonical minimal operator `H_X1_min`, the chosen Hilbert-basis deficiency indices
     at `+i` and `-i` both equal `Cardinal.aleph0`. This exact Hilbert-space dimension statement is
-    distinct from the algebraic `Module.rank` results, which prove lower bounds and do not compute
-    an exact Hamel rank. Lean proves a bijection between all `SelfAdjointExtension H_X1_min`
+    distinct from the algebraic `hamelDeficiencyRank` (`Module.rank`) results, which prove lower
+    bounds and do not compute an exact Hamel rank. Lean proves a bijection between all
+    `SelfAdjointExtension H_X1_min`
     witnesses (self-adjoint `LinearPMap`s extending `H_X1_min`) and complex-linear isometric
     equivalences from the `+i` to the `-i` adjoint eigenspace. The explicit sign involution gives
     one such equivalence. Multiplication by unitary complex phases gives an injective
     phase-parameterized family of distinct extension witnesses; in particular, at least two
-    distinct witnesses exist.
+    distinct witnesses exist. Lean proves the injection, while the continuum cardinality
+    description of its parameter type is an external classical corollary not formalized here.
 
 These are machine-checked polynomial identities, elementary field arithmetic, the stated
 real-analysis consequences, and the bounded canonical transport-operator conclusion above.

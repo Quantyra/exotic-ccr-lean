@@ -19,9 +19,9 @@ Applied to the forward maximal-sheet `-i` families this discharges the named
 `+i` obligation `X1BackwardWeakFamiliesStatement` and yields the bounded
 Theorem F export `theoremF`: both adjoint eigenspaces `ker(H† ∓ i)` of the
 canonical minimal transport core — the deficiency subspaces in the standard
-reading for a densely defined symmetric operator; symmetry of the core on
-`C_c^∞` is classical from `div X1 = 0` and is not separately formalized
-here — are infinite dimensional.  No deficiency-index arithmetic, von
+reading for a densely defined symmetric operator — are infinite dimensional.
+The current artifact separately formalizes symmetry of the core on `C_c^∞`
+in `TheoremFSymmetricCore`.  No deficiency-index arithmetic, von
 Neumann extension classification, or claim beyond the two displayed
 non-finite-dimensionality statements is asserted.
 -/
@@ -270,29 +270,30 @@ theorem weakAdjointEigenspace_posI_not_finiteDimensional :
     H_X1_min Complex.I exists_finite_weakAdjointEigenvector_posI_family
 
 /-- The sign-transport construction gives a countable lower bound for the
-standard `+i` deficiency index. -/
-theorem aleph0_le_standardDeficiencyIndex_posI :
-    Cardinal.aleph0 ≤ standardDeficiencyIndex H_X1_min Complex.I :=
-  aleph0_le_standardDeficiencyIndex_of_not_finiteDimensional
+algebraic (Hamel) rank of the standard `+i` deficiency subspace. -/
+theorem aleph0_le_hamelDeficiencyRank_posI :
+    Cardinal.aleph0 ≤ hamelDeficiencyRank H_X1_min Complex.I :=
+  aleph0_le_hamelDeficiencyRank_of_not_finiteDimensional
     (by
       rw [← weakAdjointEigenspace_eq_adjointEigenspace H_X1_min
         (minimalTransportCore_dense_domain X1 contDiff_X1.continuous) Complex.I]
       exact weakAdjointEigenspace_posI_not_finiteDimensional)
 
-/-- Both cardinal-valued standard deficiency indices have the lower bound
+/-- Both cardinal-valued algebraic deficiency ranks have the lower bound
 supported by the current finite-family constructions. -/
-theorem aleph0_le_standardDeficiencyIndex_X1 :
-    Cardinal.aleph0 ≤ standardDeficiencyIndex H_X1_min Complex.I ∧
-      Cardinal.aleph0 ≤ standardDeficiencyIndex H_X1_min (-Complex.I) :=
-  ⟨aleph0_le_standardDeficiencyIndex_posI,
-    aleph0_le_standardDeficiencyIndex_negI⟩
+theorem aleph0_le_hamelDeficiencyRank_X1 :
+    Cardinal.aleph0 ≤ hamelDeficiencyRank H_X1_min Complex.I ∧
+      Cardinal.aleph0 ≤ hamelDeficiencyRank H_X1_min (-Complex.I) :=
+  ⟨aleph0_le_hamelDeficiencyRank_posI,
+    aleph0_le_hamelDeficiencyRank_negI⟩
 
 /-- **A001 Theorem F, bounded Lean form.**  Both eigenspaces of mathlib's
 `LinearPMap.adjoint` at `+i` and `-i` for the canonical minimal transport
 core of `X1` are infinite dimensional.  These are the deficiency subspaces
-in the standard reading for a densely defined symmetric operator; symmetry
-of the core on `C_c^∞` is classical from `div X1 = 0` and is not
-separately formalized here.  In the classical notation this is
+in the standard reading for a densely defined symmetric operator.  Formal
+symmetry of the core on `C_c^∞` is proved separately in the current artifact
+by `H_X1_min_isFormalAdjoint_H_X1_min` in `TheoremFSymmetricCore`.  In the
+classical notation this is
 `(n₊, n₋) = (∞, ∞)` read as non-finite-dimensionality of `ker(H† - i)`
 and `ker(H† + i)`; no further deficiency-index arithmetic or extension
 classification is asserted. -/

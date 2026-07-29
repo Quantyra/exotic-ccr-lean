@@ -13,13 +13,19 @@ not essentially self-adjoint. For the specific canonical minimal operator
 `SelfAdjointExtension H_X1_min` witnesses by complex-linear isometric
 equivalences from the `+i` to the `-i` adjoint eigenspace. Lean also proves
 that at least two distinct such witnesses exist, and unitary complex phases
-inject into distinct extension witnesses. The algebraic `Module.rank`
-results remain lower bounds, not an exact Hamel-rank computation. No
+inject into distinct extension witnesses. Lean proves this injection; the
+continuum-sized-family description additionally uses the external classical
+cardinality of the complex unit circle and is not formalized here. The
+algebraic `hamelDeficiencyRank` (`Module.rank`) results remain lower bounds,
+not an exact Hamel-rank computation. No
 arbitrary-operator theorem, preferred extension, exact cardinality of the full extension type
 or inequivalence result, or full historical Theorem F package is claimed. No
 release version, release tag, version DOI, or Zenodo DOI exists for this
 proposed theorem freeze. Do not create a release or DOI from this metadata
-until all review roles pass and Dan approves the packet.
+until all review roles pass and Dan approves the packet. Historical Theorem E
+tag `v0.1.8-theorem-e` targets `be4f330980f15a503aa582cbadc09c36ecf2ea10`;
+its reviewed theorem source anchor is
+`a6bb091c05943cfcf35c405659e57df93ab8bb3d`.
 
 | Field | Value |
 |-------|-------|

@@ -33,12 +33,18 @@ abstract: >-
   all SelfAdjointExtension witnesses are classified bijectively by
   complex-linear isometric equivalences between those eigenspaces; at least
   two distinct witnesses exist, and unitary complex phases inject into
-  distinct extension witnesses. The algebraic Module.rank statements remain
-  lower bounds, not an exact Hamel-rank result. No arbitrary-operator theorem,
+  distinct extension witnesses. The further continuum-sized-family corollary
+  uses the external classical cardinality of the complex unit circle and is
+  not itself formalized in this Lean artifact. The algebraic
+  hamelDeficiencyRank statements remain lower bounds, not an exact Hamel-rank
+  result. No arbitrary-operator theorem,
   preferred extension, exact cardinality of the full extension type or
   inequivalence result,
   full historical Theorem F package, strong CCR/Weyl, C-star, CP, channels,
-  gates, physical significance, or computational advantage is claimed. No
-  release version, release tag, version DOI, or Zenodo DOI exists for this
-  proposed theorem freeze. The lakefile version 0.1.8-dev is development
+  gates, physical significance, or computational advantage is claimed. The
+  historical Theorem E tag v0.1.8-theorem-e targets
+  be4f330980f15a503aa582cbadc09c36ecf2ea10, whose reviewed theorem source
+  anchor is a6bb091c05943cfcf35c405659e57df93ab8bb3d.
+  No release version, release tag, version DOI, or Zenodo DOI exists for the
+  proposed Theorem F freeze. The lakefile version 0.1.8-dev is development
   metadata only, not a release or Zenodo version.
