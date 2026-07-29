@@ -272,7 +272,7 @@ theorem weakAdjointEigenspace_posI_not_finiteDimensional :
 /-- The sign-transport construction gives a countable lower bound for the
 standard `+i` deficiency index. -/
 theorem aleph0_le_standardDeficiencyIndex_posI :
-    ℵ₀ ≤ standardDeficiencyIndex H_X1_min Complex.I :=
+    Cardinal.aleph0 ≤ standardDeficiencyIndex H_X1_min Complex.I :=
   aleph0_le_standardDeficiencyIndex_of_not_finiteDimensional
     (by
       rw [← weakAdjointEigenspace_eq_adjointEigenspace H_X1_min
@@ -282,8 +282,8 @@ theorem aleph0_le_standardDeficiencyIndex_posI :
 /-- Both cardinal-valued standard deficiency indices have the lower bound
 supported by the current finite-family constructions. -/
 theorem aleph0_le_standardDeficiencyIndex_X1 :
-    ℵ₀ ≤ standardDeficiencyIndex H_X1_min Complex.I ∧
-      ℵ₀ ≤ standardDeficiencyIndex H_X1_min (-Complex.I) :=
+    Cardinal.aleph0 ≤ standardDeficiencyIndex H_X1_min Complex.I ∧
+      Cardinal.aleph0 ≤ standardDeficiencyIndex H_X1_min (-Complex.I) :=
   ⟨aleph0_le_standardDeficiencyIndex_posI,
     aleph0_le_standardDeficiencyIndex_negI⟩
 
