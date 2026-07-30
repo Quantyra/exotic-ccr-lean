@@ -15,8 +15,10 @@ infer trust from a source-text search.
 
 #print axioms ExoticCCR.theoremE
 #print axioms ExoticCCR.theoremF
+#print axioms ExoticCCR.aleph0_le_hamelDeficiencyRank_X1
 #print axioms ExoticCCR.hilbertDeficiencyIndex_X1_eq_aleph0
 #print axioms ExoticCCR.theoremFVonNeumannClassification
 #print axioms ExoticCCR.theoremFDeficiencySigmaEquiv
 #print axioms ExoticCCR.theoremF_exists_two_distinct_selfAdjointExtensions
+#print axioms ExoticCCR.theoremFUnitPhaseExtension
 #print axioms ExoticCCR.theoremFUnitPhaseExtension_injective

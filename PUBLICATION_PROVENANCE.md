@@ -43,8 +43,14 @@ Observed results:
 
 CI is configured to run strict cache retrieval, the full build, Lean axiom
 audit, and profile checker, and to upload the cache, build, and axiom logs as
-an artifact named with the exact GitHub commit SHA. This local revision is not
-pushed, so no exact-commit CI run URL exists yet.
+an artifact named with the exact GitHub commit SHA. The synchronized
+predecessor freeze `b51b67d03515d44e1cb1309cf8721a7ecf7803b2` is pushed to
+the canonical `origin/main`, and its exact-commit CI run completed
+successfully:
+<https://github.com/Quantyra/exotic-ccr-lean/actions/runs/30503174239>.
+The verified successor audit-coverage revision containing this wording is
+intentionally maintained as a local commit pending a later publication
+decision; it remains untagged and unreleased.
 
 ## Publication axiom profiles
 
@@ -58,10 +64,12 @@ Audited declarations:
 
 - `ExoticCCR.theoremE`
 - `ExoticCCR.theoremF`
+- `ExoticCCR.aleph0_le_hamelDeficiencyRank_X1`
 - `ExoticCCR.hilbertDeficiencyIndex_X1_eq_aleph0`
 - `ExoticCCR.theoremFVonNeumannClassification`
 - `ExoticCCR.theoremFDeficiencySigmaEquiv`
 - `ExoticCCR.theoremF_exists_two_distinct_selfAdjointExtensions`
+- `ExoticCCR.theoremFUnitPhaseExtension`
 - `ExoticCCR.theoremFUnitPhaseExtension_injective`
 
 ## Bounded multiplicity and cutoff coverage

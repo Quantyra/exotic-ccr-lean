@@ -9,10 +9,12 @@ import sys
 EXPECTED = (
     "ExoticCCR.theoremE",
     "ExoticCCR.theoremF",
+    "ExoticCCR.aleph0_le_hamelDeficiencyRank_X1",
     "ExoticCCR.hilbertDeficiencyIndex_X1_eq_aleph0",
     "ExoticCCR.theoremFVonNeumannClassification",
     "ExoticCCR.theoremFDeficiencySigmaEquiv",
     "ExoticCCR.theoremF_exists_two_distinct_selfAdjointExtensions",
+    "ExoticCCR.theoremFUnitPhaseExtension",
     "ExoticCCR.theoremFUnitPhaseExtension_injective",
 )
 APPROVED = {"propext", "Classical.choice", "Quot.sound"}
