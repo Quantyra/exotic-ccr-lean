@@ -1,7 +1,7 @@
 # Theorem F synchronized artifact provenance
 
 This record belongs to the untagged, unreleased synchronized artifact
-candidate in the commit that contains this file. Commit
+candidate. Commit
 `ff50f4a2a312591c2e5b26e71eb390ade9164b34` is the earlier theorem-source
 root, not the final documentation/build freeze.
 
@@ -21,8 +21,9 @@ root, not the final documentation/build freeze.
 
 ## Reproducibility checks
 
-The following commands completed successfully against the source tree
-represented by the commit containing this file:
+The following commands completed successfully against the source and build
+configuration at commit
+`fbcdd0345d2f2540cd537204be2178ae07e18a5e`:
 
 ```text
 lake build ExoticCCR.TheoremFPlusITransport
@@ -43,14 +44,18 @@ Observed results:
 
 CI is configured to run strict cache retrieval, the full build, Lean axiom
 audit, and profile checker, and to upload the cache, build, and axiom logs as
-an artifact named with the exact GitHub commit SHA. The synchronized
-predecessor freeze `b51b67d03515d44e1cb1309cf8721a7ecf7803b2` is pushed to
-the canonical `origin/main`, and its exact-commit CI run completed
-successfully:
-<https://github.com/Quantyra/exotic-ccr-lean/actions/runs/30503174239>.
-The verified successor audit-coverage revision containing this wording is
-intentionally maintained as a local commit pending a later publication
-decision; it remains untagged and unreleased.
+an artifact named with the exact GitHub commit SHA. Commit
+`fbcdd0345d2f2540cd537204be2178ae07e18a5e` was pushed to canonical
+`origin/main`, and its exact-commit CI run completed successfully:
+<https://github.com/Quantyra/exotic-ccr-lean/actions/runs/30514432433>.
+That run uploaded artifact ID `8748395923`, named
+`lean-publication-provenance-fbcdd0345d2f2540cd537204be2178ae07e18a5e`.
+
+The push and CI status of the commit containing this prose is intentionally
+not asserted inside its own tree. Determine that status from Git remote
+topology and the repository's GitHub Actions history. The synchronized
+artifact candidate remains untagged and unreleased; no release version or DOI
+is assigned here.
 
 ## Publication axiom profiles
 
