@@ -19,3 +19,6 @@ Thumbs.db
 .idea/
 __pycache__/
 publication-axioms*.log
+*.log
+Audit*.lean
+.opencode/
