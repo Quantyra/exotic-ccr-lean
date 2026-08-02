@@ -1,5 +1,10 @@
 # Human derivation sketch — seed map \(F\) (compact)
 
+> ## HISTORICAL — seed sketch only (closed)
+>
+> Compact human sketch supporting the closed D0-seed dossier. Family work was
+> handled under S015 (pilot closed; full ∀d parked). No open task remains.
+
 ## Setup
 Let \(u=1+xy\). Define
 \[
@@ -29,4 +34,4 @@ F(-1,3/2,13/2)&=(-1/4,0,0).
 The three inputs are pairwise distinct over \(\mathbb{Q}\), so \(F\) is not injective and admits no polynomial inverse.
 
 ## Remark
-A determinant-one normalization \(G\) exists in the Lean package (`ExoticCCR.AnchorG`); D0-seed freezes the announced \(\det=-2\) form as the primary anchor. Family constructions of higher generic degree are **not** covered here (S015).
+A determinant-one normalization \(G\) exists in the Lean package (`ExoticCCR.AnchorG`); D0-seed freezes the announced \(\det=-2\) form as the primary anchor. Family constructions of higher generic degree are **not** covered here (S015 later closed as pilot only; full ∀d parked).

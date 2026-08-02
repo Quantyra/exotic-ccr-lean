@@ -24,15 +24,17 @@ abstract: >-
   canonical Poisson generator brackets, real-vector-field incompleteness,
   canonical minimal transport core, and a deficiency-to-not-ESS operator
   bridge. Commit ff50f4a2a312591c2e5b26e71eb390ade9164b34 first introduced
-  the complete bounded theorem source. The current synchronized artifact
-  candidate containing this metadata includes those sources, executable axiom
-  auditing, and build provenance. The named theorem
-  ExoticCCR.theoremE proves that the canonical minimal X1 transport core is
-  not essentially self-adjoint. For that specific canonical minimal operator,
-  the chosen Hilbert-basis deficiency indices at +i and -i equal aleph0, and
-  all SelfAdjointExtension witnesses are classified bijectively by
-  complex-linear isometric equivalences between those eigenspaces; at least
-  two distinct witnesses exist, and unitary complex phases inject into
+  the complete bounded theorem source. The audited publication freeze is
+  2e40c4cab86a1ef97cb3334497d10081dfe33867, with theorem/audit source
+  fbcdd0345d2f2540cd537204be2178ae07e18a5e; that freeze includes those
+  sources, executable axiom auditing, and build provenance. Current main is
+  a docs-only successor of that freeze and is not the claims pin. The named
+  theorem ExoticCCR.theoremE proves that the canonical minimal X1 transport
+  core is not essentially self-adjoint. For that specific canonical minimal
+  operator, the chosen Hilbert-basis deficiency indices at +i and -i equal
+  aleph0, and all SelfAdjointExtension witnesses are classified bijectively
+  by complex-linear isometric equivalences between those eigenspaces; at
+  least two distinct witnesses exist, and unitary complex phases inject into
   distinct extension witnesses. The further continuum-sized-family corollary
   uses the external classical cardinality of the complex unit circle and is
   not itself formalized in this Lean artifact. The algebraic
@@ -45,6 +47,10 @@ abstract: >-
   historical Theorem E tag v0.1.8-theorem-e targets
   be4f330980f15a503aa582cbadc09c36ecf2ea10, whose reviewed theorem source
   anchor is a6bb091c05943cfcf35c405659e57df93ab8bb3d.
-  No release version, release tag, version DOI, or Zenodo DOI exists for the
-  proposed Theorem F freeze. The lakefile version 0.1.8-dev is development
-  metadata only, not a release or Zenodo version.
+  The separate science package is published as v0.3.9-referee-revision at
+  SHA 0010354 with Zenodo DOI 10.5281/zenodo.21715479. The Lean freeze remains
+  intentionally untagged and without a Lean Zenodo DOI by package boundary;
+  that is not a review block and is not required for A001 closeout. There is
+  no active A001 theorem-development backlog; B/C residuals are parked. The
+  lakefile version 0.1.8-dev is development metadata only, not a release or
+  Zenodo version.

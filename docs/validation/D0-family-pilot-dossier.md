@@ -1,6 +1,14 @@
 # D0-family pilot — Cor 5.3 d=4 (S015)
 
-**Status:** CLOSED as **constructive pilot certification** (not full ∀d re-proof)  
+> ## CLOSED / PARKED — no active backlog
+>
+> **S015 constructive pilot is closed.** Seed + d=4 pilot certification stands.
+> Full-family ∀d work (independent of the preprint) may remain mathematically
+> open but is **parked / non-backlog** and does **not** authorize further
+> theorem or validation development. A001 is closed. Body below is the
+> 2026-07-21 historical closeout record.
+
+**Status:** CLOSED as **constructive pilot certification** (not full ∀d re-proof; full-family parked)  
 **Date:** 2026-07-21  
 **Depends on:** G0-seed D0 (closed)
 
@@ -35,8 +43,8 @@ python scripts/cas/verify_family_d4_purepython.py
 |------|--------|
 | G0-seed | closed |
 | G0-family pilot (d=4 constructive) | closed |
-| G0-family full (∀d independent of preprint) | **open** — optional deeper story; schema accepted for atlas start |
-| Full G0 (program) | **seed + pilot enough to open G1 atlas with care**; label atlas entries preprint-derived until Lean |
+| G0-family full (∀d independent of preprint) | **parked / non-backlog** — may remain mathematically open; not an authorized task |
+| Full G0 (program) | **seed + pilot closed for program purposes**; historical atlas-start note only (preprint-derived labels until Lean); no active follow-on from this dossier |
 
 ## Non-claims
 No “factory false”; no Poisson/Weyl/physical language; Zenodo DOI not required for this close.

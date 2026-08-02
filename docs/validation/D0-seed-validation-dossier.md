@@ -1,10 +1,19 @@
 # D0-seed — EXOTIC-CCR Gate 0 seed validation dossier
 
-**Status:** CLOSED (seed half only)  
+> ## HISTORICAL / CLOSED — no open S015 task
+>
+> **This dossier is closed.** The seed half was certified here (S011). Family
+> pilot certification later completed under **S015** (see
+> `D0-family-pilot-dossier.md`). Full-family ∀d re-proof remains mathematically
+> open relative to the preprint but is **parked / non-backlog** and does **not**
+> authorize further work. A001 is closed; there is no active validation task
+> remaining from this file. Body below is the 2026-07-21 historical record.
+
+**Status:** CLOSED (seed half only; S015 family pilot later closed separately)  
 **Date:** 2026-07-21  
 **Program:** EXOTIC-CCR  
 **Planning story:** `Quantyra-Planning2/stories/S011-g0-anchor-validation-dossier.md`  
-**Full G0:** still requires family certification (**S015**)
+**Full G0 (historical note):** family pilot certification was the S015 follow-on (now closed as constructive pilot; full ∀d parked)
 
 ## 1. Scope
 Independent exact validation and freeze of the **announced seed map** \(F\) with \(\det DF = -2\) and the three-point collision (charter App. A / Lean `ExoticCCR.F`).
@@ -61,7 +70,7 @@ Lean is Quantyra’s independent reimplementation (see Lean `PROVENANCE.md`); du
 |----|-----------|--------|----------|
 | T0.1 | \(\det DF = -2\) (constant) | **certified (seed)** | dual CAS + Lean `jacobianDet_F` |
 | T0.2 | three collision identities | **certified (seed)** | dual CAS + Lean `evalMap_F_p*` |
-| Family 5.2/5.3 | every \(d\ge 3\) … | **open (S015)** | not claimed here |
+| Family 5.2/5.3 | every \(d\ge 3\) … | **parked / non-backlog** (S015 pilot later closed; full ∀d not claimed here) | not claimed here |
 | Physical / CP / gate | — | **not authorized** | INTEGRITY / charter §6.3 |
 
 ## 7. Provenance
