@@ -1,7 +1,14 @@
 # Theorem F synchronized artifact provenance
 
-This record belongs to the untagged, unreleased synchronized artifact
-candidate. Commit
+> **A001 CLOSED.** This provenance record pins the audited Lean freeze.
+> Science is published (`v0.3.9-referee-revision` / `0010354`; Zenodo
+> `10.5281/zenodo.21715479`; no arXiv id — VIPN6B only). Lean freeze itself
+> remains untagged/unreleased by package boundary; that is not a review block
+> and no Lean release is required for A001 closeout. Cite freeze `2e40c4c` /
+> theorem-audit `fbcdd034`, not later `main` hygiene tips.
+
+This record belongs to the audited Lean publication freeze at `2e40c4c`
+(theorem/audit source `fbcdd034`). Commit
 `ff50f4a2a312591c2e5b26e71eb390ade9164b34` is the earlier theorem-source
 root, not the final documentation/build freeze.
 
@@ -17,7 +24,9 @@ root, not the final documentation/build freeze.
 - Historical Theorem E release: tag `v0.1.8-theorem-e` targets
   `be4f330980f15a503aa582cbadc09c36ecf2ea10`; reviewed theorem source anchor
   `a6bb091c05943cfcf35c405659e57df93ab8bb3d`
-- Proposed Theorem F release/tag/DOI status: none assigned or created
+- Theorem F Lean release/tag/DOI status: none assigned (package boundary; A001 science DOI is separate — `10.5281/zenodo.21715479`)
+- Audited Lean publication freeze: `2e40c4c`
+- Theorem/audit source: `fbcdd034`
 
 ## Reproducibility checks
 
@@ -51,11 +60,11 @@ an artifact named with the exact GitHub commit SHA. Commit
 That run uploaded artifact ID `8748395923`, named
 `lean-publication-provenance-fbcdd0345d2f2540cd537204be2178ae07e18a5e`.
 
-The push and CI status of the commit containing this prose is intentionally
-not asserted inside its own tree. Determine that status from Git remote
-topology and the repository's GitHub Actions history. The synchronized
-artifact candidate remains untagged and unreleased; no release version or DOI
-is assigned here.
+The push and CI status of later docs-only `main` tips is intentionally not
+asserted inside their own trees. Determine that status from Git remote
+topology and the repository's GitHub Actions history. The Lean freeze remains
+untagged and without a Lean Zenodo DOI by package boundary; A001 science is
+already published under DOI `10.5281/zenodo.21715479`.
 
 ## Publication axiom profiles
 

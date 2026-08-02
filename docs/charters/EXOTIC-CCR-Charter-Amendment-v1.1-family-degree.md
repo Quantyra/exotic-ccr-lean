@@ -1,8 +1,18 @@
 # EXOTIC-CCR Charter Amendment v1.1 — Degree-indexed family framing
 
-**Status:** Draft amendment (Chief Scientist direction, 2026-07-20)  
+> ## HISTORICAL / CLOSED — not an active work order
+>
+> **A001 is CLOSED** (science final/published at `v0.3.9-referee-revision` /
+> SHA `0010354`; Zenodo `10.5281/zenodo.21715479`; Lean freeze pin `2e40c4c` /
+> theorem-audit `fbcdd034`). There is **no active A001 theorem-development
+> backlog**. Program residuals **B/C are parked**. Forward gates, new
+> workstream directives, and “extend Lean / open stories” language in the body
+> below are **not active** and do **not** authorize new theorem work. Body
+> preserved as historical charter text only.
+
+**Status:** HISTORICAL / CLOSED archive (originally: Draft amendment, Chief Scientist direction, 2026-07-20)  
 **Amends:** `Project_EXOTIC_CCR_Research_Charter.docx` v1.0  
-**Authority:** Does not replace v1.0 integrity/claim-control; strengthens scientific scope and gates.
+**Authority:** Does not replace v1.0 integrity/claim-control; strengthens scientific scope and gates. **Not an active execution charter.**
 
 ## 1. Trigger
 Public technical strengthening of the counterexample landscape beyond a single specimen:

@@ -2,10 +2,27 @@
 
 Lean 4 algebraic certificates for the **EXOTIC-CCR** program (Quantyra).
 
+> ## A001 CLOSED — final / published (science)
+>
+> **A001 is closed.** There is **no active A001 theorem-development backlog**.
+> Residual B/C program language does **not** authorize further theorem work.
+>
+> | Surface | Status |
+> |---------|--------|
+> | **Science package** | **Final / published** at release `v0.3.9-referee-revision` / SHA `0010354` |
+> | **Science Zenodo DOI** | **Published:** [10.5281/zenodo.21715479](https://doi.org/10.5281/zenodo.21715479) |
+> | **arXiv** | **No arXiv id.** Human endorsement only (VIPN6B). |
+> | **Audited Lean publication freeze** | Immutable SHA **`2e40c4c`** (docs/provenance self-reference safe on top of theorem/audit source) |
+> | **Theorem / audit source anchor** | **`fbcdd034`** (must be cited for theorem and audit provenance) |
+> | **Current `main` HEAD** | May contain **later docs / `.gitignore` hygiene only** after the freeze. It is **not** a new theorem freeze and must **not** be cited as the claims/provenance pin. |
+>
+> **Claims and provenance cite `2e40c4c` / `fbcdd034`, not whatever happens to be tip of `main`.**
+> Current `main` is a post-freeze hygiene successor only when it differs from those pins.
+
 This repository formalizes finite exact algebraic identities used as the frozen anchor object for Project EXOTIC-CCR (Exotic Endomorphisms of the Canonical Commutation Relations): Jacobian determinant certificates and three-point collision witnesses for an explicit polynomial map \(F\colon K^3\to K^3\), plus standard non-injectivity packaging.
 
 **Organization:** Quantyra Inc.  
-**Program:** EXOTIC-CCR research charter (Gate G0 / WP0)  
+**Program:** EXOTIC-CCR research charter (Gate G0 / WP0) — A001 closed as above  
 **License:** Apache-2.0  
 **Historical Theorem E release:** tag `v0.1.8-theorem-e` targets
 `be4f330980f15a503aa582cbadc09c36ecf2ea10`; its reviewed theorem source
@@ -13,12 +30,14 @@ anchor is `a6bb091c05943cfcf35c405659e57df93ab8bb3d`.
 
 **Theorem F source root:** commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34` first introduced the complete bounded classification source.
 
-**Synchronized artifact candidate:** the current commit containing this text includes those theorem sources, synchronized documentation, the unit-phase multiplicity corollary, the executable publication axiom audit, and build provenance. It is untagged, unreleased, and has no assigned release version.
+**Audited Lean freeze (immutable):** `2e40c4c` with theorem/audit source `fbcdd034`. That freeze includes the theorem sources, synchronized documentation, the unit-phase multiplicity corollary, the executable publication axiom audit, and build provenance. The Lean freeze itself remains **untagged / unreleased as a Lean GitHub+Zenodo package** by package-boundary choice; A001 closeout does **not** require a Lean release tag. Science publication is separate (see status table above).
 
 Version streams are intentionally separate: `0.1.8-dev` in `lakefile.toml` is
 only Lean package-development metadata; it is not a GitHub release or Zenodo
-version. The paper package's `v0.3.9-referee-revision` candidate label belongs to the
-separate paper repository. No Theorem F release tag has been assigned.
+version. The paper/science package release `v0.3.9-referee-revision` (SHA
+`0010354`, Zenodo DOI `10.5281/zenodo.21715479`) belongs to the separate
+science repository and is **published**. No Theorem F Lean release tag has been
+assigned; none is required for A001 closeout.
 
 ## What is proved
 
@@ -80,7 +99,7 @@ See [INTEGRITY.md](INTEGRITY.md). In short:
 - The transport layer constructs the canonical minimal core, proves its test-function domain dense, and proves the generic deficiency-to-not-essentially-self-adjoint bridge.
 - `X1ForwardWeakDeficiencyStatement` remains the proposition packaged by the now-proved theorem `X1_forwardWeakDeficiency`; the legacy `TransportNecessityStatement` remains only a definition used by a separate conditional route.
 - `ForwardSaturatedSheet` is inhabited from every `ForwardBranchOpen` by the explicit map `branchMap (x, sqrt (β x - s))` on `β x - ε₀ < s < β x`. Its upper face escapes and its lower face converges to `qSigma x`. Finite-interval IBP is proved with both traces retained, including directly on the maximal extension. A separate maximal extension agrees at `qSigma` and has only `-∞`/escape lower ends. Its translated total domain is open, and the translated map is jointly continuous, injective, and an exact right inverse of `F` in `(a,s,c)` coordinates. Its standard-coordinate Jacobian is `1/2`, its image is open and measurable, and change of variables is proved. For cutoffs compactly supported inside the transverse open set, the maximal zero extension is measurable and in `L²`; one such cutoff gives a nonzero `L²` class.
-- Commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34` introduced the complete bounded classification source. The current synchronized artifact additionally exports `theoremFDeficiencySigmaEquiv`, the explicit sign-involution isometric equivalence between the `+i` and `-i` eigenspaces, and the injective family `theoremFUnitPhaseExtension` parameterized by `unitary ℂ`. Lean proves the injection; the continuum-sized corollary also uses the external classical fact that the complex unit circle has continuum cardinality. This does **not** select a preferred extension, identify the exact cardinality or inequivalence classes of all extensions, or prove a corresponding theorem for arbitrary operators or transport realizations.
+- Commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34` introduced the complete bounded classification source. The audited freeze (`2e40c4c` / theorem-audit `fbcdd034`) additionally exports `theoremFDeficiencySigmaEquiv`, the explicit sign-involution isometric equivalence between the `+i` and `-i` eigenspaces, and the injective family `theoremFUnitPhaseExtension` parameterized by `unitary ℂ`. Lean proves the injection; the continuum-sized corollary also uses the external classical fact that the complex unit circle has continuum cardinality. This does **not** select a preferred extension, identify the exact cardinality or inequivalence classes of all extensions, or prove a corresponding theorem for arbitrary operators or transport realizations.
 
 ## Build
 
@@ -105,10 +124,22 @@ Those works are **not** Quantyra products. This repository is a clean Quantyra a
 
 ## Related Quantyra surfaces
 
-- Science scaffold (not merged here): [Quantyra-Jacobian-Weyl-QC](https://github.com/Quantyra) local path / planning lane
-- Planning: Quantyra-Planning2 story S013 / epic E005
+- Science package (published A001): release `v0.3.9-referee-revision` / SHA `0010354`; Zenodo DOI [10.5281/zenodo.21715479](https://doi.org/10.5281/zenodo.21715479); no arXiv id (human endorsement VIPN6B only)
+- Planning: Quantyra-Planning2 story S013 / epic E005 — A001 closed; B/C parked
 
 ## Lean freeze status
+
+**A001 CLOSED.** Science is final/published; Lean claims/provenance pin the immutable audited freeze.
+
+| Pin | SHA / id | Role |
+|-----|----------|------|
+| Audited Lean publication freeze | `2e40c4c` | Cite for freeze/docs/CI provenance boundary |
+| Theorem / audit source | `fbcdd034` | Cite for theorem source and publication axiom audit |
+| Theorem-source root (historical) | `ff50f4a2a312591c2e5b26e71eb390ade9164b34` | First complete bounded classification source |
+| Current `main` | tip may advance | Post-freeze **docs / `.gitignore` hygiene only**; not a new theorem freeze |
+| Science release | `v0.3.9-referee-revision` @ `0010354` | Published paper/science package |
+| Science Zenodo | `10.5281/zenodo.21715479` | Published |
+| arXiv | none | Human endorsement VIPN6B only |
 
 The historical Theorem E release tag `v0.1.8-theorem-e` targets
 `be4f330980f15a503aa582cbadc09c36ecf2ea10`; its reviewed theorem source
@@ -116,21 +147,24 @@ anchor is `a6bb091c05943cfcf35c405659e57df93ab8bb3d`, where
 `ExoticCCR.theoremE` proves that the canonical minimal `X1` transport core is
 not essentially self-adjoint. This is a bounded canonical-core result.
 
-Commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34` is the theorem-source root,
-not the final documentation freeze. The current commit containing this text
-is the self-contained synchronized artifact candidate: it includes the same
-bounded canonical `H_X1_min` classification, the sign-involution equivalence,
-the injective unit-phase extension family, the audit source, and build
-provenance. It does not freeze the full historical Theorem F package, an exact
-Hamel rank, an exact cardinality of the full extension type, or any physical
-or operator-algebraic consequence.
+The audited freeze at `2e40c4c` / `fbcdd034` is the self-contained synchronized
+Lean artifact for A001: bounded canonical `H_X1_min` classification, the
+sign-involution equivalence, the injective unit-phase extension family, the
+audit source, and build provenance. It does not freeze the full historical
+Theorem F package, an exact Hamel rank, an exact cardinality of the full
+extension type, or any physical or operator-algebraic consequence.
+
+**No active theorem-development backlog.** Parked B/C residuals and historical
+charter forward-gates do not authorize new A001 theorem work.
 
 ## Citation
 
-See [CITATION.cff](CITATION.cff). The source root
-`ff50f4a2a312591c2e5b26e71eb390ade9164b34` and the current synchronized
-artifact candidate have no release tag, version DOI, or Zenodo DOI (see
-[docs/zenodo-status.md](docs/zenodo-status.md)).
+See [CITATION.cff](CITATION.cff). For Lean theorem/audit provenance cite
+`2e40c4c` / `fbcdd034` (see [PUBLICATION_PROVENANCE.md](PUBLICATION_PROVENANCE.md)
+and [docs/zenodo-status.md](docs/zenodo-status.md)). The Lean freeze itself has
+no Lean release tag or Lean Zenodo DOI by package-boundary choice; the
+**published** science package is `v0.3.9-referee-revision` / Zenodo
+`10.5281/zenodo.21715479`. No arXiv id (endorsement VIPN6B only).
 
 ## License
 

@@ -1,5 +1,14 @@
 # Zenodo release path (exotic-ccr-lean)
 
+> ## HISTORICAL / optional path — not required for A001
+>
+> **A001 is CLOSED.** Science is published at Zenodo
+> `10.5281/zenodo.21715479` (`v0.3.9-referee-revision` / `0010354`). The Lean
+> freeze (`2e40c4c` / `fbcdd034`) remains untagged/unreleased by package
+> boundary; **no Lean Zenodo deposit is required for A001 closeout.** Steps
+> below are retained only if a future optional Lean-only release is explicitly
+> authorized.
+
 ## Goal
 
 Mint a concept DOI and version DOI for `Quantyra/exotic-ccr-lean` via Zenodo’s GitHub integration, using `.zenodo.json` metadata and GitHub Releases.

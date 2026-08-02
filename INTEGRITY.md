@@ -4,9 +4,15 @@ This repository contains bounded algebraic certificates for Project EXOTIC-CCR. 
 the Gate 0 anchor, it contains a one-dimensional real-polynomial and elementary-shear slice of
 the historical B5 algebraic core.
 
+**A001 CLOSED.** Claims/provenance cite the audited Lean freeze `2e40c4c` and
+theorem/audit source `fbcdd034` (not tip-of-`main` hygiene commits). Science is
+published at `v0.3.9-referee-revision` / SHA `0010354`, Zenodo DOI
+`10.5281/zenodo.21715479`; no arXiv id (human endorsement VIPN6B only). No
+active A001 theorem-development backlog; B/C parked.
+
 Commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34` first introduced the complete bounded theorem
-source. The current synchronized artifact candidate containing this text includes that source,
-the executable axiom audit, and the following current exports. The named theorem
+source. The audited freeze `2e40c4c` / `fbcdd034` includes that source,
+the executable axiom audit, and the following exports. The named theorem
 `ExoticCCR.theoremE` proves that the canonical minimal `X1` transport core is not essentially
 self-adjoint. For the specific canonical minimal operator `H_X1_min`, the chosen Hilbert-basis
 deficiency indices at `+i` and `-i` equal `Cardinal.aleph0`, and all
@@ -20,8 +26,8 @@ The algebraic `hamelDeficiencyRank` (`Module.rank`) statements remain lower boun
 exact Hamel-rank computation.
 The historical Theorem E tag `v0.1.8-theorem-e` targets `be4f330980f15a503aa582cbadc09c36ecf2ea10`,
 whose reviewed theorem source anchor is `a6bb091c05943cfcf35c405659e57df93ab8bb3d`.
-No release version, release tag, version DOI, or Zenodo DOI exists for the proposed Theorem F
-freeze.
+No Lean release version, Lean release tag, or Lean Zenodo DOI exists for the Theorem F
+freeze (package boundary; not required for A001 closeout).
 
 ## What this artifact asserts
 
@@ -182,7 +188,9 @@ Per the EXOTIC-CCR Research Charter v1.0:
 - Do not upgrade language from “algebraic certificate” to “physical result” without a new gate and evidence package.
 - Zenodo metadata must carry the same non-claims language.
 - Lean source commit `ff50f4a2a312591c2e5b26e71eb390ade9164b34` is the theorem-source
-  root. The current commit containing this text is the synchronized artifact candidate. Neither
-  has an assigned release version, release tag, version DOI, or Zenodo DOI.
-- `0.1.8-dev` is Lean package-development metadata only. It is not a release version; the paper
-  package's `v0.3.9-referee-revision` candidate label is maintained in the separate paper repository.
+  root. Audited Lean publication freeze is `2e40c4c` with theorem/audit source `fbcdd034`.
+  Neither Lean pin has a Lean release tag or Lean Zenodo DOI (package boundary). Cite those
+  SHAs for Lean claims/provenance; tip-of-`main` may only add docs/`.gitignore` hygiene.
+- `0.1.8-dev` is Lean package-development metadata only. It is not a release version. The
+  science package release `v0.3.9-referee-revision` (SHA `0010354`) is **published** with
+  Zenodo DOI `10.5281/zenodo.21715479`; no arXiv id (VIPN6B endorsement only).
