@@ -71,6 +71,26 @@ def root_free_threshold_fixture(current):
             'invalid-lowered-and-below-threshold-values-rejected']
 
 
+def compiler_host_pool_fixture(current):
+    for host in ('cpu-03', 'cpu-04', 'cpu-05'):
+        config = {'host': host}
+        assert runner.admission_host(config) == host
+        sample = copy.deepcopy(current); sample['host'] = host
+        sample['root_available_bytes'] = runner.MIN_FREE
+        assert runner.validate_preflight(config, sample) == runner.MIN_FREE
+        sample['host'] = 'cpu-05' if host != 'cpu-05' else 'cpu-04'
+        try: runner.validate_preflight(config, sample)
+        except RuntimeError: pass
+        else: raise AssertionError('Host admission accepted a mismatched hostname')
+    for bad in ('cpu-01', 'cpu-02', 'cpu-06', None, True):
+        try: runner.admission_host({'host': bad})
+        except RuntimeError: pass
+        else: raise AssertionError('Host outside the authorized CPU-03/04/05 pool accepted')
+    return ['hash-bound-cpu03-cpu04-cpu05-host-allowlist',
+            'observed-host-must-match-admission',
+            'cpu01-cpu02-and-unknown-hosts-rejected-by-this-runner']
+
+
 def wider_profile_config(config):
     return dict(config, reclaim_profile=runner.WIDER_REFILL_PROFILE,
         flow_control=True, flow_policy={'trigger_bytes': 4026531840,
@@ -1237,7 +1257,7 @@ def metadata_custody_fixture(workspace):
 def main():
     current = runner.observe()
     runner.validate_observation(current)
-    passed = root_free_threshold_fixture(current)
+    passed = root_free_threshold_fixture(current) + compiler_host_pool_fixture(current)
     for name, mutate in [
         ('wrong-host', lambda v: v.update(host='cpu-02')),
         ('wrong-worker', lambda v: v.update(uid=0)),

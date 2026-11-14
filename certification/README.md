@@ -40,6 +40,8 @@ admission; it defaults to 500 MiB (524,288,000 bytes) for this campaign and may
 be raised, but not lowered. The preflight and continuous resource guard use the
 same value, and a reserve breach stops the owned build cleanly. Inode, memory,
 CPU, swap, task, source, toolchain, lease and provenance checks remain in force.
+The S023 runner accepts only the explicitly pinned `cpu-03`, `cpu-04` or
+`cpu-05` host in admission and checks that value against the observed hostname.
 Windows does not run Lean, Lake or LSP.
 
 Only `propext`, `Classical.choice` and `Quot.sound` are allowed in transitive

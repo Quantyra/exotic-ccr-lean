@@ -33,6 +33,7 @@ import zlib
 ROOT = Path('/srv/kuzuryu-cloud/quantyra')
 CGROUP = Path('/sys/fs/cgroup/user.slice/user-986.slice')
 HOST = 'cpu-05'
+SUPPORTED_HOSTS = frozenset(('cpu-03', 'cpu-04', 'cpu-05'))
 UID = 986
 DEFAULT_ROOT_FREE_THRESHOLD_BYTES = 500 * 2**20
 MIN_FREE = DEFAULT_ROOT_FREE_THRESHOLD_BYTES
@@ -62,6 +63,14 @@ def root_free_threshold(config):
     value = config.get('root_free_threshold_bytes', DEFAULT_ROOT_FREE_THRESHOLD_BYTES)
     require(type(value) is int and value >= DEFAULT_ROOT_FREE_THRESHOLD_BYTES,
             f'Root free-space threshold must be an integer at least {DEFAULT_ROOT_FREE_THRESHOLD_BYTES}')
+    return value
+
+
+def admission_host(config):
+    """Return the exact approved pool host pinned by this admission."""
+    value = config.get('host', HOST)
+    require(type(value) is str and value in SUPPORTED_HOSTS,
+            'Host is not in the approved S023 compiler pool')
     return value
 
 
@@ -119,10 +128,11 @@ def observe():
             'filesystem_error_counters': filesystem_errors}
 
 
-def validate_observation(value, minimum_free=MIN_FREE):
+def validate_observation(value, minimum_free=MIN_FREE, expected_host=HOST):
     require(type(minimum_free) is int and minimum_free >= MIN_FREE,
             f'Root free-space threshold cannot be below {MIN_FREE} bytes')
-    require(value['host'] == HOST, 'Wrong host')
+    require(expected_host in SUPPORTED_HOSTS, 'Host is not in the approved S023 compiler pool')
+    require(value['host'] == expected_host, 'Wrong host')
     require(value['uid'] == UID and value['worker'] == 'quantyra-worker', 'Wrong worker')
     require(value['cgroup'].startswith('0::/user.slice/user-986.slice/'), 'Wrong cgroup')
     require(value['limits'] == LIMITS, 'Host resource limits changed')
@@ -138,7 +148,8 @@ def validate_observation(value, minimum_free=MIN_FREE):
 def validate_preflight(config, value):
     """Apply the hash-bound campaign reserve to the admission preflight."""
     minimum_free = root_free_threshold(config)
-    validate_observation(value, minimum_free)
+    expected_host = admission_host(config)
+    validate_observation(value, minimum_free, expected_host)
     return minimum_free
 
 
@@ -320,7 +331,7 @@ def bounded_decompress(actual, config, arguments, source_stream=sys.stdin, batch
         baseline = reader()
         drain.sweep()
         for offset in range(0, len(records), batch_size):
-            before = reader(); validate_observation(before)
+            before = reader(); validate_observation(before, root_free_threshold(config), admission_host(config))
             require(before['events'] == baseline['events'], 'Memory events changed during decompression')
             require(before['memory_current'] < int(LIMITS['memory.high'])-2**30,
                     'Native decompression batch lacks 1 GiB memory headroom')
@@ -332,7 +343,7 @@ def bounded_decompress(actual, config, arguments, source_stream=sys.stdin, batch
             drain.sweep()
             for path in input_paths[offset:offset+batch_size]:
                 drain.release(path)
-            after = reader(); validate_observation(after)
+            after = reader(); validate_observation(after, root_free_threshold(config), admission_host(config))
             require(after['events'] == baseline['events'], 'Memory events changed during decompression')
             record({'kind': 'batch-completed', 'offset': offset, 'count': len(batch), 'exit_code': 0,
                     'memory_before': before['memory_current'], 'memory_after': after['memory_current'],
@@ -409,12 +420,12 @@ def lease(path):
 
 class Guard:
     def __init__(self, directory, minimum_free=MIN_FREE, timeout=4 * 3600,
-                 reader=observe, clock=time.monotonic):
+                 reader=observe, clock=time.monotonic, expected_host=HOST):
         self.reader, self.clock = reader, clock
-        self.minimum_free, self.timeout = minimum_free, timeout
+        self.minimum_free, self.timeout, self.expected_host = minimum_free, timeout, expected_host
         self.start = clock()
         self.baseline = reader()
-        validate_observation(self.baseline, minimum_free)
+        validate_observation(self.baseline, minimum_free, expected_host)
         self.directory = directory
         self.samples = 0
         self.minimum_available = self.baseline['root_available_bytes']
@@ -430,7 +441,7 @@ class Guard:
         check_started = time.monotonic()
         value = self.reader()
         try:
-            validate_observation(value, self.minimum_free)
+            validate_observation(value, self.minimum_free, self.expected_host)
             require(value['events'] == self.baseline['events'], 'Memory pressure/OOM event or reset')
         except BaseException:
             value['compiler_processes'] = self.last.get('compiler_processes', [])
@@ -464,7 +475,7 @@ class Guard:
         if value['memory_current'] > self.maximum_memory:
             self.maximum_memory = value['memory_current']
             self.peak_memory_sample = value
-        validate_observation(value, self.minimum_free)
+        validate_observation(value, self.minimum_free, self.expected_host)
         require(value['events'] == self.baseline['events'], 'Memory pressure/OOM event or reset')
         lean_count = sum(row['native_lean'] and not row['query_only'] for row in compilers)
         require(not any(row['native_lean'] and row['uid'] != UID for row in compilers),
@@ -480,7 +491,7 @@ class Guard:
             write_json(self.directory/'resource-current.json', self.summary())
 
     def summary(self):
-        return {'baseline': self.baseline, 'last': self.last, 'samples': self.samples,
+        return {'host': self.expected_host, 'baseline': self.baseline, 'last': self.last, 'samples': self.samples,
                 'minimum_available_bytes': self.minimum_available,
                 'maximum_memory_bytes': self.maximum_memory,
                 'peak_memory_sample': self.peak_memory_sample,
@@ -722,6 +733,9 @@ def deficit_reclaim_policy(parent_current, page_size, profile=None):
 
 def deficit_reclaim_payload(request, expected_profile=None, expected_admission_sha256=None):
     profile = None
+    sample = request['parent_sample']
+    expected_host = sample['host']
+    minimum_free = request.get('root_free_threshold_bytes', MIN_FREE)
     if expected_profile is not None:
         require(expected_profile == WIDER_REFILL_PROFILE and
                 request.get('reclaim_profile') == expected_profile and
@@ -740,6 +754,9 @@ def deficit_reclaim_payload(request, expected_profile=None, expected_admission_s
                 'Reclaim admission hash/path changed')
         config = json.loads(data)
         profile = selected_reclaim_profile(config)
+        require(request.get('root_free_threshold_bytes', MIN_FREE) == root_free_threshold(config) and
+                expected_host == admission_host(config),
+                'Reclaim host/root-reserve admission differs from captured configuration')
         require(profile == request['reclaim_profile'] and
                 config['runner_sha256'] == request['runner_sha256'] and
                 config['delegated_reclaim'] == {'unit': request['unit']},
@@ -747,8 +764,7 @@ def deficit_reclaim_payload(request, expected_profile=None, expected_admission_s
     else:
         require(expected_admission_sha256 is None and 'reclaim_profile' not in request and
                 'admission_binding' not in request, 'Unselected reclaim admission/profile binding')
-    sample = request['parent_sample']
-    validate_observation(sample)
+    validate_observation(sample, minimum_free, expected_host)
     require(sample['cgroup'] == Path('/proc/self/cgroup').read_text().strip() and
             sample['events'] == request['parent_events'] and
             sample['filesystem_error_counters'] == request['filesystem_error_counters'],
@@ -771,7 +787,9 @@ def delegated_reclaim_child(path, expected_sha256, expected_profile=None, expect
     own = process_identity(os.getpid())
     require(own['pgrp'] == os.getpid() and own['session'] == os.getpid(), 'Wrong reclaim helper group')
     leaf, interface = reclaim_members(request, os.getpid())
-    raw = observe(); validate_observation(raw)
+    minimum_free = request.get('root_free_threshold_bytes', MIN_FREE)
+    expected_host = request['parent_sample']['host']
+    raw = observe(); validate_observation(raw, minimum_free, expected_host)
     require(raw['events'] == request['parent_events'] and
             raw['filesystem_error_counters'] == request['filesystem_error_counters'],
             'Parent guard changed before reclaim write')
@@ -862,6 +880,7 @@ class DelegatedReclaim:
         request_deadline = min(time.monotonic()+30, deadline-10)
         request = {'unit': self.unit, 'custody': self.custody, 'controller': self.controller,
             'run': str(self.run), 'runner_sha256': self.config['runner_sha256'],
+            'root_free_threshold_bytes': self.guard.minimum_free,
             'stage_identity': process.jw_identity,
             'stage_snapshot': json.loads(json.dumps(snapshot)),
             'parent_events': self.guard.baseline['events'],
@@ -2176,7 +2195,8 @@ def main():
     admission = owned_path(args.admission)
     require(digest(admission) == args.admission_sha256, 'Admission hash mismatch')
     cfg = json.loads(admission.read_text())
-    require(cfg['schema'] == 'jw-admission-v1' and cfg['host'] == HOST, 'Wrong admission schema/host')
+    require(cfg['schema'] == 'jw-admission-v1', 'Wrong admission schema')
+    expected_host = admission_host(cfg)
     require(cfg['compiler_owner'] == 'jacobian-weyl-completion-20261110/compiler-admission', 'Wrong compiler custody')
     require(digest(__file__) == cfg['runner_sha256'], 'Runner hash mismatch')
     workspace, run = owned_path(cfg['workspace']), owned_path(cfg['run'])
@@ -2194,7 +2214,7 @@ def main():
         'candidate_overlay_hashes': cfg.get('candidate_overlay_hashes', {}),
         'build_targets': cfg.get('build_targets', []),
         'diagnostic_scope': cfg.get('diagnostic_scope'),
-        'host': HOST, 'uid': UID, 'pid': os.getpid(), 'source_commit': cfg['source_commit'],
+        'host': expected_host, 'uid': UID, 'pid': os.getpid(), 'source_commit': cfg['source_commit'],
         'root_free_threshold_bytes': minimum_free,
         'source_manifest_sha256': cfg['source_manifest_sha256'],
         'audit_scope_sha256': cfg['audit_scope_sha256'], 'audit_source_sha256': cfg['audit_source_sha256'],
@@ -2212,7 +2232,7 @@ def main():
         guard = None
         replay = None
         try:
-            guard = Guard(run, minimum_free=minimum_free)
+            guard = Guard(run, minimum_free=minimum_free, expected_host=expected_host)
             replay = Replay(cfg, run, guard)
             replay.execute()
             guard.check()
