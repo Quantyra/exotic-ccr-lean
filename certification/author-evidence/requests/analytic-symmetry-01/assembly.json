@@ -1,0 +1,27 @@
+{
+  "source": ".\\ExoticCCR\\TheoremCAnalytic.lean",
+  "sha256": "dc53562cb17e5e945c267657fc5733c42a56e365c0a498c959aa02a1910b762d",
+  "native_job": "{private-author-evidence}\\analytic-symmetry-01",
+  "finish": "stop",
+  "native_steps": {
+    "steps": [
+      "define_eval_row_j",
+      "smooth_pi_eval",
+      "divergence_row_j",
+      "generic_pairing_substitution",
+      "instantiate_all_j"
+    ]
+  },
+  "template_source_sha256": "ab38a04d5222e6a1d1decb4212b4deb4a98354b09febe0aa0e5930a108b1c537",
+  "rendering": "Native selected typed generalization operations. Exact existing divergence/pairing proofs are copied with recorded row/field/binder substitutions; generic existing-lemma applications compose the terminal operator symmetry. All generated source is candidate only.",
+  "source_bytes": 5276,
+  "new_declarations": [
+    "analyticDualField",
+    "contDiff_analyticDualField",
+    "sum_pderiv_dualMatrixF_row",
+    "analyticDivergence_analyticDualField_eq_zero",
+    "transportAction_testFunction_pairing",
+    "H_j_min",
+    "H_j_min_isFormalAdjoint"
+  ]
+}

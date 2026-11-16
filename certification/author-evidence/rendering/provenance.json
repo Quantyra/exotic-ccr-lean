@@ -1,0 +1,16 @@
+{
+  "circle": "Native selected mk_congr_argEquiv, mk_Ioc_pi, trans. The initial exact candidate is circle-stage.lean.txt.",
+  "unitary": "Native selected membership simplification, subtype injection, cardinal antisymmetry, and existing phase injection. First renderer corrupted Unicode; rejected bytes are retained. The exact repaired candidate was reconfirmed with corrected ASCII-context native selection unitary-continuum-02.",
+  "symmetry": "The existing analyticDivergence_X1_eq_zero and transportAction_X1_testFunction_pairing proof templates were copied with row 1 -> j and X1/contDiff_X1/analyticDivergence_X1_eq_zero -> X/hX/hDiv plus explicit binders. Fields and terminal formal-adjoint instantiation use selected existing lemmas. No original theorem was edited.",
+  "core": "Selected typed derivative/evaluation/complex-chain-rule lemma applications and TestFunction constructors are rendered in core-append.lean.txt.",
+  "operators": "Selected linear bundling and actual partial-operator graph/domain/apply templates (from TransportCore.lean), selected Leibniz rewrite sequence, existing embedding correspondence, closure/range witnesses, and exact original-X1 definitional correspondence are rendered in operators-append.lean.txt.",
+  "authorship_boundary": "These are model-selected typed plans and orchestration rendering of explicit primitives/templates, not wholly verbatim model-written proofs. Every candidate remains subject to CPU kernel verification and independent review.",
+  "template_hashes": {
+    "ExoticCCR/TheoremFSymmetricCore.lean": "dccd6ddadacb973a433a0e3cac0a1c3f5014d8f0aa870e17559f321f6375f13e",
+    "ExoticCCR/TransportCore.lean": "ae2ea1a6207e2428063b2b3d606d354e35cdbcbf413d5f074babd28c8a7304b4"
+  },
+  "candidate_hashes": {
+    "ExoticCCR/TheoremFContinuum.lean": "8ccc8ecb456027a5a7e4b016cfd3ae4f46f2d325e017b86ffae3dbf9ea1b619f",
+    "ExoticCCR/TheoremCAnalytic.lean": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+  }
+}

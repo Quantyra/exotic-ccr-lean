@@ -1,0 +1,16 @@
+{
+  "source": ".\\ExoticCCR\\TheoremCAnalytic.lean",
+  "sha256": "22720ccaa4c85e65dfeb4cbaad82544df1ca58da7cb908981f67a27df91a1637",
+  "predecessor_sha256": "dc53562cb17e5e945c267657fc5733c42a56e365c0a498c959aa02a1910b762d",
+  "native_selection": {
+    "steps": [
+      "evaluated_derivative",
+      "complex_chain_rule",
+      "bundle_multiplier",
+      "bundle_transport"
+    ]
+  },
+  "rendering": "Orchestrator rendered selected typed lemma applications and TestFunction constructors; candidate pending kernel check.",
+  "free_bytes_prewrite": 278441984,
+  "source_bytes": 7408
+}

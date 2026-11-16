@@ -1,0 +1,23 @@
+{
+  "source": ".\\ExoticCCR\\TheoremFContinuum.lean",
+  "previous_sha256": "9a4b7193ff791c66b04229282dd7adfe869bf8a3cda2a40e965671f628edb27b",
+  "sha256": "817b6cf0c7caf45534f0a08d2fbd988c13201a186f859f2230462275b77b7c08",
+  "native_job": "{private-author-evidence}\\unitary-continuum-01",
+  "finish": "stop",
+  "native_steps": {
+    "steps": [
+      "unitary_mem_simp",
+      "subtype_value_injection",
+      "phase_cardinal_antisymm",
+      "phase_injection_lower"
+    ]
+  },
+  "rendering": "Quietbox-selected explicit existing-lemma applications, subtype-value injection, cardinal antisymmetry and phase-injection lower-bound template. Renderer is orchestration; not free-form model code. Candidate only, no compiler acceptance.",
+  "declarations": [
+    "mk_circle_eq_continuum",
+    "circleToUnitary",
+    "circleToUnitary_injective",
+    "mk_unitary_complex_eq_continuum",
+    "theoremF_continuum_le_selfAdjointExtensions"
+  ]
+}

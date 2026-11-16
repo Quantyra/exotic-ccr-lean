@@ -1,0 +1,40 @@
+{
+  "status": "ARGUMENT_PREPARED_TRANSLATION_AND_REVIEW_PENDING",
+  "scope": [
+    "R2 continuum lower family",
+    "R3 all-j Theorem C(2) on the canonical smooth compact core"
+  ],
+  "authority": "Dan active goal complete the prioritized recommendations, 2026-11-10 HST",
+  "base_theorem_audit_source": "fbcdd0345d2f2540cd537204be2178ae07e18a5e",
+  "baseline_freeze": "2e40c4cab86a1ef97cb3334497d10081dfe33867",
+  "pinned_mathlib": "79d0395a1825a6264ad5d269e35e60537518955e",
+  "continuum_argument": [
+    "Circle.argEquiv identifies Circle with the real interval (-pi,pi]; pi>0 and Cardinal.mk_Ioc_real give cardinality continuum.",
+    "Send a circle point to the same complex number in unitary C; conjugate-product identities and norm=1 prove membership. Complex-value equality proves injectivity.",
+    "The unitary subtype injects into C, whose cardinality is continuum. Together with the circle injection this identifies the phase type cardinality.",
+    "Compose that cardinality lower bound with the existing unconditional theoremFUnitPhaseExtension_injective into SelfAdjointExtension H_X1_min. Only a lower bound is required."
+  ],
+  "all_j_argument": [
+    "Define X_j(q)_k by evaluation of the polynomial dualMatrixF row j. Polynomial evaluation is smooth. Translate dualFieldDivergence_eq_zero to analyticDivergence X_j = 0 and dualField_F to the actual Frechet derivative identity dF_i(X_j)=delta_ij for every i,j.",
+    "For any smooth real divergence-free vector field X, the existing compact-support integration-by-parts identity gives equality of the two transport pairings. Use the existing testFunctionToL2 and minimalTransportCore embedding to obtain formal symmetry. Instantiate X_j; no new divergence or symmetry hypothesis remains in the all-j theorem.",
+    "Multiplication by the smooth real polynomial F_i preserves smoothness and compact support of each test function. The transport expression -i dphi(X_j) is smooth and has support contained in the original support. Bundle these as actual operators on CcinftyR3 before composing.",
+    "The product rule gives H_j(F_i phi) = -i delta_ij phi + F_i H_j(phi). Rearrangement yields M_Fi(H_j phi)-H_j(M_Fi phi)=i delta_ij phi on the same common core.",
+    "Use the injective testFunctionToL2 map and minimalTransportCore_apply to expose equality of the actual embedded representatives/partial-operator actions. Do not replace this by algebraic Weyl relations or presume a globally bounded multiplication operator on all L2."
+  ],
+  "acceptance": [
+    "Exact frozen-source baseline replay and durable type/transitive-axiom logs",
+    "Every new definition and theorem compiled on an admitted CPU using pinned Lean4.33.0-rc1",
+    "No sorryAx or custom axioms; approved axiom subsets only",
+    "No hidden nonzero/domain/regularity premises beyond the original concrete definitions",
+    "Three separate required review lenses and applicable final provider reviews with no unresolved blocking findings",
+    "Existing original theorem sources/types preserved and precise claim correspondence recorded"
+  ],
+  "out_of_scope": [
+    "Exact cardinality of all extensions",
+    "H0/H2 deficiency indices or essential self-adjointness",
+    "Strong/exponentiated CCR",
+    "Physical preferred extension/channel/advantage",
+    "Optional uniform cutoff bound/global sheet packaging",
+    "Parked Program B/C research"
+  ]
+}

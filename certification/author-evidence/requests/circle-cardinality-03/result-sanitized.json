@@ -1,0 +1,59 @@
+{
+  "terminal_cli_exit_code": 1,
+  "inference_forwarded": true,
+  "decision": "rejected: incomplete JSON whitespace loop; no source edit",
+  "native_finish": [
+    "length"
+  ],
+  "calls": [
+    {
+      "utc": "2026-11-11T02:07:52.063298+00:00",
+      "model": "m-a-p/OProver-32B",
+      "tool_count": 0,
+      "tool_names": [],
+      "tool_choice": "none",
+      "stream": true,
+      "forwarded": true,
+      "packet_transport": {
+        "changed": true,
+        "normalization": "Whole CLI task-string envelope only; decoded text must exactly equal the saved packet",
+        "original_content_sha256": "8a33fbf365254eedc365ceccfdb06efd037b0d5aa25bb385a49e064a72354e27",
+        "native_content_sha256": "c4f5e7cfe184218ed187a46421fecf93254e9f860183ecaf5ad1a5f4f7fdbe43",
+        "intended_content_sha256": "c4f5e7cfe184218ed187a46421fecf93254e9f860183ecaf5ad1a5f4f7fdbe43",
+        "saved_packet_sha256": "c4f5e7cfe184218ed187a46421fecf93254e9f860183ecaf5ad1a5f4f7fdbe43",
+        "source_text_or_instruction_logic_edited": false
+      },
+      "tokenizer": {
+        "count": 211,
+        "max_model_len": 2048,
+        "monitor_sample": 7153,
+        "faults": []
+      },
+      "output_cap": 128,
+      "admission": "FORWARDED_ONCE",
+      "dispatch_started": true,
+      "remote": {
+        "idle_before": {
+          "running": 0.0,
+          "waiting": 0.0
+        },
+        "request_sha256": "7f0e27bfee76a8d26d3031455880f380bddf5d3e18411f1a132311a058248cee",
+        "http_status": 200,
+        "content_type": "text/event-stream; charset=utf-8",
+        "elapsed_seconds": 21.263726234436035,
+        "guard_abort_after": false
+      }
+    },
+    {
+      "utc": "2026-11-11T02:08:17.827512+00:00",
+      "model": "m-a-p/OProver-32B",
+      "tool_count": 0,
+      "tool_names": [],
+      "tool_choice": "none",
+      "stream": true,
+      "forwarded": false,
+      "packet_transport": null,
+      "admission": "REJECTED_AUTOMATIC_CONTINUATION_SINGLE_REQUEST_LIMIT"
+    }
+  ]
+}

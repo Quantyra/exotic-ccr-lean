@@ -1,0 +1,59 @@
+{
+  "terminal_cli_exit_code": 1,
+  "inference_forwarded": true,
+  "decision": "rejected: native length limit repeating Complex.ext_iff; no source edit",
+  "native_finish": [
+    "length"
+  ],
+  "calls": [
+    {
+      "utc": "2026-11-11T02:28:26.037856+00:00",
+      "model": "m-a-p/OProver-32B",
+      "tool_count": 0,
+      "tool_names": [],
+      "tool_choice": "none",
+      "stream": true,
+      "forwarded": true,
+      "packet_transport": {
+        "changed": true,
+        "normalization": "Whole CLI task-string envelope only; decoded text must exactly equal the saved packet",
+        "original_content_sha256": "6179932f1f5c76249b0f8e24e1776673d85a6f71cfc2991bfe8309ac2259273b",
+        "native_content_sha256": "37b8e83f0c3c10125eda29d6da1cb1660034198db88e645578be51e5f82d755a",
+        "intended_content_sha256": "37b8e83f0c3c10125eda29d6da1cb1660034198db88e645578be51e5f82d755a",
+        "saved_packet_sha256": "37b8e83f0c3c10125eda29d6da1cb1660034198db88e645578be51e5f82d755a",
+        "source_text_or_instruction_logic_edited": false
+      },
+      "tokenizer": {
+        "count": 476,
+        "max_model_len": 2048,
+        "monitor_sample": 7381,
+        "faults": []
+      },
+      "output_cap": 512,
+      "admission": "FORWARDED_ONCE",
+      "dispatch_started": true,
+      "remote": {
+        "idle_before": {
+          "running": 0.0,
+          "waiting": 0.0
+        },
+        "request_sha256": "6d27d64886a931baa3197a575c44dc10e01482adaf3079fea6f2e78a623cbc09",
+        "http_status": 200,
+        "content_type": "text/event-stream; charset=utf-8",
+        "elapsed_seconds": 85.41417622566223,
+        "guard_abort_after": false
+      }
+    },
+    {
+      "utc": "2026-11-11T02:29:57.112266+00:00",
+      "model": "m-a-p/OProver-32B",
+      "tool_count": 0,
+      "tool_names": [],
+      "tool_choice": "none",
+      "stream": true,
+      "forwarded": false,
+      "packet_transport": null,
+      "admission": "REJECTED_AUTOMATIC_CONTINUATION_SINGLE_REQUEST_LIMIT"
+    }
+  ]
+}

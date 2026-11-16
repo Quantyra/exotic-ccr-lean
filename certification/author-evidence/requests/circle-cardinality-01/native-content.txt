@@ -1,0 +1,92 @@
+```lean
+import Mathlib.Analysis.Complex.Basic
+import Mathlib.Analysis.SpecialFunctions.Complex.Circle
+import Mathlib.Analysis.Complex.Cardinality
+import Mathlib.Algebra.Star.Unitary
+
+set_option maxHeartbeats 4000000
+open Complex
+
+open scoped BigOperators
+
+open Real
+
+open scoped Topology
+
+open scoped Mathlib
+
+open scoped Mathlib.Analysis.Complex
+
+open scoped Mathlib.Analysis.SpecialFunctions.Complex
+
+open scoped Mathlib.Analysis.Complex.Cardinality
+
+open scoped Mathlib.Algebra.Star.Unitary
+
+theorem circleUnitary_injective : Function.Injective (fun z : Circle => (z : C)) := by
+  intro a b h
+  have h₁ : (a : C) = (b : C) := by simpa using h
+  have h₂ : a = b := by
+    have h₃ : (a : C) = (b : C) := h₁
+    have h₄ : a = b := by
+      apply Circle.coe_injective
+      simpa using h₃
+    exact h₄
+  simpa using h₂
+
+theorem mk_circle_eq_continuum : Cardinal.mk Circle = Cardinal.continuum := by
+  have h : Cardinal.mk Circle = Cardinal.mk (Set.Ioc (-Real.pi) Real.pi) := by
+    have h₁ : Cardinal.mk Circle = Cardinal.mk (Set.Ioc (-Real.pi) Real.pi) := by
+      apply Eq.symm
+      apply Eq.symm
+      rw [Cardinal.mk_congr (by
+        -- Prove that the cardinality of the circle is the same as the cardinality of the interval (-π, π]
+        -- by constructing an explicit bijection (using the argument map)
+        have h₂ : Circle ≃ Set.Ioc (-Real.pi) Real.pi := by
+          -- Define the bijection using the argument map
+          refine' {
+            toFun := fun z : Circle => Circle.argEquiv z
+            invFun := fun x : Set.Ioc (-Real.pi) Real.pi => (Circle.argEquiv.symm x : Circle)
+            left_inv := by
+              intro z
+              simp [Function.comp]
+              <;>
+              (try simp_all [Circle.argEquiv, Function.leftInverse])
+              <;>
+              (try norm_num)
+              <;>
+              (try ring_nf)
+              <;>
+              (try simp_all [Real.pi_pos.le])
+              <;>
+              (try linarith [Real.pi_pos])
+            right_inv := by
+              intro x
+              simp [Function.comp]
+              <;>
+              (try simp_all [Circle.argEquiv, Function.rightInverse])
+              <;>
+              (try norm_num)
+              <;>
+              (try ring_nf)
+              <;>
+              (try simp_all [Real.pi_pos.le])
+              <;>
+              (try linarith [Real.pi_pos])
+          }
+          <;>
+          (try simp_all)
+        -- Use the bijection to show that the cardinalities are equal
+        simp_all [Cardinal.mk_congr]
+        <;>
+        (try simp_all)
+        <;>
+        (try aesop)
+      )]
+      <;>
+      simp_all
+    exact h₁
+  rw [h]
+  have h₂ : Cardinal.mk (Set.Ioc (-Real.pi) Real.pi) = Cardinal.continuum := by
+    have h₃ : Cardinal.mk (Set.Ioc (-Real.pi) Real.pi) = Cardinal.continuum := by
+      -- Prove that the cardinality of (-π, π] is

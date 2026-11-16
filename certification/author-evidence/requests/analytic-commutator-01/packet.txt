@@ -1,0 +1,15 @@
+JW_AUTHOR_PACKET
+Return JSON code containing a complete short Lean proof body beginning by, no prose. Goal is a product-rule commutator on smooth compact test functions. namespace ExoticCCR, open MvPolynomial. Definitions:
+R3 := Fin 3 -> Real; CcinftyR3 := TestFunction on univ with values Complex and smoothness top.
+anchorComplex i q := (eval q (F Real i) : Complex).
+anchorMultiplication i phi : CcinftyR3 has function fun q => anchorComplex i q * phi q.
+dualTransportOnCore j phi : CcinftyR3 has function fun q => -Complex.I * fderiv Real (phi : R3 -> Complex) q (analyticDualField j q).
+Available:
+contDiff_anchorComplex i : ContDiff Real top (anchorComplex i)
+fderiv_anchorComplex_on_dual i j q : fderiv Real (anchorComplex i) q (analyticDualField j q) = if i = j then 1 else 0.
+phi.contDiff : ContDiff Real top (phi : R3 -> Complex).
+fderiv_mul (h1:DifferentiableAt Real f q) (h2:DifferentiableAt Real g q) gives fderiv of product.
+Prove:
+theorem commonCore_commutator (i j : Fin 3) (phi : CcinftyR3) :
+ anchorMultiplication i (dualTransportOnCore j phi) - dualTransportOnCore j (anchorMultiplication i phi) = SMul.smul (if i = j then Complex.I else 0) phi := by
+Use ext q, change to actual function product derivative, fderiv_mul with differentiability from ContDiff.differentiable (by simp), CLM application, the delta identity, split_ifs and ring. In output use actual Unicode smul notation or `SMul.smul` where needed. No invented lemma, sorry or extra assumptions.

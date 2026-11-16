@@ -1,0 +1,59 @@
+{
+  "terminal_cli_exit_code": 1,
+  "inference_forwarded": true,
+  "decision": "rejected: native length limit and invalid Lean; no source edit",
+  "native_finish": [
+    "length"
+  ],
+  "calls": [
+    {
+      "utc": "2026-11-11T02:00:19.037833+00:00",
+      "model": "m-a-p/OProver-32B",
+      "tool_count": 0,
+      "tool_names": [],
+      "tool_choice": "none",
+      "stream": true,
+      "forwarded": true,
+      "packet_transport": {
+        "changed": true,
+        "normalization": "Whole CLI task-string envelope only; decoded text must exactly equal the saved packet",
+        "original_content_sha256": "0caa0873702dbe78cc66f967cb5e10267d95b65c114fcae6a7ecfd7b23e6f5e1",
+        "native_content_sha256": "ec630b4f7269a21c923e9c8df652bda3913cd8e8d9f003f250d148ef31468865",
+        "intended_content_sha256": "ec630b4f7269a21c923e9c8df652bda3913cd8e8d9f003f250d148ef31468865",
+        "saved_packet_sha256": "ec630b4f7269a21c923e9c8df652bda3913cd8e8d9f003f250d148ef31468865",
+        "source_text_or_instruction_logic_edited": false
+      },
+      "tokenizer": {
+        "count": 531,
+        "max_model_len": 2048,
+        "monitor_sample": 7069,
+        "faults": []
+      },
+      "output_cap": 768,
+      "admission": "FORWARDED_ONCE",
+      "dispatch_started": true,
+      "remote": {
+        "idle_before": {
+          "running": 0.0,
+          "waiting": 0.0
+        },
+        "request_sha256": "c6d6e69bf6d65a8fb0f9357a4114e7858ac0da5d6a405eb84c54f6218797aa93",
+        "http_status": 200,
+        "content_type": "text/event-stream; charset=utf-8",
+        "elapsed_seconds": 128.1287603378296,
+        "guard_abort_after": false
+      }
+    },
+    {
+      "utc": "2026-11-11T02:02:32.516671+00:00",
+      "model": "m-a-p/OProver-32B",
+      "tool_count": 0,
+      "tool_names": [],
+      "tool_choice": "none",
+      "stream": true,
+      "forwarded": false,
+      "packet_transport": null,
+      "admission": "REJECTED_AUTOMATIC_CONTINUATION_SINGLE_REQUEST_LIMIT"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+Task: provide a narrowly scoped Lean proof candidate/review, not certification.
+
+Exact missing claim: for all i,j : Fin 3 and q : R3, the Frechet derivative of the actual complexified anchor polynomial F_i along the actual polynomial dual field X_j is 1 when i=j and 0 otherwise. This is the all-index derivative identity required by the R3 common-core commutator. It closes nine coordinate cases through one quantified theorem.
+
+Mechanism: chain rule for Complex.ofRealCLM composed with polynomial evaluation, followed by the already-proved real identity fderiv_anchor_on_dual. The first falsifier is a Lean 4.33.0-rc1/Mathlib API or type mismatch in this exact proof. Decision gate: retain only a minimal source-bound candidate; accept nothing until the exact frozen project builds and the declaration/axiom audit passes on an admitted CPU host.
+
+Pinned environment: Lean 4.33.0-rc1; Mathlib commit 79d0395a1825a6264ad5d269e35e60537518955e.
+Current source: ExoticCCR/TheoremCAnalytic.lean, SHA-256 bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30; base commit 8184e054d39f53a0e9cf897a0a23104b040ffd67. The working copy is an uncommitted candidate overlay.
+
+Relevant exact declarations:
+
+def analyticDualField (j : Fin 3) (q : R3) : R3 :=
+  fun k => MvPolynomial.eval q (dualMatrixF Real j k)
+
+theorem fderiv_anchor_on_dual (i j : Fin 3) (q : R3) :
+    fderiv Real (fun x : R3 => eval x (F Real i)) q (analyticDualField j q) =
+      if i = j then 1 else 0 := by
+  rw [(hasFDerivAt_eval_mvPolynomial (F Real i) q).fderiv]
+  have h := congrArg (eval q) (dualField_F (K := Real) (by norm_num) i j)
+  simpa [evalPDeriv, analyticDualField, dualField, map_sum, map_mul, mul_comm,
+    apply_ite] using h
+
+def anchorComplex (i : Fin 3) (q : R3) : Complex :=
+  (eval q (F Real i) : Complex)
+
+theorem contDiff_anchorComplex (i : Fin 3) :
+    ContDiff Real ⊤ (anchorComplex i) :=
+  Complex.ofRealCLM.contDiff.comp (contDiff_eval_mvPolynomial (F Real i))
+
+theorem fderiv_anchorComplex_on_dual (i j : Fin 3) (q : R3) :
+    fderiv Real (anchorComplex i) q (analyticDualField j q) =
+      if i = j then 1 else 0 := by
+  have hchain : fderiv Real (anchorComplex i) q =
+      Complex.ofRealCLM.comp (evalPDeriv (F Real i) q) :=
+    (Complex.ofRealCLM.hasFDerivAt.comp q
+      (hasFDerivAt_eval_mvPolynomial (F Real i) q)).fderiv
+  rw [hchain]
+  change ((evalPDeriv (F Real i) q (analyticDualField j q) : Real) : Complex) = _
+  have hreal := fderiv_anchor_on_dual i j q
+  rw [(hasFDerivAt_eval_mvPolynomial (F Real i) q).fderiv] at hreal
+  rw [hreal]
+  split_ifs <;> simp
+
+Question: does this exact final proof block typecheck under the pinned environment, based on the provided declarations? If you identify a concrete mismatch, give only the smallest corrected replacement for `fderiv_anchorComplex_on_dual` and explain the mismatch in one sentence. Do not invent missing imports or hypotheses, do not use sorry/admit/custom axioms, and do not claim compilation. If you cannot identify a concrete mismatch, say so and leave the source unchanged.

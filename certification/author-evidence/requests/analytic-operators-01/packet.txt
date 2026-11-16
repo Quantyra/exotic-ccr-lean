@@ -1,0 +1,13 @@
+JW_AUTHOR_PACKET
+Return compact JSON steps array selecting exact typed template operations. All objects are concrete, with no extra hypotheses. No prose.
+Current: analyticDualField j is polynomial evaluated dualVectorField j; H_j_min j is minimalTransportCore of this field; X1 := dualVectorField 1 and H_X1_min := minimalTransportCore X1. anchorMultiplication i phi and dualTransportOnCore j phi are actual CcinftyR3 functions F_i*phi and -I*dphi(X_j). Core delta derivative is proved. testFunctionToL2 is a complex-linear injective embedding. Existing checked TransportCore.lean proves graph functionality, domain and application for a linear core action. Reuse its exact proofs with the action below.
+Operations:
+multiplier_linear: bundle anchorMultiplication i into CcinftyR3 ->linear[Complex] CcinftyR3 by ext q, mul_add and scalar associativity/commutativity.
+multiplier_partial_template: reuse minimalTransportGraphMap/functionality/domain/apply templates, replacing transportAction X hX by testFunctionToL2.comp (anchorMultiplicationMap i). Define M_F_min i on L2 with domain exactly range testFunctionToL2, and prove application equals testFunctionToL2 (anchorMultiplication i phi).
+transport_embedding: testFunctionToL2 (dualTransportOnCore j phi) = transportAction (analyticDualField j) continuous phi by definitional equality/proof irrelevance; then minimalTransportCore_apply gives actual H_j_min action.
+leibniz_commutator: ext q; change bundled commutator to product derivative, rewrite fderiv_mul using smoothness, simplify ContinuousLinearMap.add_apply/smul_apply and smul_eq_mul, replace fderiv_anchorComplex_on_dual, split_ifs and ring.
+common_core_closure: both M_F_min and H_j_min have domain exactly range embedding. After their applications rewrite to embedded bundled functions, domain membership has the actual bundled function as range witness.
+actual_L2_composition: lift bundled commutator by congrArg testFunctionToL2 and its map_sub/map_smul; rewrite both compositions using the actual partial-operator application theorems and closure proofs. Expose M_F_min(H_j_min(embed phi))-H_j_min(M_F_min(embed phi)) = delta*i*embed phi, not only representative equality.
+original_X1_correspondence: prove analyticDualField j = dualVectorField j and H_j_min 1 = H_X1_min by rfl, since continuity proofs are propositionally irrelevant.
+assume_commutator: add target as premise (reject).
+Example: {"steps":["multiplier_linear","multiplier_partial_template","transport_embedding","leibniz_commutator","common_core_closure","actual_L2_composition","original_X1_correspondence"]}

@@ -1,0 +1,33 @@
+{
+  "utc": "2026-11-15T12:08:43.234651+00:00",
+  "status": "RESPONSE_RECEIVED",
+  "model": "m-a-p/OProver-32B",
+  "input_tokens": 447,
+  "context_limit": 2048,
+  "output_cap": 192,
+  "http_status": 200,
+  "finish_reason": "length",
+  "elapsed_seconds": 32.18021869659424,
+  "request_sha256": "d978375a1cc289e91e75639fa5896ff61bf50c5fe629cfe9aac4f3ebd35a672a",
+  "response_sha256": "fd632f5513e6355ad89d49f6722357c47d55d92582202034d9cd7d9d78ea410b",
+  "monitor_before": {
+    "pid": 430407,
+    "sample": 77670,
+    "age_seconds": 36.04959988594055,
+    "faults": []
+  },
+  "monitor_after": {
+    "sample": 77676,
+    "age_seconds": 3.6137149333953857,
+    "faults": [],
+    "abort_exists": false
+  },
+  "idle_before": {
+    "running": 0.0,
+    "waiting": 0.0
+  },
+  "idle_after": {
+    "running": 0.0,
+    "waiting": 0.0
+  }
+}

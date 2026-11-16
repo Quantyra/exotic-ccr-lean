@@ -1,0 +1,1 @@
+{"code":"Cardinal.mk Circle = Cardinal.mk (Set.Ioc (-Real.pi) Real.pi) := by rw [show Circle = Set.Ioc (-Real.pi) Real.pi by rfl] ; Cardinal.mk (Set.Ioc (-Real.pi) Real.pi) = Cardinal.continuum := by rw [Cardinal.mk_Ioc_real (by linarith [Real.pi_pos] : (-Real.pi : ℝ) < Real.pi)]"}

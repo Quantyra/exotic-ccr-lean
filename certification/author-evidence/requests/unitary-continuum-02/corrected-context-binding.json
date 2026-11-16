@@ -1,0 +1,16 @@
+{
+  "corrected_ascii_context": true,
+  "applies_to_source_sha256": "8ccc8ecb456027a5a7e4b016cfd3ae4f46f2d325e017b86ffae3dbf9ea1b619f",
+  "source_edited": false,
+  "native_steps": {
+    "steps": [
+      "unitary_mem_simp",
+      "subtype_value_injection",
+      "phase_cardinal_antisymm",
+      "phase_injection_lower"
+    ]
+  },
+  "finish": [
+    "stop"
+  ]
+}

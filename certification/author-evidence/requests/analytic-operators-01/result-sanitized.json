@@ -1,0 +1,48 @@
+{
+  "terminal_cli_exit_code": 0,
+  "inference_forwarded": true,
+  "decision": "accepted candidate typed template/application plan; not kernel accepted",
+  "native_finish": [
+    "stop"
+  ],
+  "calls": [
+    {
+      "utc": "2026-11-11T02:30:52.044502+00:00",
+      "model": "m-a-p/OProver-32B",
+      "tool_count": 0,
+      "tool_names": [],
+      "tool_choice": "none",
+      "stream": true,
+      "forwarded": true,
+      "packet_transport": {
+        "changed": true,
+        "normalization": "Whole CLI task-string envelope only; decoded text must exactly equal the saved packet",
+        "original_content_sha256": "f1b29b4b23c73b7d2d551d74aaa16bcbd69864f5c501b9f3ff05bed75435289f",
+        "native_content_sha256": "c743458a9872bb64203ec6f2e85c3ef3a3512a692d744e9851df3acec3758daa",
+        "intended_content_sha256": "c743458a9872bb64203ec6f2e85c3ef3a3512a692d744e9851df3acec3758daa",
+        "saved_packet_sha256": "c743458a9872bb64203ec6f2e85c3ef3a3512a692d744e9851df3acec3758daa",
+        "source_text_or_instruction_logic_edited": false
+      },
+      "tokenizer": {
+        "count": 654,
+        "max_model_len": 2048,
+        "monitor_sample": 7408,
+        "faults": []
+      },
+      "output_cap": 192,
+      "admission": "FORWARDED_ONCE",
+      "dispatch_started": true,
+      "remote": {
+        "idle_before": {
+          "running": 0.0,
+          "waiting": 0.0
+        },
+        "request_sha256": "a34910257a559f83960279e547ced732a747ec4680b2a731075be10c64d3e215",
+        "http_status": 200,
+        "content_type": "text/event-stream; charset=utf-8",
+        "elapsed_seconds": 6.909550428390503,
+        "guard_abort_after": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "source": ".\\ExoticCCR\\TheoremFContinuum.lean",
+  "sha256": "9a4b7193ff791c66b04229282dd7adfe869bf8a3cda2a40e965671f628edb27b",
+  "native_job": "{private-author-evidence}\\circle-cardinality-04",
+  "finish": "stop",
+  "native_steps": {
+    "steps": [
+      "mk_congr_argEquiv",
+      "mk_Ioc_pi",
+      "trans"
+    ]
+  },
+  "rendering": "Exact existing-lemma applications selected as typed nodes by Quietbox; orchestration renders the supplied primitive application/transitivity template. Not a free-form model-authored proof. No compilation or acceptance yet.",
+  "source_bytes": 445
+}

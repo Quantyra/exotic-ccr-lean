@@ -1,5 +1,13 @@
 # exotic-ccr-lean
 
+**2026-11-10 certification maintenance — in progress.** Dan selected three
+bounded additions: durable replay/audit evidence, the continuum lower-family
+corollary, and all of the analytic common-core assertion in Theorem C(2).
+See [the maintenance scope](certification/README.md). New candidates are not
+yet certified. The closed/publication status below describes the immutable
+published package; this maintenance does not reopen Program B/C or create a
+new release.
+
 Lean 4 algebraic certificates for the **EXOTIC-CCR** program (Quantyra).
 
 > ## A001 CLOSED — final / published (science)

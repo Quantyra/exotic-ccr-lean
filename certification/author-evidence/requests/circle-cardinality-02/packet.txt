@@ -1,0 +1,10 @@
+JW_AUTHOR_PACKET
+Lean4.33.0-rc1. Supply only a short Lean proof term for the EXACT target below, in JSON field code. No imports, no prose, no theorem declaration. Do not redefine names or change target.
+Available exact declarations:
+Circle.argEquiv : Circle ? Set.Ioc (-Real.pi) Real.pi
+Cardinal.mk_congr (e : ? ? ?) : Cardinal.mk ? = Cardinal.mk ?
+Cardinal.mk_Ioc_real {a b : ?} (h : a < b) : Cardinal.mk (Set.Ioc a b) = Cardinal.continuum
+Real.pi_pos : 0 < Real.pi
+Tactic linarith is available.
+Target: Cardinal.mk Circle = Cardinal.continuum
+Use the existing equivalence directly, then the interval cardinality theorem. Keep the proof under 5 lines. Unicode symbols are Lean source, preserve them.

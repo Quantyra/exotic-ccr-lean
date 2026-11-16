@@ -1,0 +1,10 @@
+JW_AUTHOR_PACKET
+Return compact JSON with field steps, an array of exactly three operation names. No whitespace formatting or explanation.
+Goal: Cardinal.mk Circle = Cardinal.continuum.
+Choose first a known equality, then a second equality, then how to compose them.
+Available operations:
+mk_congr_argEquiv: Cardinal.mk Circle = Cardinal.mk (Set.Ioc (-Real.pi) Real.pi), via Cardinal.mk_congr Circle.argEquiv.
+mk_Ioc_pi: Cardinal.mk (Set.Ioc (-Real.pi) Real.pi) = Cardinal.continuum, via Cardinal.mk_Ioc_real (by linarith [Real.pi_pos]).
+trans: compose matching equalities.
+rfl: reflexive equality only.
+Your operation names are translated mechanically to these exact existing-lemma applications, then checked by Lean. Example format: {"steps":["rfl","rfl","trans"]}. Select operations that prove the goal, not the example's reflexivity steps.

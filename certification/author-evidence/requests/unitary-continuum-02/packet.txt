@@ -1,0 +1,11 @@
+JW_AUTHOR_PACKET
+Return compact JSON steps array choosing the primitive proof operations in order. These select exact applications of existing checked lemmas; the rendered Lean remains unverified until kernel compilation.
+Goal: Cardinal.continuum <= Cardinal.mk (SelfAdjointExtension H_X1_min).
+Existing: mk_circle_eq_continuum, Circle.norm_coe, Circle.coe_injective, Unitary.mem_iff, RCLike.star_def, Complex.conj_mul', Complex.mul_conj', Cardinal.mk_complex, Cardinal.mk_le_of_injective, theoremFUnitPhaseExtension_injective.
+Operations:
+unitary_mem_simp: map Circle to unitary Complex using identical complex value. Prove membership by simp [Unitary.mem_iff, RCLike.star_def, Complex.conj_mul', Complex.mul_conj', Circle.norm_coe].
+subtype_value_injection: equality of mapped unitary values gives complex-value equality, then Circle.coe_injective.
+phase_cardinal_antisymm: unitary Complex injects into Complex for upper bound; Circle injects into unitary Complex for lower bound. Both outer cardinalities are continuum.
+phase_injection_lower: apply mk_le_of_injective to existing phase-extension injection and rewrite phase cardinality.
+all_extensions_exact_cardinal: conclude exact cardinality of all extension witnesses without upper bound (unsupported).
+Select exactly four valid operations. Example shape: {"steps":["unitary_mem_simp","subtype_value_injection","phase_cardinal_antisymm","phase_injection_lower"]}.

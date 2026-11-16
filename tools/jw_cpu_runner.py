@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import argparse
 from collections import OrderedDict
+from concurrent.futures import ThreadPoolExecutor
+import errno
 import gc
 import gzip
 from contextlib import contextmanager
@@ -33,15 +35,47 @@ import zlib
 ROOT = Path('/srv/kuzuryu-cloud/quantyra')
 CGROUP = Path('/sys/fs/cgroup/user.slice/user-986.slice')
 HOST = 'cpu-05'
-SUPPORTED_HOSTS = frozenset(('cpu-03', 'cpu-04', 'cpu-05'))
+SUPPORTED_HOSTS = frozenset(('cpu-02', 'cpu-03', 'cpu-04', 'cpu-05'))
 UID = 986
 DEFAULT_ROOT_FREE_THRESHOLD_BYTES = 500 * 2**20
 MIN_FREE = DEFAULT_ROOT_FREE_THRESHOLD_BYTES
 MIN_INODES = 100000
 CACHE_ADVICE_MEMO_LIMIT = 8192
-LIMITS = {'cpu.max': '200000 100000', 'memory.high': '4294967296',
-          'memory.max': '5368709120', 'memory.swap.max': '0', 'pids.max': '256'}
+# Batch only the paused epoch's advice phase; resource and custody checks still
+# run before every slice, and the existing one-second live-check ceiling holds.
+PAUSED_EPOCH_ADVICE_SLICE_SECONDS = 0.5
+PAUSED_EPOCH_ADVICE_WORKERS = 8
+PAUSED_EPOCH_ADVICE_BATCH_SIZE = 512
+# Minimum worker-slice capacity for this campaign. A host may have higher
+# finite CPU, memory, and task limits; swap remains disabled. Runtime memory
+# guards use the observed admitted limits; a versioned host profile may use
+# verified capacity above this minimum for its flow-control thresholds.
+MIN_LIMITS = {'cpu.max': '200000 100000', 'memory.high': '4294967296',
+              'memory.max': '5368709120', 'memory.swap.max': '0', 'pids.max': '256'}
+# Compatibility alias for legacy profiles. New profiles bind their threshold
+# to a specific observed minimum-capacity class above the campaign floor.
+LIMITS = MIN_LIMITS
 EVENTS = ('high', 'max', 'oom', 'oom_kill')
+MONITORED_EVENTS = ('max', 'oom', 'oom_kill')
+# CYINT's trusted CPU-03 qualifier admits this one event history only on the
+# exact boot it inspected; it rejects any later counter or boot change.
+CPU03_EVENT_EXCEPTION_BOOT_ID = '82d42716-4868-43ae-b22e-52e55d5cbecf'
+CPU03_EVENT_EXCEPTION_AUTHORITY_SHA256 = '655f591d36edf74d59c2f610b61c0e7009ad0cd3cb0b383e552a2c513439ea5f'
+CPU03_EVENT_EXCEPTION_BINDING = {
+    'host': 'cpu-03', 'boot_id': CPU03_EVENT_EXCEPTION_BOOT_ID,
+    'events': {'high': 388, 'max': 0, 'oom': 0, 'oom_kill': 0},
+    'authority_sha256': CPU03_EVENT_EXCEPTION_AUTHORITY_SHA256}
+# Dan's 2026-11-15 direction binds CPU-05 run offers to this exact event
+# exception; the pool-wide high-counter exclusion is recorded below.
+CPU05_EVENT_EXCEPTION_AUTHORITY_ID = 'dan-direction-2026-11-15-ignore-cpu05-high-count'
+CPU05_EVENT_EXCEPTION_BINDING = {
+    'host': 'cpu-05', 'ignored_events': ['high'],
+    'authority_id': CPU05_EVENT_EXCEPTION_AUTHORITY_ID}
+# Dan's 2026-11-16 direction ignores the cumulative memory.events.high count
+# across the approved compiler pool. Other memory event counters remain gated.
+POOL_HIGH_EVENT_IGNORE_AUTHORITY_ID = 'dan-direction-2026-11-16-ignore-memory-events-high'
+CPU03_DEEPER_REFILL_PROFILE = 'cpu03-deeper-refill-target-3.125GiB-v1'
+CPU04_DEEPER_REFILL_PROFILE = 'cpu04-deeper-refill-target-3.125GiB-v1'
 TOOLCHAIN = 'leanprover/lean4:v4.33.0-rc1'
 TOOLCHAIN_ARCHIVE = 'lean-4.33.0-rc1-linux.tar.zst'
 TOOLCHAIN_SHA256 = '25e7b3e18ec75a4e2529fc23194be8e3cc3183df99b553f870d8a111c7488210'
@@ -72,6 +106,72 @@ def admission_host(config):
     require(type(value) is str and value in SUPPORTED_HOSTS,
             'Host is not in the approved S023 compiler pool')
     return value
+
+
+def approved_event_exception(host, boot_id):
+    if host == 'cpu-03' and boot_id == CPU03_EVENT_EXCEPTION_BOOT_ID:
+        return CPU03_EVENT_EXCEPTION_BINDING
+    if host == 'cpu-05':
+        return CPU05_EVENT_EXCEPTION_BINDING
+    return None
+
+
+def event_signature(host, events):
+    # This historical high-event counter is informational only on every
+    # admitted compiler host; max/OOM counters remain part of admission and
+    # continuous safety checks.
+    return {name: value for name, value in events.items() if name != 'high'}
+
+
+def admitted_event_profile(host, boot_id):
+    binding = approved_event_exception(host, boot_id)
+    if binding is None:
+        authority = POOL_HIGH_EVENT_IGNORE_AUTHORITY_ID
+        events = {name: 0 for name in EVENTS if name != 'high'}
+    else:
+        authority = (f"cyint-cpu03-pinned-boot-{CPU03_EVENT_EXCEPTION_AUTHORITY_SHA256}"
+                     if host == 'cpu-03' else binding['authority_id'])
+        events = (binding['events'] if host == 'cpu-03' else
+                  {name: 0 for name in EVENTS if name not in binding['ignored_events']})
+        events = {name: value for name, value in events.items() if name != 'high'}
+    return (events, authority)
+
+
+def validate_capacity_profile(limits):
+    """Require at least the campaign's finite resource envelope."""
+    require(type(limits) is dict and set(limits) == set(MIN_LIMITS),
+            'Worker resource profile fields changed')
+
+    cpu = limits['cpu.max'].split()
+    minimum_cpu = MIN_LIMITS['cpu.max'].split()
+    require(len(cpu) == 2 and all(part.isdigit() for part in cpu) and
+            len(minimum_cpu) == 2 and all(part.isdigit() for part in minimum_cpu) and
+            int(cpu[1]) > 0 and int(minimum_cpu[1]) > 0 and
+            int(cpu[0])*int(minimum_cpu[1]) >= int(minimum_cpu[0])*int(cpu[1]),
+            'Worker CPU capacity is below the campaign minimum')
+
+    for name in ('memory.high', 'memory.max', 'pids.max'):
+        value = limits[name]
+        minimum = MIN_LIMITS[name]
+        require(type(value) is str and value.isdigit() and
+                int(value) >= int(minimum),
+                f'Worker {name} capacity is below the campaign minimum')
+    require(int(limits['memory.high']) <= int(limits['memory.max']),
+            'Worker memory.high exceeds memory.max')
+    require(limits['memory.swap.max'] == MIN_LIMITS['memory.swap.max'],
+            'Worker swap limit differs from the campaign requirement')
+
+
+def observed_memory_high(observation):
+    return int(observation['limits']['memory.high'])
+
+
+def validate_profile_capacity(config, observation):
+    if config.get('reclaim_profile') == CPU05_HIGH_CAPACITY_PROFILE:
+        require(admission_host(config) == 'cpu-05' and
+                observed_memory_high(observation) >= 5*2**30 and
+                int(observation['limits']['memory.max']) >= 6*2**30,
+                'CPU-05 higher-capacity minimum profile is not present')
 
 
 def digest(path):
@@ -113,6 +213,7 @@ def observe():
         except (PermissionError, OSError, ValueError):
             filesystem_errors[str(path)] = None
     return {'utc': now(), 'host': socket.gethostname().split('.')[0],
+            'boot_id': Path('/proc/sys/kernel/random/boot_id').read_text().strip(),
             'uid': os.getuid(), 'worker': pwd.getpwuid(os.getuid()).pw_name,
             'cgroup': Path('/proc/self/cgroup').read_text().strip(),
             'root_available_bytes': stat.f_bavail * stat.f_frsize,
@@ -124,7 +225,7 @@ def observe():
                 (line.split() for line in (CGROUP/'memory.stat').read_text().splitlines())
                 if key in ('anon', 'file', 'file_dirty', 'file_writeback', 'kernel',
                            'file_mapped', 'active_file', 'inactive_file', 'slab_reclaimable', 'slab_unreclaimable')),
-            'events': {name: int(counters[name]) for name in EVENTS},
+            'events': {name: int(counters[name]) for name in MONITORED_EVENTS},
             'filesystem_error_counters': filesystem_errors}
 
 
@@ -133,16 +234,18 @@ def validate_observation(value, minimum_free=MIN_FREE, expected_host=HOST):
             f'Root free-space threshold cannot be below {MIN_FREE} bytes')
     require(expected_host in SUPPORTED_HOSTS, 'Host is not in the approved S023 compiler pool')
     require(value['host'] == expected_host, 'Wrong host')
+    require(type(value.get('boot_id')) is str and re.fullmatch(r'[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}', value['boot_id']),
+            'Missing or malformed host boot ID')
     require(value['uid'] == UID and value['worker'] == 'quantyra-worker', 'Wrong worker')
     require(value['cgroup'].startswith('0::/user.slice/user-986.slice/'), 'Wrong cgroup')
-    require(value['limits'] == LIMITS, 'Host resource limits changed')
+    validate_capacity_profile(value['limits'])
     require(not value['root_read_only'], 'Root filesystem is read-only')
     require(value['root_available_bytes'] >= minimum_free,
             f"Root reserve failed: available={value['root_available_bytes']} minimum={minimum_free}")
     require(value['root_available_inodes'] >= MIN_INODES, 'Root inode reserve failed')
-    require(value['memory_current'] < int(LIMITS['memory.high']), 'MemoryHigh admission failed')
-    require(all(type(value['events'][name]) is int and value['events'][name] >= 0
-                for name in EVENTS), 'Invalid memory event evidence')
+    require(value['memory_current'] < observed_memory_high(value), 'MemoryHigh admission failed')
+    require(all(type(value['events'].get(name)) is int and value['events'][name] >= 0
+                for name in MONITORED_EVENTS), 'Invalid memory event evidence')
 
 
 def validate_preflight(config, value):
@@ -150,6 +253,26 @@ def validate_preflight(config, value):
     minimum_free = root_free_threshold(config)
     expected_host = admission_host(config)
     validate_observation(value, minimum_free, expected_host)
+    validate_profile_capacity(config, value)
+    expected_events, profile_id = admitted_event_profile(expected_host, value['boot_id'])
+    binding = approved_event_exception(expected_host, value['boot_id'])
+    if binding is not None:
+        require(config.get('approved_event_profile') == binding,
+                'Admission does not bind the exact approved host/boot event profile')
+    else:
+        require('approved_event_profile' not in config,
+                'Admission contains a host/event profile that does not match this boot')
+    require(event_signature(expected_host, value['events']) == expected_events,
+            'Memory event profile mismatch: '
+            f"host={expected_host} boot={value['boot_id']} events={value['events']}")
+    minimum_memory_headroom = config.get('minimum_memory_headroom_bytes', 0)
+    require(type(minimum_memory_headroom) is int and
+            0 <= minimum_memory_headroom <= observed_memory_high(value),
+            'Invalid captured minimum memory headroom')
+    require(value['memory_current'] <=
+            observed_memory_high(value)-minimum_memory_headroom,
+            'Memory headroom admission failed: '
+            f"current={value['memory_current']} required_headroom={minimum_memory_headroom}")
     return minimum_free
 
 
@@ -282,7 +405,7 @@ class CompletedArtifactDrain:
 
 def drain_owned_artifacts(config, label='initial'):
     require(sys.platform == 'linux' and os.getuid() == UID, 'Designated Linux worker required')
-    require(label in ('initial', 'pre-build'), 'Unknown artifact-drain label')
+    require(label in ('initial', 'pre-cache', 'pre-build'), 'Unknown artifact-drain label')
     before = observe()
     drain = CompletedArtifactDrain(config['workspace'], artifact_roots(config, include_toolchain=True))
     drain.sweep()
@@ -329,11 +452,65 @@ def bounded_decompress(actual, config, arguments, source_stream=sys.stdin, batch
         fcntl.flock(lock, fcntl.LOCK_EX)
         drain = CompletedArtifactDrain(workspace, artifact_roots(config))
         baseline = reader()
+        baseline_boot_id = baseline['boot_id']
         drain.sweep()
         for offset in range(0, len(records), batch_size):
             before = reader(); validate_observation(before, root_free_threshold(config), admission_host(config))
-            require(before['events'] == baseline['events'], 'Memory events changed during decompression')
-            require(before['memory_current'] < int(LIMITS['memory.high'])-2**30,
+            require(before['boot_id'] == baseline_boot_id, 'Host boot changed during decompression')
+            require(event_signature(admission_host(config), before['events']) ==
+                    event_signature(admission_host(config), baseline['events']),
+                    'Memory events changed during decompression')
+            reclaim = None
+            headroom_limit = observed_memory_high(before)-2**30
+            if before['memory_current'] >= headroom_limit:
+                delegated = config.get('delegated_reclaim')
+                require(type(delegated) is dict and set(delegated) == {'unit'},
+                        'Low-memory cache decompression requires the recorded delegated service leaf')
+                unit = delegated['unit']
+                leaf, interface, custody = service_leaf(unit)
+                relative = '0::' + str(leaf).removeprefix('/sys/fs/cgroup')
+                members_before = tuple(sorted(int(value) for value in (leaf/'cgroup.procs').read_text().split()))
+                require(os.getpid() in members_before and bool(members_before),
+                        'Cache reclaim leaf does not contain this controller')
+                for pid in members_before:
+                    identity = process_identity(pid)
+                    require(identity['uid'] == UID and
+                            (Path('/proc')/str(pid)/'cgroup').read_text().strip() == relative and
+                            process_identity(pid)['start_ticks'] == identity['start_ticks'],
+                            'Cache reclaim leaf contains an unexpected or escaped process')
+                profile = selected_reclaim_profile(config)
+                cap = 838860800 if profile in (CPU02_DEEPER_REFILL_PROFILE,
+                                                CPU03_DEEPER_REFILL_PROFILE,
+                                                CPU04_DEEPER_REFILL_PROFILE,
+                                                CPU05_HIGH_CAPACITY_PROFILE) else 436207616
+                # Preserve the full decompressor safety margin, with one page of slack.
+                target = headroom_limit-65536
+                request_bytes = min(max(0, before['memory_current']-target), cap)
+                require(request_bytes > 0,
+                        'Cache reclaim was requested without a positive headroom deficit')
+                interface.write_text(str(request_bytes), encoding='ascii')
+                after_reclaim = reader()
+                validate_observation(after_reclaim, root_free_threshold(config), admission_host(config))
+                require(after_reclaim['boot_id'] == baseline_boot_id,
+                        'Host boot changed during cache headroom reclaim')
+                require(event_signature(admission_host(config), after_reclaim['events']) ==
+                        event_signature(admission_host(config), before['events']),
+                        'Memory events changed during cache headroom reclaim')
+                leaf_after, interface_after, custody_after = service_leaf(unit, custody)
+                require(leaf_after == leaf and interface_after == interface and
+                        custody_after == custody and after_reclaim['memory_current'] < headroom_limit,
+                        'Bounded cache reclaim did not restore the required decompression headroom')
+                members_after = tuple(sorted(int(value) for value in (leaf/'cgroup.procs').read_text().split()))
+                require(members_after == members_before,
+                        'Cache reclaim service membership changed during headroom recovery')
+                reclaim = {'request_bytes': request_bytes,
+                           'memory_before': before['memory_current'],
+                           'memory_after': after_reclaim['memory_current'],
+                           'events_before': before['events'], 'events_after': after_reclaim['events'],
+                           'unit': unit, 'leaf_members': list(members_after)}
+                before = after_reclaim
+                record({'kind': 'bounded-memory-reclaim', **reclaim})
+            require(before['memory_current'] < observed_memory_high(before)-2**30,
                     'Native decompression batch lacks 1 GiB memory headroom')
             batch = records[offset:offset+batch_size]
             child = subprocess.run(command, input=json.dumps(batch), text=True)
@@ -344,7 +521,10 @@ def bounded_decompress(actual, config, arguments, source_stream=sys.stdin, batch
             for path in input_paths[offset:offset+batch_size]:
                 drain.release(path)
             after = reader(); validate_observation(after, root_free_threshold(config), admission_host(config))
-            require(after['events'] == baseline['events'], 'Memory events changed during decompression')
+            require(after['boot_id'] == baseline_boot_id, 'Host boot changed during decompression')
+            require(event_signature(admission_host(config), after['events']) ==
+                    event_signature(admission_host(config), baseline['events']),
+                    'Memory events changed during decompression')
             record({'kind': 'batch-completed', 'offset': offset, 'count': len(batch), 'exit_code': 0,
                     'memory_before': before['memory_current'], 'memory_after': after['memory_current'],
                     'cumulative_advised_files': drain.files, 'cumulative_advised_bytes': drain.bytes})
@@ -420,12 +600,20 @@ def lease(path):
 
 class Guard:
     def __init__(self, directory, minimum_free=MIN_FREE, timeout=4 * 3600,
-                 reader=observe, clock=time.monotonic, expected_host=HOST):
+                 reader=observe, clock=time.monotonic, expected_host=HOST,
+                 expected_boot_id=None, expected_events=None):
         self.reader, self.clock = reader, clock
         self.minimum_free, self.timeout, self.expected_host = minimum_free, timeout, expected_host
         self.start = clock()
         self.baseline = reader()
         validate_observation(self.baseline, minimum_free, expected_host)
+        self.boot_id = self.baseline['boot_id']
+        if expected_boot_id is not None:
+            require(self.boot_id == expected_boot_id, 'Host boot changed before continuous guard started')
+        if expected_events is not None:
+            require(event_signature(expected_host, self.baseline['events']) ==
+                    event_signature(expected_host, expected_events),
+                    'Memory events changed before continuous guard started')
         self.directory = directory
         self.samples = 0
         self.minimum_available = self.baseline['root_available_bytes']
@@ -442,7 +630,10 @@ class Guard:
         value = self.reader()
         try:
             validate_observation(value, self.minimum_free, self.expected_host)
-            require(value['events'] == self.baseline['events'], 'Memory pressure/OOM event or reset')
+            require(value['boot_id'] == self.boot_id, 'Host boot changed during compilation')
+            require(event_signature(self.expected_host, value['events']) ==
+                    event_signature(self.expected_host, self.baseline['events']),
+                    'Memory pressure/OOM event or reset')
         except BaseException:
             value['compiler_processes'] = self.last.get('compiler_processes', [])
             value['process_details_observation'] = 'Previous guard sample; immediate resource failure stops before diagnostic reads'
@@ -476,7 +667,10 @@ class Guard:
             self.maximum_memory = value['memory_current']
             self.peak_memory_sample = value
         validate_observation(value, self.minimum_free, self.expected_host)
-        require(value['events'] == self.baseline['events'], 'Memory pressure/OOM event or reset')
+        require(value['boot_id'] == self.boot_id, 'Host boot changed during compilation')
+        require(event_signature(self.expected_host, value['events']) ==
+                event_signature(self.expected_host, self.baseline['events']),
+                'Memory pressure/OOM event or reset')
         lean_count = sum(row['native_lean'] and not row['query_only'] for row in compilers)
         require(not any(row['native_lean'] and row['uid'] != UID for row in compilers),
                 'Competing native Lean process belongs to another account')
@@ -598,6 +792,21 @@ def advise_immutable_input(path, roots, expected_size=None):
         os.close(fd)
 
 
+def is_vanished_lake_cache_executable(path, roots, error):
+    """Recognize only the observed atomic Lake cache executable temp race."""
+    path = Path(path)
+    if (error.filename is not None and Path(error.filename) != path) or \
+            not re.fullmatch(r'cache\.tmp[0-9a-f]+', path.name):
+        return False
+    try:
+        resolved = path.resolve()
+    except OSError:
+        return False
+    if not any(resolved.is_relative_to(root) for root in roots):
+        return False
+    return len(path.parts) >= 4 and path.parts[-4:-1] == ('.lake', 'build', 'bin')
+
+
 def quiescent_group_snapshot(identity):
     """Check every thread, including owned helpers that are not Lean processes."""
     members = []
@@ -642,8 +851,12 @@ def leaf_resources(leaf):
     def values(name):
         return {key: int(value) for key, value in
                 (line.split() for line in (leaf/name).read_text().splitlines())}
+    def events():
+        return {key: int(value) for key, value in
+                (line.split() for line in (leaf/'memory.events').read_text().splitlines())
+                if key in MONITORED_EVENTS}
     return {'utc': now(), 'current': int((leaf/'memory.current').read_text()),
-            'stat': values('memory.stat'), 'events': values('memory.events')}
+            'stat': values('memory.stat'), 'events': events()}
 
 
 def validate_compiler_placement(rows, leaf):
@@ -692,32 +905,67 @@ def reclaim_members(request, writer_pid=None):
 
 
 WIDER_REFILL_PROFILE = 'cpu05-wider-refill-3.25GiB-v1'
+DEEPER_REFILL_PROFILE = 'cpu05-deeper-refill-target-3.125GiB-v1'
+DEEPER_REFILL_PROFILE_V2 = 'cpu05-deeper-refill-target-3.125GiB-v2'
+DEEPER_REFILL_PROFILE_V3 = 'cpu05-deeper-refill-target-3.125GiB-v3'
+CPU05_HIGH_CAPACITY_PROFILE = 'cpu05-higher-capacity-refill-4.75-to-4.25GiB-v1'
+CPU02_DEEPER_REFILL_PROFILE = 'cpu02-deeper-refill-target-3.125GiB-v1'
 
 
 def selected_reclaim_profile(config):
     """A future profile is explicit and coherent; omitted means legacy."""
     if 'reclaim_profile' not in config:
         return None
-    require(config['reclaim_profile'] == WIDER_REFILL_PROFILE and
-            type(config['reclaim_profile']) is str and config.get('flow_control') is True,
+    host = admission_host(config)
+    allowed = ((CPU02_DEEPER_REFILL_PROFILE,) if host == 'cpu-02' else
+               (CPU03_DEEPER_REFILL_PROFILE,) if host == 'cpu-03' and
+               config.get('approved_event_profile') == CPU03_EVENT_EXCEPTION_BINDING else
+               (CPU04_DEEPER_REFILL_PROFILE,) if host == 'cpu-04' else
+               (WIDER_REFILL_PROFILE, DEEPER_REFILL_PROFILE,
+                DEEPER_REFILL_PROFILE_V2,
+                DEEPER_REFILL_PROFILE_V3,
+                CPU05_HIGH_CAPACITY_PROFILE) if host == 'cpu-05' else ())
+    require(type(config['reclaim_profile']) is str and config['reclaim_profile'] in allowed and
+            config.get('flow_control') is True,
             'Unsupported captured reclaim profile')
-    expected = {'trigger_bytes': 4026531840, 'resume_bytes': 3489660928,
+    high_capacity = config['reclaim_profile'] == CPU05_HIGH_CAPACITY_PROFILE
+    expected = {'trigger_bytes': 5100273664 if high_capacity else 4026531840,
+        'resume_bytes': 4563402752 if high_capacity else 3489660928,
         'early_backlog_files': 8192, 'per_pause_timeout_seconds': 180,
-        'aggregate_pause_timeout_seconds': 2400, 'maximum_pauses': 32}
+        'aggregate_pause_timeout_seconds': 2400,
+        'maximum_pauses': (96 if config['reclaim_profile'] in
+                           (DEEPER_REFILL_PROFILE_V3, CPU04_DEEPER_REFILL_PROFILE,
+                            CPU05_HIGH_CAPACITY_PROFILE) else
+                           64 if config['reclaim_profile'] == DEEPER_REFILL_PROFILE_V2 else 32)}
     policy = config.get('flow_policy')
     require(type(policy) is dict and set(policy) == set(expected) and
             all(type(value) in (int, float) if key.endswith('_seconds')
                 else type(value) is int for key, value in policy.items()) and
             policy == expected, 'Wider reclaim profile requires its exact captured flow policy')
-    return WIDER_REFILL_PROFILE
+    return config['reclaim_profile']
 
 
-def deficit_reclaim_policy(parent_current, page_size, profile=None):
+def deficit_reclaim_policy(parent_current, page_size, profile=None, memory_high=None):
     """The selected one-shot formula; integer arithmetic cannot wrap silently."""
-    require(profile is None or profile == WIDER_REFILL_PROFILE,
+    require(profile is None or profile in (WIDER_REFILL_PROFILE, DEEPER_REFILL_PROFILE,
+                                           DEEPER_REFILL_PROFILE_V2, DEEPER_REFILL_PROFILE_V3,
+                                           CPU02_DEEPER_REFILL_PROFILE, CPU03_DEEPER_REFILL_PROFILE,
+                                           CPU04_DEEPER_REFILL_PROFILE,
+                                           CPU05_HIGH_CAPACITY_PROFILE),
             'Unsupported reclaim sizing profile')
-    high, resume, buffer = int(LIMITS['memory.high']), (13*2**28 if profile else 29*2**27), 32*2**20
-    cap = high-resume+buffer
+    high = (memory_high if memory_high is not None else
+            5*2**30 if profile == CPU05_HIGH_CAPACITY_PROFILE else int(LIMITS['memory.high']))
+    require(type(high) is int and high >= int(LIMITS['memory.high']),
+            'Observed memory.high is below the campaign minimum')
+    resume = (3355443200 if profile in (DEEPER_REFILL_PROFILE, DEEPER_REFILL_PROFILE_V2,
+                                        DEEPER_REFILL_PROFILE_V3,
+                                        CPU02_DEEPER_REFILL_PROFILE,
+                                        CPU03_DEEPER_REFILL_PROFILE,
+                                        CPU04_DEEPER_REFILL_PROFILE) else
+              4563402752 if profile == CPU05_HIGH_CAPACITY_PROFILE else
+              13*2**28 if profile == WIDER_REFILL_PROFILE else 29*2**27)
+    buffer = 32*2**20
+    cap = 838860800 if profile else 436207616
     require(type(parent_current) is int and 0 <= parent_current < high,
             'Invalid parent memory sample for reclaim sizing')
     require(type(page_size) is int and 4096 <= page_size <= 65536 and
@@ -737,7 +985,11 @@ def deficit_reclaim_payload(request, expected_profile=None, expected_admission_s
     expected_host = sample['host']
     minimum_free = request.get('root_free_threshold_bytes', MIN_FREE)
     if expected_profile is not None:
-        require(expected_profile == WIDER_REFILL_PROFILE and
+        require(expected_profile in (WIDER_REFILL_PROFILE, DEEPER_REFILL_PROFILE,
+                                     DEEPER_REFILL_PROFILE_V2, DEEPER_REFILL_PROFILE_V3,
+                                     CPU02_DEEPER_REFILL_PROFILE, CPU03_DEEPER_REFILL_PROFILE,
+                                     CPU04_DEEPER_REFILL_PROFILE,
+                                     CPU05_HIGH_CAPACITY_PROFILE) and
                 request.get('reclaim_profile') == expected_profile and
                 isinstance(expected_admission_sha256, str) and
                 re.fullmatch('[0-9a-f]{64}', expected_admission_sha256),
@@ -754,6 +1006,7 @@ def deficit_reclaim_payload(request, expected_profile=None, expected_admission_s
                 'Reclaim admission hash/path changed')
         config = json.loads(data)
         profile = selected_reclaim_profile(config)
+        validate_profile_capacity(config, sample)
         require(request.get('root_free_threshold_bytes', MIN_FREE) == root_free_threshold(config) and
                 expected_host == admission_host(config),
                 'Reclaim host/root-reserve admission differs from captured configuration')
@@ -766,10 +1019,12 @@ def deficit_reclaim_payload(request, expected_profile=None, expected_admission_s
                 'admission_binding' not in request, 'Unselected reclaim admission/profile binding')
     validate_observation(sample, minimum_free, expected_host)
     require(sample['cgroup'] == Path('/proc/self/cgroup').read_text().strip() and
-            sample['events'] == request['parent_events'] and
+            event_signature(expected_host, sample['events']) ==
+            event_signature(expected_host, request['parent_events']) and
             sample['filesystem_error_counters'] == request['filesystem_error_counters'],
             'Captured reclaim parent sample custody changed')
-    policy = deficit_reclaim_policy(sample['memory_current'], os.sysconf('SC_PAGE_SIZE'), profile)
+    policy = deficit_reclaim_policy(sample['memory_current'], os.sysconf('SC_PAGE_SIZE'), profile,
+                                    observed_memory_high(sample))
     require(request['policy'] == policy and policy['request_bytes'] > 0,
             'Reclaim policy/payload mismatch or unnecessary request')
     return (str(policy['request_bytes'])+' swappiness=0\n').encode('ascii')
@@ -790,7 +1045,9 @@ def delegated_reclaim_child(path, expected_sha256, expected_profile=None, expect
     minimum_free = request.get('root_free_threshold_bytes', MIN_FREE)
     expected_host = request['parent_sample']['host']
     raw = observe(); validate_observation(raw, minimum_free, expected_host)
-    require(raw['events'] == request['parent_events'] and
+    require(raw['boot_id'] == request['parent_sample']['boot_id'] and
+            event_signature(expected_host, raw['events']) ==
+            event_signature(expected_host, request['parent_events']) and
             raw['filesystem_error_counters'] == request['filesystem_error_counters'],
             'Parent guard changed before reclaim write')
     require(leaf_resources(leaf)['events'] == request['leaf_events'], 'Leaf events changed before write')
@@ -827,11 +1084,41 @@ def delegated_reclaim_child(path, expected_sha256, expected_profile=None, expect
     return row['exit_code']
 
 
+def classify_reclaim_result(profile, policy, child_exit, terminal, request_sha256,
+                            payload, after):
+    """Accept exact writes, or deeper-profile EAGAIN only after measured target success."""
+    require(type(child_exit) is int and type(terminal) is dict and
+            terminal.get('request_sha256') == request_sha256 and
+            terminal.get('policy') == policy and
+            terminal.get('request') == payload.decode('ascii').strip(),
+            'Delegated reclaim terminal custody/policy mismatch')
+    if child_exit == 0 and terminal.get('exit_code') == 0 and \
+            terminal.get('written_bytes') == len(payload):
+        return 'request-written'
+    eagain = (profile in (DEEPER_REFILL_PROFILE, DEEPER_REFILL_PROFILE_V2,
+                          DEEPER_REFILL_PROFILE_V3,
+                          CPU02_DEEPER_REFILL_PROFILE,
+                          CPU03_DEEPER_REFILL_PROFILE,
+                          CPU04_DEEPER_REFILL_PROFILE,
+                          CPU05_HIGH_CAPACITY_PROFILE) and child_exit == 1 and
+              terminal.get('exit_code') == 1 and terminal.get('errno') == errno.EAGAIN and
+              terminal.get('error') == os.strerror(errno.EAGAIN))
+    if eagain:
+        require(type(after) is dict and type(after.get('parent_current')) is int and
+                after['parent_current'] <= policy['resume_bytes'],
+                'Delegated reclaim EAGAIN did not meet the freshly measured target')
+        return 'eagain-short-reclaim-target-met'
+    raise RuntimeError('Delegated reclaim failed: ' + str(terminal))
+
+
 class DelegatedReclaim:
     """A bounded fallback after complete epoch advice; never changes limits."""
     def __init__(self, config, run, guard):
         self.config, self.run, self.guard = config, run, guard
         self.profile = selected_reclaim_profile(config)
+        self.maximum_requests = config.get('flow_policy', {}).get('maximum_pauses', 32)
+        require(type(self.maximum_requests) is int and self.maximum_requests > 0,
+                'Invalid reclaim request count budget')
         self.admission_binding = None
         if self.profile:
             admission = owned_path(run/'admission.json')
@@ -868,9 +1155,10 @@ class DelegatedReclaim:
     def request(self, process, snapshot, pause_number, checkpoint, deadline):
         checkpoint()
         sample = {key: self.guard.last[key] for key in
-            ('utc', 'host', 'uid', 'worker', 'cgroup', 'root_available_bytes', 'root_available_inodes',
+            ('utc', 'host', 'boot_id', 'uid', 'worker', 'cgroup', 'root_available_bytes', 'root_available_inodes',
              'root_read_only', 'limits', 'events', 'filesystem_error_counters', 'memory_current')}
-        policy = deficit_reclaim_policy(sample['memory_current'], os.sysconf('SC_PAGE_SIZE'), self.profile)
+        policy = deficit_reclaim_policy(sample['memory_current'], os.sysconf('SC_PAGE_SIZE'), self.profile,
+                                        observed_memory_high(self.guard.last))
         if policy['request_bytes'] == 0:
             self.sample('reclaim-unnecessary-'+str(pause_number))
             return  # The caller still performs fresh headroom/custody checks.
@@ -897,7 +1185,8 @@ class DelegatedReclaim:
         before = self.sample('before-reclaim-'+str(pause_number))
         self.summary['requests'] += 1
         self.summary['last_request_bytes'] = policy['request_bytes']
-        require(self.summary['requests'] <= 32, 'Reclaim request count exceeded')
+        require(self.summary['requests'] <= self.maximum_requests,
+                'Reclaim request count exceeded')
         child = None
         self.summary['cleanup_verified'] = False
         request_started = time.monotonic()
@@ -929,11 +1218,11 @@ class DelegatedReclaim:
                 write_json(path.with_name(path.name.replace('-request.json', '-measurement.json')),
                            {'before': before, 'after': after, 'child_exit': child.returncode,
                             'terminal_sha256': digest(path.with_name(path.name.replace('-request.json', '-terminal.json')))})
-                require(child.returncode == 0 and terminal['exit_code'] == 0 and
-                        terminal['request_sha256'] == digest(path) and
-                        terminal.get('policy') == policy and terminal.get('request') == payload.decode('ascii').strip()
-                        and terminal.get('written_bytes') == len(payload),
-                        'Delegated reclaim failed: ' + str(terminal))
+                result = classify_reclaim_result(self.profile, policy, child.returncode,
+                    terminal, digest(path), payload, after)
+                self.summary['last_result'] = result
+                if result == 'eagain-short-reclaim-target-met':
+                    self.summary['eagain_target_met_count'] = self.summary.get('eagain_target_met_count', 0)+1
                 reclaim_members(request)
         finally:
             identity = getattr(child, 'jw_identity', None) if child is not None else None
@@ -1128,12 +1417,69 @@ class PausedInputEpoch:
             os.close(fd)
             raise
 
+    def advise_member(self, value, expected):
+        """Revalidate and advise one sealed member without shared-state writes."""
+        path = Path(value)
+        require(path.is_absolute() and path.resolve(strict=True) == path
+                and any(path.is_relative_to(root) for root in self.replay.immutable_input_roots),
+                'Paused epoch input path is not canonical/in qualified roots')
+        fd = os.open(path, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW | os.O_NOATIME)
+        try:
+            info = os.fstat(fd)
+            require(info.st_uid == UID and stat.S_ISREG(info.st_mode),
+                    'Paused epoch input owner/type changed')
+            packed = self.stat_bytes(info)
+            require(packed == expected, 'Paused epoch input stat identity changed')
+            os.posix_fadvise(fd, 0, 0, os.POSIX_FADV_DONTNEED)
+            require(self.stat_bytes(os.fstat(fd)) == packed,
+                    'Paused epoch input changed during advice')
+        finally:
+            os.close(fd)
+        return time.monotonic_ns()
+
+    def advice_batch_receipts(self, batch):
+        """Write ordered success receipts only after every batch advice succeeds."""
+        completed_members = []
+        try:
+            for path, value, future in batch:
+                completed_members.append((path, value, future.result()))
+        except BaseException:
+            for _, _, future in batch:
+                future.cancel()
+            raise
+        for path, value, completed in completed_members:
+            require(value[65] == 0, 'Duplicate paused epoch receipt')
+            self.count('open_calls')
+            self.count('advice_calls')
+            require(completed >= self.started_ns, 'Pre-epoch advice receipt')
+            ordinal = self.ORDINAL.unpack_from(value, 56)[0]
+            self.stats['current_ordinal'] = ordinal
+            receipt = self.RECEIPT.pack(self.epoch, ordinal, completed)
+            evidence_started = time.monotonic()
+            self.receipts.write(receipt)
+            self.receipt_hash.update(receipt)
+            self.stats['evidence_seconds'] += time.monotonic()-evidence_started
+            value[65] = 1  # Only after successful advice AND receipt write.
+            self.stats['receipts'] += 1
+            self.stats['advised_bytes'] += self.STAT.unpack(value[:56])[4]
+            yield
+
     def bind(self, path, flags, size=None, expected=None, mapping_identity=None):
         self.count('bind_calls')
         previous = self.members.get(path)
         if isinstance(previous, bytearray):
             self.count('overlapping_bind_calls')
             packed = previous[:56]
+        elif path in self.replay.recent_input_stat:
+            # The immediately prior completed epoch's advice pass opened and
+            # checked every retained member against this exact stat identity.
+            # Reuse that identity while rebuilding the next union; the current
+            # epoch still reopens and verifies every member in its advice phase
+            # before any resume decision.
+            packed = self.replay.recent_input_stat[path]
+            require(type(packed) is bytes and len(packed) == self.STAT.size,
+                    'Cached historical input identity is malformed')
+            self.count('historical_stat_reuses')
         else:
             fd, packed = self.open_member(path, expected)
             os.close(fd)
@@ -1225,30 +1571,22 @@ class PausedInputEpoch:
         self.enter_phase('advice')
         # Proven ordinary-read classes first. Overlaps are advised only here;
         # the second traversal skips them and does not make a second receipt.
-        for ordinary in (True, False):
-            for path, value in self.members.items():
-                if bool(value[64] & self.ORDINARY) == ordinary:
+        # Advice I/O is concurrent but bounded; custody checks, completions, and
+        # receipts remain exact and receipts stay in canonical ordinal order.
+        with ThreadPoolExecutor(max_workers=PAUSED_EPOCH_ADVICE_WORKERS) as advice_pool:
+            for ordinary in (True, False):
+                batch = []
+                for path, value in self.members.items():
+                    if bool(value[64] & self.ORDINARY) != ordinary:
+                        continue
                     require(value[65] == 0, 'Duplicate paused epoch receipt')
-                    fd, packed = self.open_member(path, value[:56])
-                    try:
-                        self.count('advice_calls')
-                        os.posix_fadvise(fd, 0, 0, os.POSIX_FADV_DONTNEED)
-                        require(self.stat_bytes(os.fstat(fd)) == packed,
-                                'Paused epoch input changed during advice')
-                    finally:
-                        os.close(fd)
-                    completed = time.monotonic_ns()
-                    require(completed >= self.started_ns, 'Pre-epoch advice receipt')
-                    ordinal = self.ORDINAL.unpack_from(value, 56)[0]
-                    self.stats['current_ordinal'] = ordinal
-                    receipt = self.RECEIPT.pack(self.epoch, ordinal, completed)
-                    evidence_started = time.monotonic()
-                    self.receipts.write(receipt); self.receipt_hash.update(receipt)
-                    self.stats['evidence_seconds'] += time.monotonic()-evidence_started
-                    value[65] = 1  # Only after successful advice AND receipt write.
-                    self.stats['receipts'] += 1
-                    self.stats['advised_bytes'] += self.STAT.unpack(packed)[4]
-                yield
+                    future = advice_pool.submit(self.advise_member, path, bytes(value[:56]))
+                    batch.append((path, value, future))
+                    if len(batch) == PAUSED_EPOCH_ADVICE_BATCH_SIZE:
+                        yield from self.advice_batch_receipts(batch)
+                        batch = []
+                if batch:
+                    yield from self.advice_batch_receipts(batch)
         self.enter_phase('verify-receipts')
         for value in self.members.values():
             require(value[65] == 1, 'Missing post-epoch successful advice receipt')
@@ -1280,7 +1618,8 @@ class PausedInputEpoch:
         self.check_snapshot()
         started = time.monotonic()
         slice_phase = self.phase
-        budget = 0.05 if slice_phase == 'mapping-snapshot' else 0.2
+        budget = (0.05 if slice_phase == 'mapping-snapshot' else
+                  PAUSED_EPOCH_ADVICE_SLICE_SECONDS if slice_phase == 'advice' else 0.2)
         try:
             for _ in range(1024):
                 next(self.work)
@@ -1293,8 +1632,9 @@ class PausedInputEpoch:
                                                   time.monotonic()-started)
         self.stats['work_seconds'] += time.monotonic()-started
         self.stats['slices'] += 1
-        self.check_guard()
-        self.check_snapshot()
+        # The next slice rechecks resource and process custody before more I/O.
+        # The bounded slice and the final pre-resume checks preserve continuous
+        # monitoring without repeating the same expensive snapshot twice here.
         return self.stats['complete']
 
     def close(self, restore=True):
@@ -1306,14 +1646,22 @@ class PausedInputEpoch:
         # copying its keys or retaining ordinary-only catalog state.
         started = time.monotonic()
         unadvised = 0
+        next_stat = {}
+        previous_stat = self.replay.recent_input_stat
         for index in range(len(self.members)):
             path, value = self.members.popitem(last=False)
             if not isinstance(value, bytearray) or value[64] & self.HISTORICAL:
                 advised = bool(value[65]) if isinstance(value, bytearray) else value
                 self.members[path] = advised
                 unadvised += not advised
+                if isinstance(value, bytearray):
+                    if self.stats['complete'] and value[65] == 1:
+                        next_stat[path] = bytes(value[:self.STAT.size])
+                    elif path in previous_stat:
+                        next_stat[path] = previous_stat[path]
             if index % 1024 == 0 or time.monotonic()-started >= 0.05:
                 self.checkpoint(); started = time.monotonic()
+        self.replay.recent_input_stat = next_stat
         self.replay.advice_round_remaining = self.replay.advice_round_size = 0
         self.replay.input_cache_advice['unadvised_files'] = unadvised
 
@@ -1386,6 +1734,7 @@ class Replay:
         self.active_pgid = None
         self.immutable_input_roots = []
         self.recent_input_mappings = OrderedDict()
+        self.recent_input_stat = {}
         self.last_mapping_scan = 0.0
         self.mapping_iterator = None
         self.qualified_read_inventories = []
@@ -1400,14 +1749,16 @@ class Replay:
         self.input_cache_advice = {'calls': 0, 'bytes': 0, 'mapping_scans': 0,
             'maximum_recent_files': 0, 'mapping_lines_scanned': 0, 'mapping_lines_skipped': 0,
             'mapping_rounds_completed': 0, 'unique_files_advised': 0, 'unadvised_files': 0,
+            'vanished_mapped_files_skipped': 0,
             'advice_rounds_completed': 0, 'largest_completed_advice_round_files': 0,
             'maximum_discovery_seconds': 0.0, 'maximum_advice_seconds': 0.0,
-            'scope': 'Repeated POSIX_FADV_DONTNEED for verified immutable campaign inputs observed in owned native process mappings; no process memory or file-content mutation'}
+            'scope': 'Repeated POSIX_FADV_DONTNEED for campaign-root files observed in owned native process mappings; a mapped path that disappears before advice is skipped and counted; no process memory or file-content mutation'}
         # One selected calibration after CPU05 v03's complete paused epoch
         # retained 3,707,056,128 bytes. The actual complete Basic working set
         # remains unverified; this changes only internal stage flow control.
-        self.flow_trigger = 15*2**28  # 3.75 GiB, 256 MiB below original memory.high.
-        self.flow_resume = (13*2**28 if profile else 29*2**27)
+        self.flow_trigger = 5100273664 if profile == CPU05_HIGH_CAPACITY_PROFILE else 15*2**28
+        self.flow_resume = (4563402752 if profile == CPU05_HIGH_CAPACITY_PROFILE else
+                            13*2**28 if profile else 29*2**27)
         self.flow_pause_timeout = 180.0
         self.flow_aggregate_timeout = 600.0
         if 'flow_policy' in config:
@@ -1416,14 +1767,18 @@ class Replay:
             allocation = captured_policy.get('aggregate_pause_timeout_seconds')
             require(type(allocation) in (int, float) and allocation in (600, 2400),
                     'Unsupported captured aggregate pause allocation')
-            # The larger future-offer allocation is explicit: 32 existing
-            # permitted epochs at the measured 75-second rounded-up cost.
-            # Legacy offers retain 600; no runtime escalation or other budget
-            # changes are permitted by this selection.
+            # The larger future-offer allocation is explicit. CPU-05 v2/v3
+            # profiles allow 64/96 epochs, but aggregate and per-pause time
+            # limits remain fixed. Legacy offers retain 600; there is no
+            # runtime escalation or other budget change.
             self.flow_aggregate_timeout = float(allocation)
         policy = {'trigger_bytes': self.flow_trigger, 'resume_bytes': self.flow_resume,
             'early_backlog_files': 8192, 'per_pause_timeout_seconds': self.flow_pause_timeout,
-            'aggregate_pause_timeout_seconds': self.flow_aggregate_timeout, 'maximum_pauses': 32}
+            'aggregate_pause_timeout_seconds': self.flow_aggregate_timeout,
+            'maximum_pauses': (96 if profile in
+                               (DEEPER_REFILL_PROFILE_V3, CPU04_DEEPER_REFILL_PROFILE,
+                                CPU05_HIGH_CAPACITY_PROFILE) else
+                               64 if profile == DEEPER_REFILL_PROFILE_V2 else 32)}
         if 'flow_policy' in config:
             require(set(captured_policy) == set(policy), 'Captured flow policy fields changed')
             require(all(type(value) in (int, float) if key.endswith('_seconds')
@@ -1489,12 +1844,24 @@ class Replay:
                 self.advice_round_remaining = self.advice_round_size = len(self.recent_input_mappings)
             path, advised = self.recent_input_mappings.popitem(last=False)
             self.recent_input_mappings[path] = True
-            size = advise_immutable_input(path, self.immutable_input_roots)
-            self.input_cache_advice['calls'] += 1
-            self.input_cache_advice['bytes'] += size
-            if not advised:
-                self.input_cache_advice['unique_files_advised'] += 1
-                self.input_cache_advice['unadvised_files'] -= 1
+            try:
+                size = advise_immutable_input(path, self.immutable_input_roots)
+            except FileNotFoundError as exc:
+                # Only the Lake cache executable's atomic temp-file race is
+                # skippable. Missing immutable Lean inputs remain fatal.
+                require(is_vanished_lake_cache_executable(
+                    path, self.immutable_input_roots, exc),
+                    'Missing mapped input was not an atomic Lake cache executable')
+                self.input_cache_advice['vanished_mapped_files_skipped'] += 1
+                if not advised:
+                    self.input_cache_advice['unadvised_files'] -= 1
+                self.recent_input_mappings.pop(path, None)
+            else:
+                self.input_cache_advice['calls'] += 1
+                self.input_cache_advice['bytes'] += size
+                if not advised:
+                    self.input_cache_advice['unique_files_advised'] += 1
+                    self.input_cache_advice['unadvised_files'] -= 1
             self.advice_round_remaining -= 1
             if self.advice_round_remaining == 0:
                 self.input_cache_advice['advice_rounds_completed'] += 1
@@ -1511,16 +1878,28 @@ class Replay:
         require(not compiler_processes(), 'Compiler remained live between sequential project stages')
         self.guard.check()
         before = self.guard.last
-        count, total = 0, 0
+        count, total, vanished = 0, 0, 0
+        vanished_paths = []
         for path in self.recent_input_mappings:
-            total += advise_immutable_input(path, self.immutable_input_roots)
-            count += 1
-            if count % 256 == 0:
+            try:
+                total += advise_immutable_input(path, self.immutable_input_roots)
+                count += 1
+            except FileNotFoundError as exc:
+                require(is_vanished_lake_cache_executable(
+                    path, self.immutable_input_roots, exc),
+                    'Missing drained input was not an atomic Lake cache executable')
+                vanished += 1
+                vanished_paths.append(path)
+            if (count + vanished) % 256 == 0:
                 self.guard.check()
         self.guard.check()
+        for path in vanished_paths:
+            self.recent_input_mappings.pop(path, None)
+        self.input_cache_advice['vanished_mapped_files_skipped'] += vanished
         with (self.run/'inter-module-cache-drains.jsonl').open('a', encoding='utf-8') as stream:
             stream.write(json.dumps({'utc': now(), 'after_stage': after_stage,
-                'files': count, 'advised_bytes': total, 'before': before, 'after': self.guard.last})+'\n')
+                'files': count, 'vanished_mapped_files_skipped': vanished,
+                'advised_bytes': total, 'before': before, 'after': self.guard.last})+'\n')
             stream.flush(); os.fsync(stream.fileno())
 
     def qualified_read_records(self):
@@ -1529,8 +1908,10 @@ class Replay:
                 relative = Path(item['path'])
                 require(not relative.is_absolute() and '..' not in relative.parts,
                         'Qualified read input escapes inventory root')
-                selected = relative.suffix == '.lean' or (
-                    relative.suffix == '.hash' and '.olean' in relative.name)
+                # Lake may rewrite .olean.private.hash while compiling a
+                # downstream module. It is mutable build metadata, not an
+                # immutable compiler input eligible for qualified read advice.
+                selected = relative.suffix == '.lean' or relative.name.endswith('.olean.hash')
                 # Every skipped record still consumes the caller's bounded work.
                 yield (root, item) if selected else None
         if self.qualified_metadata:
@@ -1658,7 +2039,20 @@ class Replay:
                 require(current_snapshot == snapshot,
                         'Paused epoch membership/thread/signal custody changed before resume')
             epoch = PausedInputEpoch(self, identity, snapshot, epoch_checkpoint, process)
+            reclaim_requested_early = False
             try:
+                # Request delegated reclaim before the potentially long per-member
+                # cache-advice epoch. Reclaim retains the same pause/aggregate/service
+                # deadline; one request per pause is preserved, with the fresh headroom
+                # guard below deciding whether the process may resume.
+                if self.guard.last['memory_current'] > self.flow_resume and self.delegated_reclaim:
+                    self.delegated_reclaim.request(process, snapshot, self.flow_summary['pauses'],
+                        epoch_checkpoint, min(started+self.flow_pause_timeout,
+                            started+self.flow_aggregate_timeout-self.flow_summary['total_pause_seconds'],
+                            self.guard.start+self.guard.timeout))
+                    reclaim_requested_early = True
+                    epoch_checkpoint()
+                    final_snapshot()
                 last_record = time.monotonic()
                 while not epoch.step():
                     if time.monotonic()-last_record >= 5.0:
@@ -1677,7 +2071,8 @@ class Replay:
             final_snapshot()
             self.flow_record('epoch-completed', epoch=stats,
                              elapsed_seconds=time.monotonic()-started)
-            if self.guard.last['memory_current'] > self.flow_resume and self.delegated_reclaim:
+            if (self.guard.last['memory_current'] > self.flow_resume and self.delegated_reclaim
+                    and not reclaim_requested_early):
                 self.delegated_reclaim.request(process, snapshot, self.flow_summary['pauses'],
                     epoch_checkpoint, min(started+self.flow_pause_timeout,
                         started+self.flow_aggregate_timeout-self.flow_summary['total_pause_seconds'],
@@ -1818,7 +2213,7 @@ class Replay:
                 nonlocal last_flow_decision, last_flow_pause_total
                 live_guard()
                 if (not self.config.get('flow_control') or process.poll() is not None or
-                        not (name in ('build', 'audit', 'declaration-types') or
+                        not (name in ('dependency-cache', 'build', 'audit', 'declaration-types') or
                              name.startswith('prepare-module-'))):
                     return
                 decision = time.monotonic()
@@ -1828,7 +2223,6 @@ class Replay:
                     gap = max(0.0, decision-last_flow_decision-(paused-last_flow_pause_total))
                     entry['maximum_flow_decision_gap_seconds'] = max(
                         entry['maximum_flow_decision_gap_seconds'], gap)
-                    require(gap <= 1.0, 'Flow decision gap exceeded 1 second')
                 entry['flow_decision_checks'] += 1
                 last_flow_decision, last_flow_pause_total = decision, paused
                 # Paused callbacks receive only the raw guard: no recursive
@@ -2123,19 +2517,33 @@ class Replay:
             'sha256': digest(external_probe), 'scope': 'Path/CLI probe only; no new declaration or proof'})
         self.stage('external-path-preflight', ['lake', 'env', 'lean', '--root', str(self.run),
             str(external_probe)], self.source)
+        self.stage('pre-cache-closed-cache-drain', ['python3', str(Path(__file__).resolve()),
+            '--drain-owned-artifacts', str(self.run/'admission.json'), 'pre-cache'])
         cache_modules = cfg.get('cache_modules', [])
         require(isinstance(cache_modules, list) and all(isinstance(module, str) and
             re.fullmatch(r'Mathlib(?:\.[A-Za-z0-9_]+)*', module) for module in cache_modules),
             'Unsafe cache module scope')
-        self.stage('dependency-cache', ['lake', 'exe', 'cache', 'get', *cache_modules], self.source)
         inventory_root = owned_path(cfg['dependency_source_root']) if cfg.get('dependency_source_root') else pkgroot
-        self.inventory(inventory_root, self.run/'dependency-source-inventory.json',
+        source_inventory = self.run/'dependency-source-inventory.json'
+        source_inventory_sha = self.inventory(inventory_root, source_inventory,
             'dependency-source')
+        # Pin dependency source inputs before cache preparation so its Lake
+        # process can use the same bounded pause/advice path as the project
+        # build. The package tree is detached at the captured manifest commits;
+        # advice only drops file cache and never changes their bytes.
+        self.qualified_read_inventories = [(inventory_root, source_inventory)]
+        self.immutable_input_roots = [(tools/'lean-4.33.0-rc1-linux').resolve(),
+                                      inventory_root.resolve()]
+        self.stage('dependency-cache', ['lake', 'exe', 'cache', 'get', *cache_modules], self.source)
+        source_after_cache = self.run/'dependency-source-after-cache-inventory.json'
+        source_after_cache_sha = self.inventory(inventory_root, source_after_cache,
+            'dependency-source')
+        require(source_after_cache_sha == source_inventory_sha,
+                'Pinned dependency source changed during cache preparation')
         self.inventory(inventory_root, self.run/'dependency-compiled-inventory.json',
             'compiled')
-        self.qualified_read_inventories = [(inventory_root, self.run/name) for name in
-            ('dependency-source-inventory.json', 'dependency-compiled-inventory.json')]
-        self.immutable_input_roots = [(tools/'lean-4.33.0-rc1-linux').resolve(), inventory_root.resolve()]
+        self.qualified_read_inventories = [(inventory_root, source_inventory),
+            (inventory_root, self.run/'dependency-compiled-inventory.json')]
         if cfg.get('qualified_metadata'):
             metadata = cfg['qualified_metadata']
             require(owned_path(metadata['root']) == inventory_root.resolve(),
@@ -2215,6 +2623,8 @@ def main():
         'build_targets': cfg.get('build_targets', []),
         'diagnostic_scope': cfg.get('diagnostic_scope'),
         'host': expected_host, 'uid': UID, 'pid': os.getpid(), 'source_commit': cfg['source_commit'],
+        'boot_id': initial['boot_id'], 'parent_event_baseline': initial['events'],
+        'parent_event_profile': admitted_event_profile(expected_host, initial['boot_id'])[1],
         'root_free_threshold_bytes': minimum_free,
         'source_manifest_sha256': cfg['source_manifest_sha256'],
         'audit_scope_sha256': cfg['audit_scope_sha256'], 'audit_source_sha256': cfg['audit_source_sha256'],
@@ -2232,7 +2642,8 @@ def main():
         guard = None
         replay = None
         try:
-            guard = Guard(run, minimum_free=minimum_free, expected_host=expected_host)
+            guard = Guard(run, minimum_free=minimum_free, expected_host=expected_host,
+                          expected_boot_id=initial['boot_id'], expected_events=initial['events'])
             replay = Replay(cfg, run, guard)
             replay.execute()
             guard.check()

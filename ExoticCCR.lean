@@ -45,3 +45,5 @@ import ExoticCCR.TheoremFVonNeumannFormula
 import ExoticCCR.TheoremFVonNeumannExtension
 import ExoticCCR.TheoremFVonNeumannClassification
 import ExoticCCR.TheoremFExtensionMultiplicity
+import ExoticCCR.TheoremFContinuum
+import ExoticCCR.TheoremCAnalytic

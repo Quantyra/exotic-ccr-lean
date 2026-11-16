@@ -1,0 +1,7 @@
+{
+  "timestamp_utc": "2026-11-11T02:36:44.608301+00:00",
+  "candidate_reconstruction": "PASS: both original candidate hashes reproduced by portable script",
+  "candidate_source_files_changed": false,
+  "credential_or_private_path_pattern_scan": "PASS: no credential markers or absolute workstation paths found",
+  "kernel_validation": "PENDING: no compiler invoked by author lane"
+}

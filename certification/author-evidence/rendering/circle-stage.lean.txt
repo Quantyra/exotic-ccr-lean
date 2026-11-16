@@ -1,0 +1,13 @@
+import ExoticCCR.TheoremFExtensionMultiplicity
+import Mathlib.Analysis.SpecialFunctions.Complex.Circle
+import Mathlib.Analysis.Complex.Cardinality
+
+noncomputable section
+namespace ExoticCCR
+
+/-- The parameter circle has continuum cardinality. -/
+theorem mk_circle_eq_continuum : Cardinal.mk Circle = Cardinal.continuum := by
+  exact (Cardinal.mk_congr Circle.argEquiv).trans
+    (Cardinal.mk_Ioc_real (by linarith [Real.pi_pos]))
+
+end ExoticCCR

@@ -1,0 +1,45 @@
+
+/-- Evaluation translates the checked polynomial duality into an actual derivative. -/
+theorem fderiv_anchor_on_dual (i j : Fin 3) (q : R3) :
+    fderiv Real (fun x : R3 => eval x (F Real i)) q (analyticDualField j q) =
+      if i = j then 1 else 0 := by
+  rw [(hasFDerivAt_eval_mvPolynomial (F Real i) q).fderiv]
+  have h := congrArg (eval q) (dualField_F (K := Real) (by norm_num) i j)
+  simpa [evalPDeriv, analyticDualField, dualField, map_sum, map_mul, mul_comm,
+    apply_ite] using h
+
+/-- The concrete anchor coordinate acting as a complex-valued multiplier. -/
+def anchorComplex (i : Fin 3) (q : R3) : Complex :=
+  (eval q (F Real i) : Complex)
+
+theorem contDiff_anchorComplex (i : Fin 3) :
+    ContDiff Real ⊤ (anchorComplex i) :=
+  Complex.ofRealCLM.contDiff.comp (contDiff_eval_mvPolynomial (F Real i))
+
+theorem fderiv_anchorComplex_on_dual (i j : Fin 3) (q : R3) :
+    fderiv Real (anchorComplex i) q (analyticDualField j q) =
+      if i = j then 1 else 0 := by
+  have hchain : fderiv Real (anchorComplex i) q =
+      Complex.ofRealCLM.comp (evalPDeriv (F Real i) q) :=
+    (Complex.ofRealCLM.hasFDerivAt.comp q
+      (hasFDerivAt_eval_mvPolynomial (F Real i) q)).fderiv
+  rw [hchain]
+  change ((evalPDeriv (F Real i) q (analyticDualField j q) : Real) : Complex) = _
+  have hreal := fderiv_anchor_on_dual i j q
+  rw [(hasFDerivAt_eval_mvPolynomial (F Real i) q).fderiv] at hreal
+  rw [hreal]
+  split_ifs <;> simp
+
+/-- Polynomial multiplication preserves the concrete compact smooth core. -/
+def anchorMultiplication (i : Fin 3) (phi : CcinftyR3) : CcinftyR3 :=
+  ⟨fun q => anchorComplex i q * phi q,
+    (contDiff_anchorComplex i).mul phi.contDiff,
+    phi.hasCompactSupport.mul_left, Set.subset_univ _⟩
+
+/-- Smooth dual transport preserves the same compact smooth core. -/
+def dualTransportOnCore (j : Fin 3) (phi : CcinftyR3) : CcinftyR3 :=
+  ⟨minimalTransportExpression (analyticDualField j) phi,
+    contDiff_const.mul ((phi.contDiff.fderiv_right (by simp)).clm_apply
+      (contDiff_analyticDualField j)),
+    hasCompactSupport_minimalTransportExpression (analyticDualField j) phi,
+    Set.subset_univ _⟩

@@ -1,0 +1,6 @@
+JW_AUTHOR_PACKET
+Choose typed operations proving Cardinal.mk Circle = Cardinal.continuum. These nodes will be rendered mechanically into Lean, not treated as verified until compiled.
+Existing lemma Cardinal.mk_congr Circle.argEquiv has type mk Circle = mk (Set.Ioc (-Real.pi) Real.pi).
+Existing Cardinal.mk_Ioc_real (h : a < b) has type mk (Set.Ioc a b) = continuum.
+Real.pi_pos proves 0 < Real.pi; linarith can prove -Real.pi < Real.pi.
+Choose orientation for the equivalence, correct interval lemma, order proof tactic, and how to combine the two equalities. Do not invent type equalities.

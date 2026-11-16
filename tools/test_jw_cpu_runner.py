@@ -46,6 +46,7 @@ def root_free_threshold_fixture(current):
         else: raise AssertionError('Invalid/lowered root-free threshold accepted')
 
     sample = copy.deepcopy(current)
+    sample['events'] = {name: 0 for name in runner.EVENTS}
     sample['root_available_bytes'] = floor
     assert runner.validate_preflight({}, sample) == floor
     sample['root_available_bytes'] = higher
@@ -55,6 +56,11 @@ def root_free_threshold_fixture(current):
     except RuntimeError as exc:
         assert 'Root reserve failed' in str(exc)
     else: raise AssertionError('Preflight ignored the configured root-free threshold')
+
+    sample = copy.deepcopy(current)
+    sample['events'] = {name: 0 for name in runner.EVENTS}
+    sample['events']['high'] = 1
+    assert runner.validate_preflight({}, sample) == runner.MIN_FREE
 
     with tempfile.TemporaryDirectory(prefix='root-free-guard-fixture-') as directory:
         baseline = copy.deepcopy(current); baseline['root_available_bytes'] = floor+1
@@ -72,23 +78,24 @@ def root_free_threshold_fixture(current):
 
 
 def compiler_host_pool_fixture(current):
-    for host in ('cpu-03', 'cpu-04', 'cpu-05'):
+    for host in ('cpu-02', 'cpu-03', 'cpu-04', 'cpu-05', 'cpu-06'):
         config = {'host': host}
         assert runner.admission_host(config) == host
         sample = copy.deepcopy(current); sample['host'] = host
+        sample['events'] = {name: 0 for name in runner.EVENTS}
         sample['root_available_bytes'] = runner.MIN_FREE
         assert runner.validate_preflight(config, sample) == runner.MIN_FREE
         sample['host'] = 'cpu-05' if host != 'cpu-05' else 'cpu-04'
         try: runner.validate_preflight(config, sample)
         except RuntimeError: pass
         else: raise AssertionError('Host admission accepted a mismatched hostname')
-    for bad in ('cpu-01', 'cpu-02', 'cpu-06', None, True):
+    for bad in ('cpu-01', 'cpu-07', None, True):
         try: runner.admission_host({'host': bad})
         except RuntimeError: pass
-        else: raise AssertionError('Host outside the authorized CPU-03/04/05 pool accepted')
-    return ['hash-bound-cpu03-cpu04-cpu05-host-allowlist',
+        else: raise AssertionError('Host outside the authorized CPU-02/03/04/05/06 pool accepted')
+    return ['hash-bound-cpu02-cpu03-cpu04-cpu05-cpu06-host-allowlist',
             'observed-host-must-match-admission',
-            'cpu01-cpu02-and-unknown-hosts-rejected-by-this-runner']
+        'cpu01-cpu07-and-unknown-hosts-rejected-by-this-runner']
 
 
 def wider_profile_config(config):
@@ -97,6 +104,72 @@ def wider_profile_config(config):
         'resume_bytes': 3489660928, 'early_backlog_files': 8192,
         'per_pause_timeout_seconds': 180, 'aggregate_pause_timeout_seconds': 2400,
         'maximum_pauses': 32})
+
+
+def deeper_profile_config(config):
+    return dict(config, reclaim_profile=runner.DEEPER_REFILL_PROFILE,
+        flow_control=True, flow_policy={'trigger_bytes': 4026531840,
+        'resume_bytes': 3489660928, 'early_backlog_files': 8192,
+        'per_pause_timeout_seconds': 180, 'aggregate_pause_timeout_seconds': 2400,
+        'maximum_pauses': 32})
+
+
+def deeper_profile_fixture():
+    """Policy-only check; the EAGAIN example replays preserved native measurements."""
+    profile = runner.DEEPER_REFILL_PROFILE
+    config = deeper_profile_config({})
+    assert runner.selected_reclaim_profile(config) == profile
+    assert runner.selected_reclaim_profile(wider_profile_config({})) == runner.WIDER_REFILL_PROFILE
+    cpu06_config = deeper_profile_config({'host': 'cpu-06'})
+    cpu06_config['reclaim_profile'] = runner.CPU06_DEEPER_REFILL_PROFILE
+    assert runner.selected_reclaim_profile(cpu06_config) == runner.CPU06_DEEPER_REFILL_PROFILE
+    assert runner.deficit_reclaim_policy(before, 4096, runner.CPU06_DEEPER_REFILL_PROFILE) == \
+        runner.deficit_reclaim_policy(before, 4096, profile)
+    for invalid in (dict(cpu06_config, host='cpu-05'),
+                    dict(deeper_profile_config({'host': 'cpu-05'}), reclaim_profile=runner.CPU06_DEEPER_REFILL_PROFILE)):
+        try: runner.selected_reclaim_profile(invalid)
+        except RuntimeError: pass
+        else: raise AssertionError('Host-specific refill profile mismatch accepted')
+    before = 4004335616
+    policy = runner.deficit_reclaim_policy(before, 4096, profile)
+    assert policy == {'parent_current': before, 'resume_bytes': 3355443200,
+        'buffer_bytes': 33554432, 'page_size': 4096,
+        'maximum_request_bytes': 838860800, 'request_bytes': 682446848}
+    payload = b'682446848 swappiness=0\n'
+    terminal = {'request_sha256': 'a'*64, 'policy': policy,
+        'request': payload.decode().strip(), 'exit_code': 1, 'errno': 11,
+        'error': 'Resource temporarily unavailable'}
+    after = {'parent_current': 3332542464}
+    assert runner.classify_reclaim_result(profile, policy, 1, terminal, 'a'*64,
+        payload, after) == 'eagain-short-reclaim-target-met'
+    # These preserved native observations are not a new reclaim execution.
+    leaf_before, leaf_after = 703864832, 32206848
+    assert leaf_before-leaf_after == 671657984
+    assert before-3332542464 == 671793152
+    assert 3332542464 < policy['resume_bytes']
+    bads = [
+        (profile, dict(terminal, errno=5), after),
+        (profile, terminal, {'parent_current': policy['resume_bytes']+1}),
+        (runner.WIDER_REFILL_PROFILE, terminal, after),
+        (profile, dict(terminal, request_sha256='b'*64), after),
+    ]
+    for selected, receipt, measurement in bads:
+        try:
+            runner.classify_reclaim_result(selected, policy, 1, receipt, 'a'*64,
+                payload, measurement)
+        except RuntimeError:
+            pass
+        else:
+            raise AssertionError('Unqualified EAGAIN or unmet target was accepted')
+    written = dict(terminal, exit_code=0, errno=None, error=None,
+        written_bytes=len(payload))
+    assert runner.classify_reclaim_result(profile, policy, 0, written, 'a'*64,
+        payload, {'parent_current': before}) == 'request-written'
+    return ['deeper-profile-exact-flow-policy-and-800MiB-request-cap',
+        'preserved-native-EAGAIN-accepted-only-after-fresh-target-check',
+        'EAGAIN-with-target-miss-wrong-profile-errno-or-binding-rejected',
+        'exact-successful-write-still-accepted',
+        'cpu06-profile-bound-to-cpu06-host-and-rejects-cross-host-binding']
 
 
 def wider_profile_fixture(workspace):
@@ -1798,7 +1871,12 @@ def main():
 
 
 if __name__ == '__main__':
-    if sys.argv[1:] == ['--wider-interface-fixture']:
+    if sys.argv[1:] == ['--deeper-profile-policy-fixture']:
+        selected=deeper_profile_fixture()
+        print(json.dumps({'status':'PASS','scope':'deeper-profile-policy-only',
+            'tests':selected,'no_lean_invoked':True,'no_cgroup_reclaim_invoked':True,
+            'eagain_measurement':'preserved native v04 receipt; no retry'}))
+    elif sys.argv[1:] == ['--wider-interface-fixture']:
         runner.validate_observation(runner.observe())
         workspace=runner.ROOT/'jacobian-weyl-20261110'
         with runner.lease(runner.ROOT/'locks/host-compiler.lock'):

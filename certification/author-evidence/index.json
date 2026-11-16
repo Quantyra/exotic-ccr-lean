@@ -1,0 +1,379 @@
+{
+  "created_utc": "2026-11-11T02:33:33.694693+00:00",
+  "status": "CANDIDATE_FROZEN_AWAITING_ADMITTED_CPU_FEEDBACK",
+  "authorship": "OProver-32B native requests selected typed primitive nodes/templates. Orchestration rendered Lean from selected nodes and existing checked source templates; candidate code is not represented as wholly verbatim model code. Direct code failures were not applied. Kernel verification and independent reviews remain mandatory.",
+  "guards": "Unchanged context 2048, batch 1, native model, normal 1100 MHz ceiling, monitor/ownership/queue/source-hash guards; one forwarded native request per job, no automatic continuation.",
+  "files": {
+    "ExoticCCR/TheoremFContinuum.lean": "8ccc8ecb456027a5a7e4b016cfd3ae4f46f2d325e017b86ffae3dbf9ea1b619f",
+    "ExoticCCR/TheoremCAnalytic.lean": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+  },
+  "jobs": [
+    {
+      "label": "circle-cardinality-01",
+      "decision": "rejected: native length limit and invalid Lean; no source edit",
+      "native_finish": [
+        "length"
+      ],
+      "process_terminal": true,
+      "native_calls": [
+        {
+          "http_status": 200,
+          "guard_abort_after": false,
+          "idle_before": {
+            "running": 0.0,
+            "waiting": 0.0
+          },
+          "tokenizer": {
+            "count": 531,
+            "max_model_len": 2048,
+            "monitor_sample": 7069,
+            "faults": []
+          },
+          "output_cap": 768
+        }
+      ],
+      "sha256": {
+        "packet.txt": "ec630b4f7269a21c923e9c8df652bda3913cd8e8d9f003f250d148ef31468865",
+        "source-binding.json": "d37e0121fe302e132090e0032f3a95c58f74a4e5d15a81f292195b582a918b4f",
+        "01-native-request.json": "02c1344f0826ee722726e7e8bbaffbdb5714c9dd6897926815b62acb373815e4",
+        "01-native-response.sse": "28b275a6eb8092b03719cf6e41705a98c1e4d06ed67304c5af2d7541e5d6b304",
+        "native-content.txt": "419153ab161356ebf5cbf4f248917f1461f96adb93fee535734e7a4c61adb6e0"
+      }
+    },
+    {
+      "label": "circle-cardinality-02",
+      "decision": "rejected: malformed type equality proof; no source edit",
+      "native_finish": [
+        "stop"
+      ],
+      "process_terminal": true,
+      "native_calls": [
+        {
+          "http_status": 200,
+          "guard_abort_after": false,
+          "idle_before": {
+            "running": 0.0,
+            "waiting": 0.0
+          },
+          "tokenizer": {
+            "count": 260,
+            "max_model_len": 2048,
+            "monitor_sample": 7125,
+            "faults": []
+          },
+          "output_cap": 128
+        }
+      ],
+      "sha256": {
+        "packet.txt": "b708d207c10e2cc7563ace2641d7a281326e9f45e6e964c67161b23cca224eaa",
+        "source-binding.json": "50e0dccb30ac5d4a015b4d4ce09bf54a5a8c0d1aff6d1dac53c10fae770db995",
+        "01-native-request.json": "ad21b5925e94d8f84162c70ebadd9508195125f7f4fb071a8c2d5555c08f0ecd",
+        "01-native-response.sse": "2cc71ff0307441ca333545b1a6f263bcb86bc442a6eb770e390e07f901272e6b",
+        "native-content.txt": "a53b5d1de19cfa5039573f1818c0ba546baabd75431c5c3264d812d96efb0609"
+      }
+    },
+    {
+      "label": "circle-cardinality-03",
+      "decision": "rejected: incomplete JSON whitespace loop; no source edit",
+      "native_finish": [
+        "length"
+      ],
+      "process_terminal": true,
+      "native_calls": [
+        {
+          "http_status": 200,
+          "guard_abort_after": false,
+          "idle_before": {
+            "running": 0.0,
+            "waiting": 0.0
+          },
+          "tokenizer": {
+            "count": 211,
+            "max_model_len": 2048,
+            "monitor_sample": 7153,
+            "faults": []
+          },
+          "output_cap": 128
+        }
+      ],
+      "sha256": {
+        "packet.txt": "c4f5e7cfe184218ed187a46421fecf93254e9f860183ecaf5ad1a5f4f7fdbe43",
+        "source-binding.json": "27b3abac788cd2b3940b41bee68a6cc90fadebd6c398134cc69cb0551f281c7a",
+        "01-native-request.json": "ee224b31dc783e434ce4daded2510e5d511af78665351d9fedeb477ff8846539",
+        "01-native-response.sse": "407737fee97163ae93655b67c0754a318e944e30dd51e914d6b8b717ccafbf01",
+        "native-content.txt": "c1e4113179e229d3056bcb0267bf0dca8e0cab3c5badec20502073fab9fd6a33"
+      }
+    },
+    {
+      "label": "circle-cardinality-04",
+      "decision": "accepted candidate node selection: cardinal equivalence plus interval cardinality; not kernel accepted",
+      "native_finish": [
+        "stop"
+      ],
+      "process_terminal": true,
+      "native_calls": [
+        {
+          "http_status": 200,
+          "guard_abort_after": false,
+          "idle_before": {
+            "running": 0.0,
+            "waiting": 0.0
+          },
+          "tokenizer": {
+            "count": 266,
+            "max_model_len": 2048,
+            "monitor_sample": 7183,
+            "faults": []
+          },
+          "output_cap": 128
+        }
+      ],
+      "sha256": {
+        "packet.txt": "4c2ee2d1a036dacdf4dcf02c8fe8ee55de889dd4d1621601483f02290fcde41d",
+        "source-binding.json": "a36bf3001383dcd124449c20007d13e104acaffb0f47844081c979707b187899",
+        "01-native-request.json": "2ede90e96ef5997cc92b4a56ed4ff429688347bc407900678985e797dfbe1ec2",
+        "01-native-response.sse": "ddbbf8063e8592dd8ab99ca98866994258e0ee667067dd7918a5d82ec5c5047e",
+        "native-content.txt": "9e20748e170fb7dabe5a1e85ed1c0d40b41d438e3a0df8e2d789b0b85e91fdcf",
+        "assembly.json": "feb0abd198a28ea17182d25ff69a466b69a9d176f08ee5fb273d49c0c1446ab5"
+      }
+    },
+    {
+      "label": "unitary-continuum-01",
+      "decision": "accepted candidate node selection; first rendering suffered Windows Unicode transport corruption, preserved then repaired; superseded by exact corrected-context selection unitary-continuum-02",
+      "native_finish": [
+        "stop"
+      ],
+      "process_terminal": true,
+      "native_calls": [
+        {
+          "http_status": 200,
+          "guard_abort_after": false,
+          "idle_before": {
+            "running": 0.0,
+            "waiting": 0.0
+          },
+          "tokenizer": {
+            "count": 377,
+            "max_model_len": 2048,
+            "monitor_sample": 7205,
+            "faults": []
+          },
+          "output_cap": 128
+        }
+      ],
+      "sha256": {
+        "packet.txt": "78752d416bfa48794d13415d5918e76d8847abab76888a537482d5df8aa1000c",
+        "source-binding.json": "8e112a6e1f79a4bfd22de7e376942d1e0e93c39816262bc33e742589b879e4ce",
+        "01-native-request.json": "f303d4b382c1c652dc39a2eb581ab11d634f4d98d9fcca06e9b6116648ac904e",
+        "01-native-response.sse": "ce61b0c8f8aa00faee34392400552a6b7e8bc128f3d11049eea3ec9824044a81",
+        "native-content.txt": "80bca3827b552c1a864512229b7a683b82d1547af08b13675a1b3f51892d87b9",
+        "assembly.json": "7fae730180da76cc6c6aa82c472fc05b4e8984c6239b9cb2ef18b13a681d0348",
+        "transport-repair.json": "0ecf3e34c18d839e535095627658c6392e9621c5ccdd6df61bafa3e83dd81039"
+      }
+    },
+    {
+      "label": "unitary-continuum-02",
+      "decision": "accepted corrected ASCII context node selection for exact frozen R2; no source change",
+      "native_finish": [
+        "stop"
+      ],
+      "process_terminal": true,
+      "native_calls": [
+        {
+          "http_status": 200,
+          "guard_abort_after": false,
+          "idle_before": {
+            "running": 0.0,
+            "waiting": 0.0
+          },
+          "tokenizer": {
+            "count": 377,
+            "max_model_len": 2048,
+            "monitor_sample": 7309,
+            "faults": []
+          },
+          "output_cap": 128
+        }
+      ],
+      "sha256": {
+        "packet.txt": "6c3cde79d041bad03366a413fbe7124ed5de2becdcc2873961e6cf01d30d0bd5",
+        "source-binding.json": "ec6b5d3dd2e0462e49edaaa9115d085e7fed024e84bfba05f39bfbff76322a04",
+        "01-native-request.json": "4d9d4a951aaa5e218cf89e4e7b2b8ec3894e12768070ebceb509b9e3161c856d",
+        "01-native-response.sse": "f02ce9f9a2c39f5b2ec728fc876d6069837dc76a204dadf69e9b206148ffa3cd",
+        "native-content.txt": "80bca3827b552c1a864512229b7a683b82d1547af08b13675a1b3f51892d87b9",
+        "corrected-context-binding.json": "ee3c8f82a238ec127c1502615ccc317ad9bac859c35e1c8acb2b8e07c88e2c72"
+      }
+    },
+    {
+      "label": "analytic-symmetry-01",
+      "decision": "accepted candidate typed template generalization; not kernel accepted",
+      "native_finish": [
+        "stop"
+      ],
+      "process_terminal": true,
+      "native_calls": [
+        {
+          "http_status": 200,
+          "guard_abort_after": false,
+          "idle_before": {
+            "running": 0.0,
+            "waiting": 0.0
+          },
+          "tokenizer": {
+            "count": 554,
+            "max_model_len": 2048,
+            "monitor_sample": 7238,
+            "faults": []
+          },
+          "output_cap": 128
+        }
+      ],
+      "sha256": {
+        "packet.txt": "4bf17c7e8382187df8d5ee0b532c240a0f74b246eed6ee2fe634dc54dfd31554",
+        "source-binding.json": "e97c595765896a2fbd29b20851186ffed8a621cc68ebe2b250d84c6c57253e52",
+        "01-native-request.json": "c31f641286ebce35534ae158f42f501701778f60229df211b257ab926dd9b0e3",
+        "01-native-response.sse": "29fcaaba7fe782cd16f0a9d139100497081ae08bd76d56b0bbec6122b0f54e8b",
+        "native-content.txt": "7252b64e643829f279008cb8c2dc436c57cdfbda2ff21b117c2f93de98765d71",
+        "assembly.json": "6e2f01eca3ee3e598f7a47f7170fba14b669ab9cccf75575d5294c806ed6e117"
+      }
+    },
+    {
+      "label": "analytic-derivative-01",
+      "decision": "rejected by static inspection: simp lacks derivative translation; no source edit",
+      "native_finish": [
+        "stop"
+      ],
+      "process_terminal": true,
+      "native_calls": [
+        {
+          "http_status": 200,
+          "guard_abort_after": false,
+          "idle_before": {
+            "running": 0.0,
+            "waiting": 0.0
+          },
+          "tokenizer": {
+            "count": 391,
+            "max_model_len": 2048,
+            "monitor_sample": 7352,
+            "faults": []
+          },
+          "output_cap": 384
+        }
+      ],
+      "sha256": {
+        "packet.txt": "8514e3703d94e89cf7b716f5da237189e3463c77f080faf7b5bf9096e09b3d5d",
+        "source-binding.json": "21f790163c5fe6b1f4b7263c438f61b1065a41329dd3d39df0e907c4d777a5d9",
+        "01-native-request.json": "8dc435a95a9c4ba9c1f6de8793a61dce898b89bba30620ea323068b411c1e8e6",
+        "01-native-response.sse": "b9f6b4557a6b737dbaf8df7632da9a40ce1b00cafbfabf1124bfc708a62d288b",
+        "native-content.txt": "9c19da856f989564200bdda5d317aac7500982654e510fa43baf91448db98435"
+      }
+    },
+    {
+      "label": "analytic-core-01",
+      "decision": "accepted candidate typed lemma applications and TestFunction constructors; not kernel accepted",
+      "native_finish": [
+        "stop"
+      ],
+      "process_terminal": true,
+      "native_calls": [
+        {
+          "http_status": 200,
+          "guard_abort_after": false,
+          "idle_before": {
+            "running": 0.0,
+            "waiting": 0.0
+          },
+          "tokenizer": {
+            "count": 545,
+            "max_model_len": 2048,
+            "monitor_sample": 7368,
+            "faults": []
+          },
+          "output_cap": 128
+        }
+      ],
+      "sha256": {
+        "packet.txt": "68338c449a04688a9db5770a5361b23736e5a8188c1d4ec5167f562251cef569",
+        "source-binding.json": "21f790163c5fe6b1f4b7263c438f61b1065a41329dd3d39df0e907c4d777a5d9",
+        "01-native-request.json": "3ae866adfac994476bdd76893104b09e7441e1b7787d753e4c357e612d30678e",
+        "01-native-response.sse": "c570c2536c056d3e4078f7bd343c5fb91280cf52c4f0bc11a2515b107b5da2df",
+        "native-content.txt": "50a0304e1a88fdc43a0ab78c2f9d9e34f2798154e9f2df645b5ff1bd120cebf3",
+        "assembly.json": "537f91862441525ac3d7ccfd3b79c0cdc77cfcf18569df6f06f35348c532043d"
+      }
+    },
+    {
+      "label": "analytic-commutator-01",
+      "decision": "rejected: native length limit repeating Complex.ext_iff; no source edit",
+      "native_finish": [
+        "length"
+      ],
+      "process_terminal": true,
+      "native_calls": [
+        {
+          "http_status": 200,
+          "guard_abort_after": false,
+          "idle_before": {
+            "running": 0.0,
+            "waiting": 0.0
+          },
+          "tokenizer": {
+            "count": 476,
+            "max_model_len": 2048,
+            "monitor_sample": 7381,
+            "faults": []
+          },
+          "output_cap": 512
+        }
+      ],
+      "sha256": {
+        "packet.txt": "37b8e83f0c3c10125eda29d6da1cb1660034198db88e645578be51e5f82d755a",
+        "source-binding.json": "21f790163c5fe6b1f4b7263c438f61b1065a41329dd3d39df0e907c4d777a5d9",
+        "01-native-request.json": "a77ce6b924fd774ed4961d44676eafaeb044d9f7c8be8514e3030742e3f09a97",
+        "01-native-response.sse": "43cd910387e6b756e6b363d790afaeea786bcdb314855fc6210c598e3937b33b",
+        "native-content.txt": "956e933bff2022c779994092e3b281d0f3ea1de19f0910a65fd066c8a19814a3"
+      }
+    },
+    {
+      "label": "analytic-operators-01",
+      "decision": "accepted candidate typed template/application plan; not kernel accepted",
+      "native_finish": [
+        "stop"
+      ],
+      "process_terminal": true,
+      "native_calls": [
+        {
+          "http_status": 200,
+          "guard_abort_after": false,
+          "idle_before": {
+            "running": 0.0,
+            "waiting": 0.0
+          },
+          "tokenizer": {
+            "count": 654,
+            "max_model_len": 2048,
+            "monitor_sample": 7408,
+            "faults": []
+          },
+          "output_cap": 192
+        }
+      ],
+      "sha256": {
+        "packet.txt": "c743458a9872bb64203ec6f2e85c3ef3a3512a692d744e9851df3acec3758daa",
+        "source-binding.json": "5de7df308f69bc6f479c167a8ddc44cf825d9d23972ebdda2644f51b4a47a6cb",
+        "01-native-request.json": "52dbfaf65510ce49680ee360f76d5c416a9c3f4bd900b22885f2323f9f432e13",
+        "01-native-response.sse": "79da0bcb7c018f764f3652558ee597e090e5e566939bd4e9ebfe8c9cec24db4e",
+        "native-content.txt": "8d176cc132598843b078c99c4a76a82535b07bdb4a48922b216825ec4edc1144",
+        "assembly.json": "1f93ad74546b3997e87581c65ad52ae56ff46e05be156b21f6323df1e181d8f7"
+      }
+    }
+  ],
+  "live_author_request": false,
+  "compiler_owner": "/root/compiler_admission; no compiler run by this author agent",
+  "durable_layout": {
+    "requests": "Sanitized packets, native content, terminal results and source bindings; private raw SSE hashes remain in each index record.",
+    "rendering": "Exact staged candidate bytes, rejected encoding bytes, selected rendered chunks, and provenance.",
+    "reconstruct": "python reconstruct.py --output-dir <empty-directory>; writes candidate .lean.txt artifacts only, never runs a compiler or edits repository sources."
+  },
+  "secrets_policy": "No service configuration, credentials, launch environment, auth headers, private keys, or token-bearing files included."
+}

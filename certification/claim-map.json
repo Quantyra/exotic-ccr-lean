@@ -1,0 +1,1038 @@
+{
+  "audit_requirements": {
+    "axioms": "Every dependency set must be a subset of {propext, Classical.choice, Quot.sound}; do not demand all three for newly audited simple algebraic theorems. Preserve old profiles separately.",
+    "build": "Full library build and exact elaborated type/axiom checks with Lean4.33.0-rc1 and mathlib79d0395a1825a6264ad5d269e35e60537518955e on admitted CPU host.",
+    "claim_boundary": "Do not declare every supporting manuscript lemma Lean-certified when alternative routes or explicit exclusions remain.",
+    "custody": "Source/control/toolchain/dependency hashes, command lines, exit codes and complete logs must be stored durably; a successful GitHub run metadata record or source grep is insufficient alone.",
+    "expanded_audit": "Audit the exact declarations listed here plus every new gap-closing export, with full elaborated types and transitive #print axioms output. Import ExoticCCR rather than only ExtensionMultiplicity so A-D exports are in scope.",
+    "old_audit": "Retain the nine old E/F declarations and compare their exact types/axiom profiles; original source bytes remain frozen."
+  },
+  "candidate_integrated_utc": "2026-11-11T04:34:34.108833+00:00",
+  "candidate_source_bindings": {
+    "R2": {
+      "acceptance_status": "NOT_ACCEPTED",
+      "bytes": 1804,
+      "compile_status": "UNCOMPILED",
+      "declaration_count": 5,
+      "file": "ExoticCCR/TheoremFContinuum.lean",
+      "line_endings": "LF",
+      "sha256": "8ccc8ecb456027a5a7e4b016cfd3ae4f46f2d325e017b86ffae3dbf9ea1b619f",
+      "source_origin": "frozen_working_tree_lf"
+    },
+    "R3": {
+      "acceptance_status": "NOT_ACCEPTED",
+      "bytes": 13230,
+      "compile_status": "UNCOMPILED",
+      "declaration_count": 31,
+      "file": "ExoticCCR/TheoremCAnalytic.lean",
+      "line_endings": "LF",
+      "sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30",
+      "source_origin": "frozen_working_tree_lf"
+    }
+  },
+  "certificate_issued": false,
+  "claims": [
+    {
+      "claim": "A: exact determinant and three displayed collision values",
+      "coverage_class": "EXACT_ALGEBRAIC_EXPORTS",
+      "declarations": [
+        {
+          "checkout_sha256": "f96583fa913049cecd268848112428f47ee317c69c080d9ec440ccd45d5c929d",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.jacobianDet_F",
+          "file": "ExoticCCR/AnchorF.lean",
+          "line": 32,
+          "source_sha256": "34f0b8b056fc721ca88f7f5f9a5620f685c9380ba9b6ed2a8bd0c4a676384ebb"
+        },
+        {
+          "checkout_sha256": "f96583fa913049cecd268848112428f47ee317c69c080d9ec440ccd45d5c929d",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.evalMap_F_p0",
+          "file": "ExoticCCR/AnchorF.lean",
+          "line": 42,
+          "source_sha256": "34f0b8b056fc721ca88f7f5f9a5620f685c9380ba9b6ed2a8bd0c4a676384ebb"
+        },
+        {
+          "checkout_sha256": "f96583fa913049cecd268848112428f47ee317c69c080d9ec440ccd45d5c929d",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.evalMap_F_p1",
+          "file": "ExoticCCR/AnchorF.lean",
+          "line": 47,
+          "source_sha256": "34f0b8b056fc721ca88f7f5f9a5620f685c9380ba9b6ed2a8bd0c4a676384ebb"
+        },
+        {
+          "checkout_sha256": "f96583fa913049cecd268848112428f47ee317c69c080d9ec440ccd45d5c929d",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.evalMap_F_p2",
+          "file": "ExoticCCR/AnchorF.lean",
+          "line": 54,
+          "source_sha256": "34f0b8b056fc721ca88f7f5f9a5620f685c9380ba9b6ed2a8bd0c4a676384ebb"
+        },
+        {
+          "checkout_sha256": "e9488d2066876813562f1f5285d811c5970ba608af2e792bf7aa8ffc05245fa0",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.collision_target_F",
+          "file": "ExoticCCR/Collision.lean",
+          "line": 39,
+          "source_sha256": "d5c950d96ef036dfbdc35c013b2f863a2a23c8b54de428cf0cf211df2f60e182"
+        }
+      ],
+      "scope_note": "Collision p1/p2 require (2:K) != 0, exactly the paper characteristic condition. Polynomial F and jacobianDet definitions must be included in source/type custody."
+    },
+    {
+      "claim": "A(3): noninjectivity of the specific map F",
+      "coverage_class": "EXACT_COLLISION_EVIDENCE_WITH_NO_STANDALONE_F_NONINJECTIVITY_EXPORT",
+      "declarations": [
+        {
+          "checkout_sha256": "e9488d2066876813562f1f5285d811c5970ba608af2e792bf7aa8ffc05245fa0",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.collision_three_points_F",
+          "file": "ExoticCCR/Collision.lean",
+          "line": 27,
+          "source_sha256": "d5c950d96ef036dfbdc35c013b2f863a2a23c8b54de428cf0cf211df2f60e182"
+        },
+        {
+          "checkout_sha256": "b5f1ee5b76825c866000916a19ac4f1fe0148a73b1f99cec67b2f7c1bc64ec08",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "not_injective_unit_jacobian_char_ne_two",
+          "file": "ExoticCCR/Counterexample.lean",
+          "line": 22,
+          "source_sha256": "30818c279ad70fbf432c5b01c2f4d5e917688911cec933313c1b3585aa570ec7"
+        }
+      ],
+      "scope_note": "The second declaration is in the ROOT namespace, not ExoticCCR, and negates a universal unit-Jacobian injectivity assertion. Its proof uses F but its statement is not literally not Injective (evalMap (F K)). If a one-to-one named claim export is wanted, add a small exact F noninjectivity wrapper using the collision identities; do not label the general packaging type as the exact claim."
+    },
+    {
+      "claim": "B(1): polynomial dual matrix and inverse identity",
+      "coverage_class": "EXACT_ALGEBRAIC_EXPORT",
+      "declarations": [
+        {
+          "checkout_sha256": "b56dc95eba8b5a0d92abc6bdee9d687db648eec92dddf549800374956f46cd26",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.dualMatrixF",
+          "file": "ExoticCCR/DualMatrix.lean",
+          "line": 25,
+          "source_sha256": "0afc726cffa9f3c753d330649be0baab1025c35ebd94cf7e53073f839509f81e"
+        },
+        {
+          "checkout_sha256": "b56dc95eba8b5a0d92abc6bdee9d687db648eec92dddf549800374956f46cd26",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.jacobian_mul_dualMatrixF_transpose",
+          "file": "ExoticCCR/DualMatrix.lean",
+          "line": 30,
+          "source_sha256": "0afc726cffa9f3c753d330649be0baab1025c35ebd94cf7e53073f839509f81e"
+        }
+      ],
+      "scope_note": "dualMatrixF is the polynomial expression -(adj J)^T/2. Identity J B^T = I requires 2 != 0."
+    },
+    {
+      "claim": "B(2): canonical polynomial Poisson generator relations",
+      "coverage_class": "EXACT_ALGEBRAIC_EXPORT",
+      "declarations": [
+        {
+          "checkout_sha256": "bee4d6a0c75e08514a159c0c8906b42ecbf1f373c8f2f0886adcb3c37451805b",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremB_poisson",
+          "file": "ExoticCCR/Poisson.lean",
+          "line": 116,
+          "source_sha256": "79a19bc3c93108393ef56c16e5e8df80f28cb41b057644a278b8238704fb8f20"
+        }
+      ],
+      "scope_note": "Conjunction of QQ=0, PP=0, QP=Kronecker delta for every pair i,j; verify phaseQ/phaseP and poissonBracket definitions. This is not an exponentiated Weyl relation."
+    },
+    {
+      "claim": "B(3): cotangent lift noninjectivity",
+      "coverage_class": "EXACT_CONCLUSION_WITH_SIMPLER_WITNESSES",
+      "declarations": [
+        {
+          "checkout_sha256": "95ac5c6d3666f7d07cb8dba1f4d4f5ad9d78d05138d76998b2366e9c9130394b",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.cotangentLiftF",
+          "file": "ExoticCCR/TheoremB.lean",
+          "line": 29,
+          "source_sha256": "9ffaa3af097a6c90e4bd5ed1650efe1ffa259bcc42176b44cf862a3315500977"
+        },
+        {
+          "checkout_sha256": "95ac5c6d3666f7d07cb8dba1f4d4f5ad9d78d05138d76998b2366e9c9130394b",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.cotangentLiftF_three_zero_collisions",
+          "file": "ExoticCCR/TheoremB.lean",
+          "line": 36,
+          "source_sha256": "9ffaa3af097a6c90e4bd5ed1650efe1ffa259bcc42176b44cf862a3315500977"
+        },
+        {
+          "checkout_sha256": "95ac5c6d3666f7d07cb8dba1f4d4f5ad9d78d05138d76998b2366e9c9130394b",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.cotangentLiftF_not_injective",
+          "file": "ExoticCCR/TheoremB.lean",
+          "line": 45,
+          "source_sha256": "9ffaa3af097a6c90e4bd5ed1650efe1ffa259bcc42176b44cf862a3315500977"
+        }
+      ],
+      "scope_note": "Formal proof uses zero covectors, which suffice for the same noninjectivity conclusion. It does not separately export the paper proof construction for arbitrary target covector P*."
+    },
+    {
+      "claim": "C(1): duality, divergence and commuting polynomial derivations",
+      "coverage_class": "EXACT_POLYNOMIAL_EXPORTS",
+      "declarations": [
+        {
+          "checkout_sha256": "eb0550b3ce6c417dccf403e7c0f4b59d383cbab55de0764ef0b484aaeb5a7c00",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.dualField_F",
+          "file": "ExoticCCR/TheoremC.lean",
+          "line": 51,
+          "source_sha256": "fc35e1a8dfffc74ca1ecd6868f8b10d7f20b029aaa731484029039eb2283b369"
+        },
+        {
+          "checkout_sha256": "eb0550b3ce6c417dccf403e7c0f4b59d383cbab55de0764ef0b484aaeb5a7c00",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.dualFieldDivergence_eq_zero",
+          "file": "ExoticCCR/TheoremC.lean",
+          "line": 63,
+          "source_sha256": "fc35e1a8dfffc74ca1ecd6868f8b10d7f20b029aaa731484029039eb2283b369"
+        },
+        {
+          "checkout_sha256": "eb0550b3ce6c417dccf403e7c0f4b59d383cbab55de0764ef0b484aaeb5a7c00",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.dualField_bracket_eq_zero",
+          "file": "ExoticCCR/TheoremC.lean",
+          "line": 91,
+          "source_sha256": "fc35e1a8dfffc74ca1ecd6868f8b10d7f20b029aaa731484029039eb2283b369"
+        }
+      ],
+      "scope_note": "All j/i and arbitrary polynomial p covered. Analytic evaluation correspondence is separate from these formal-polynomial identities."
+    },
+    {
+      "claim": "C(2): all-j symmetry and multiplication commutator on compact smooth core",
+      "coverage_class": "ALL_J_ANALYTIC_OPERATOR_SOURCE_CANDIDATE_UNCOMPILED_NOT_ACCEPTED",
+      "declarations": [
+        {
+          "checkout_sha256": "dccd6ddadacb973a433a0e3cac0a1c3f5014d8f0aa870e17559f321f6375f13e",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.H_X1_min_isFormalAdjoint_H_X1_min",
+          "file": "ExoticCCR/TheoremFSymmetricCore.lean",
+          "line": 367,
+          "source_sha256": "ab38a04d5222e6a1d1decb4212b4deb4a98354b09febe0aa0e5930a108b1c537"
+        },
+        {
+          "checkout_sha256": "dccd6ddadacb973a433a0e3cac0a1c3f5014d8f0aa870e17559f321f6375f13e",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.integral_transport_derivative_eq_neg_of_analyticDivergence_eq_zero",
+          "file": "ExoticCCR/TheoremFSymmetricCore.lean",
+          "line": 277,
+          "source_sha256": "ab38a04d5222e6a1d1decb4212b4deb4a98354b09febe0aa0e5930a108b1c537"
+        },
+        {
+          "checkout_sha256": "ae2ea1a6207e2428063b2b3d606d354e35cdbcbf413d5f074babd28c8a7304b4",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.minimalTransportCore_domain",
+          "file": "ExoticCCR/TransportCore.lean",
+          "line": 197,
+          "source_sha256": "6bc85a7a4f970f4e19bb169a679f5c1f69885a0fe4769c14f0b6739b12ceae71"
+        },
+        {
+          "checkout_sha256": "ae2ea1a6207e2428063b2b3d606d354e35cdbcbf413d5f074babd28c8a7304b4",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.minimalTransportCore_apply",
+          "file": "ExoticCCR/TransportCore.lean",
+          "line": 204,
+          "source_sha256": "6bc85a7a4f970f4e19bb169a679f5c1f69885a0fe4769c14f0b6739b12ceae71"
+        },
+        {
+          "declaration": "ExoticCCR.analyticDualField",
+          "declaration_kind": "def",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 11,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.contDiff_analyticDualField",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 15,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.sum_pderiv_dualMatrixF_row",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 20,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.analyticDivergence_analyticDualField_eq_zero",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 24,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.transportAction_testFunction_pairing",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 46,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.H_j_min",
+          "declaration_kind": "def",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 98,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.H_j_min_isFormalAdjoint",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 102,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.fderiv_anchor_on_dual",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 110,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.anchorComplex",
+          "declaration_kind": "def",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 119,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.contDiff_anchorComplex",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 122,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.fderiv_anchorComplex_on_dual",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 126,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.anchorMultiplication",
+          "declaration_kind": "def",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 141,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.dualTransportOnCore",
+          "declaration_kind": "def",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 147,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.anchorMultiplicationMap",
+          "declaration_kind": "def",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 155,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.anchorMultiplicationGraphMap",
+          "declaration_kind": "def",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 168,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.anchorMultiplicationGraph_functional",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 171,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.M_F_min",
+          "declaration_kind": "def",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 181,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.M_F_min_domain",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 184,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.M_F_min_mem_domain",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 190,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.M_F_min_apply",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 195,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.testFunctionToL2_dualTransportOnCore",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 205,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.H_j_min_domain",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 209,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.H_j_min_mem_domain",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 213,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.H_j_min_apply",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 218,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.H_j_min_preserves_common_core",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 226,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.M_F_min_preserves_common_core",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 232,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.commonCore_commutator",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 238,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.theoremC_commonCore_commutator",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 254,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.analyticDualField_eq_dualVectorField",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 265,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.H_j_min_one_eq_H_X1_min",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 269,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        },
+        {
+          "declaration": "ExoticCCR.H_j_min_dense_domain",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremCAnalytic.lean",
+          "line": 272,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30"
+        }
+      ],
+      "scope_note": "The frozen source candidate adds all-j analytic divergence, formal symmetry, both invariant core actions and the actual partial-L2 multiplication commutator. H_j_min_domain and M_F_min_domain identify the same range of testFunctionToL2; preservation witnesses justify both nested compositions. H_j_min_one_eq_H_X1_min preserves the old escaping operator. The candidate is not yet accepted: exact elaborated types, allowed transitive axioms, successful admitted build and independent reviews remain required. No essential self-adjointness or deficiency-index claim for H0/H2 follows."
+    },
+    {
+      "claim": "C(3): unique abstract polynomial Weyl endomorphism",
+      "coverage_class": "EXACT_ALGEBRAIC_EXPORTS",
+      "declarations": [
+        {
+          "checkout_sha256": "10f53e3127c747af536765130471dd9b2b380732d1851936aac73a3c4a943d02",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremCPsi",
+          "file": "ExoticCCR/TheoremCWeyl.lean",
+          "line": 194,
+          "source_sha256": "1c509493b72704eaa967b7d791b6ab1537aae9b3a70ce380d571a71115103620"
+        },
+        {
+          "checkout_sha256": "10f53e3127c747af536765130471dd9b2b380732d1851936aac73a3c4a943d02",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremCPsi_q",
+          "file": "ExoticCCR/TheoremCWeyl.lean",
+          "line": 198,
+          "source_sha256": "1c509493b72704eaa967b7d791b6ab1537aae9b3a70ce380d571a71115103620"
+        },
+        {
+          "checkout_sha256": "10f53e3127c747af536765130471dd9b2b380732d1851936aac73a3c4a943d02",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremCPsi_p",
+          "file": "ExoticCCR/TheoremCWeyl.lean",
+          "line": 202,
+          "source_sha256": "1c509493b72704eaa967b7d791b6ab1537aae9b3a70ce380d571a71115103620"
+        },
+        {
+          "checkout_sha256": "10f53e3127c747af536765130471dd9b2b380732d1851936aac73a3c4a943d02",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremCPsi_unique",
+          "file": "ExoticCCR/TheoremCWeyl.lean",
+          "line": 207,
+          "source_sha256": "1c509493b72704eaa967b7d791b6ab1537aae9b3a70ce380d571a71115103620"
+        },
+        {
+          "checkout_sha256": "10f53e3127c747af536765130471dd9b2b380732d1851936aac73a3c4a943d02",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremCPsi_qq",
+          "file": "ExoticCCR/TheoremCWeyl.lean",
+          "line": 85,
+          "source_sha256": "1c509493b72704eaa967b7d791b6ab1537aae9b3a70ce380d571a71115103620"
+        },
+        {
+          "checkout_sha256": "10f53e3127c747af536765130471dd9b2b380732d1851936aac73a3c4a943d02",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremCPsi_qp",
+          "file": "ExoticCCR/TheoremCWeyl.lean",
+          "line": 91,
+          "source_sha256": "1c509493b72704eaa967b7d791b6ab1537aae9b3a70ce380d571a71115103620"
+        },
+        {
+          "checkout_sha256": "10f53e3127c747af536765130471dd9b2b380732d1851936aac73a3c4a943d02",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremCPsi_pp",
+          "file": "ExoticCCR/TheoremCWeyl.lean",
+          "line": 164,
+          "source_sha256": "1c509493b72704eaa967b7d791b6ab1537aae9b3a70ce380d571a71115103620"
+        }
+      ],
+      "scope_note": "Includes generator formulas and uniqueness. No noninvertibility, C*-completion, unitary conjugation, channel, or exponentiated CCR conclusion follows."
+    },
+    {
+      "claim": "D: explicit integral curve, finite escape and incompleteness",
+      "coverage_class": "EXACT_ANALYTIC_EXPORTS",
+      "declarations": [
+        {
+          "checkout_sha256": "cbc2452740e1f0cc373fc61ab96f3e36e2b7c80dd47075a4f9e638e6f6d37b07",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.evalMap_F_gamma",
+          "file": "ExoticCCR/TheoremD.lean",
+          "line": 81,
+          "source_sha256": "2053908734ab40c452e2ddfc938bfb35862839b7d38909d876983da28a1ca3c9"
+        },
+        {
+          "checkout_sha256": "cbc2452740e1f0cc373fc61ab96f3e36e2b7c80dd47075a4f9e638e6f6d37b07",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.hasDerivAt_gamma",
+          "file": "ExoticCCR/TheoremD.lean",
+          "line": 100,
+          "source_sha256": "2053908734ab40c452e2ddfc938bfb35862839b7d38909d876983da28a1ca3c9"
+        },
+        {
+          "checkout_sha256": "cbc2452740e1f0cc373fc61ab96f3e36e2b7c80dd47075a4f9e638e6f6d37b07",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.tendsto_norm_gamma_atTop",
+          "file": "ExoticCCR/TheoremD.lean",
+          "line": 241,
+          "source_sha256": "2053908734ab40c452e2ddfc938bfb35862839b7d38909d876983da28a1ca3c9"
+        },
+        {
+          "checkout_sha256": "cbc2452740e1f0cc373fc61ab96f3e36e2b7c80dd47075a4f9e638e6f6d37b07",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.X1_incomplete",
+          "file": "ExoticCCR/TheoremD.lean",
+          "line": 294,
+          "source_sha256": "2053908734ab40c452e2ddfc938bfb35862839b7d38909d876983da28a1ca3c9"
+        }
+      ],
+      "scope_note": "The active parameterized proofs supersede the historical sample-only backlog description. Curve domain is (0,1/2); escape at 1/2 proves smooth vector-field incompleteness."
+    },
+    {
+      "claim": "E: canonical H1 not essentially self-adjoint",
+      "coverage_class": "EXACT_CANONICAL_OPERATOR_EXPORT",
+      "declarations": [
+        {
+          "checkout_sha256": "05a9b9ef799007179e4e44a5e461091a609dae588c65e612d265822115e2950d",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.X1_forwardWeakDeficiency",
+          "file": "ExoticCCR/TheoremEForwardIBP.lean",
+          "line": 1128,
+          "source_sha256": "19686f06319bf2c4a6cbd9a389f8c223c7a694a481fb5b0482c148f2f147e85e"
+        },
+        {
+          "checkout_sha256": "05a9b9ef799007179e4e44a5e461091a609dae588c65e612d265822115e2950d",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremE",
+          "file": "ExoticCCR/TheoremEForwardIBP.lean",
+          "line": 1141,
+          "source_sha256": "19686f06319bf2c4a6cbd9a389f8c223c7a694a481fb5b0482c148f2f147e85e"
+        },
+        {
+          "checkout_sha256": "ae2ea1a6207e2428063b2b3d606d354e35cdbcbf413d5f074babd28c8a7304b4",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.minimalTransportCore_dense_domain",
+          "file": "ExoticCCR/TransportCore.lean",
+          "line": 240,
+          "source_sha256": "6bc85a7a4f970f4e19bb169a679f5c1f69885a0fe4769c14f0b6739b12ceae71"
+        }
+      ],
+      "scope_note": "Unconditional canonical-core proof. Do not substitute legacy theoremE_of_transportNecessity, whose necessity hypothesis is explicit and not established for arbitrary realizations."
+    },
+    {
+      "claim": "F: both Hilbert deficiency indices equal aleph0",
+      "coverage_class": "EXACT_CANONICAL_OPERATOR_EXPORTS",
+      "declarations": [
+        {
+          "checkout_sha256": "304459176caf35553f79751925ffec7f407ff296781006aeda001b4599b87a2f",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremF",
+          "file": "ExoticCCR/TheoremFPlusITransport.lean",
+          "line": 300,
+          "source_sha256": "ee7a0d2e09f064cd9a401d0ca175a6350afaee53fe2ede9dd04550f650104b84"
+        },
+        {
+          "checkout_sha256": "01bb8ba4ec96b92cb38f0925d0c34debcfac3ce72cccaa4601791dcd3eaf0cff",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.hilbertDeficiencyIndex_X1_eq_aleph0",
+          "file": "ExoticCCR/TheoremFHilbertIndex.lean",
+          "line": 182,
+          "source_sha256": "59da3b37ce7b1414c74f626844884b4c4c5b96db0efb767ab851d68b1c6c7551"
+        },
+        {
+          "checkout_sha256": "304459176caf35553f79751925ffec7f407ff296781006aeda001b4599b87a2f",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.aleph0_le_hamelDeficiencyRank_X1",
+          "file": "ExoticCCR/TheoremFPlusITransport.lean",
+          "line": 284,
+          "source_sha256": "ee7a0d2e09f064cd9a401d0ca175a6350afaee53fe2ede9dd04550f650104b84"
+        }
+      ],
+      "scope_note": "theoremF itself proves non-finite-dimensionality; the exact Hilbert-basis-cardinality claim is the separate hilbertDeficiencyIndex theorem. Hamel-rank export is a LOWER BOUND, not exact equality."
+    },
+    {
+      "claim": "Corollary: classification and distinct phase-indexed extensions",
+      "coverage_class": "EXACT_CANONICAL_OPERATOR_EXPORTS",
+      "declarations": [
+        {
+          "checkout_sha256": "00889b2ffb65d8d2ed0d204dc99a0d867087e56311209274cfe8f47e9f4396a5",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremFVonNeumannClassification",
+          "file": "ExoticCCR/TheoremFVonNeumannClassification.lean",
+          "line": 645,
+          "source_sha256": "2af0bb01f86b3183da26026370dcaaeb8fa871a74b5f8cfcaa2171905b71ecd7"
+        },
+        {
+          "checkout_sha256": "00889b2ffb65d8d2ed0d204dc99a0d867087e56311209274cfe8f47e9f4396a5",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremFDeficiencySigmaEquiv",
+          "file": "ExoticCCR/TheoremFVonNeumannClassification.lean",
+          "line": 687,
+          "source_sha256": "2af0bb01f86b3183da26026370dcaaeb8fa871a74b5f8cfcaa2171905b71ecd7"
+        },
+        {
+          "checkout_sha256": "00889b2ffb65d8d2ed0d204dc99a0d867087e56311209274cfe8f47e9f4396a5",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremF_exists_two_distinct_selfAdjointExtensions",
+          "file": "ExoticCCR/TheoremFVonNeumannClassification.lean",
+          "line": 732,
+          "source_sha256": "2af0bb01f86b3183da26026370dcaaeb8fa871a74b5f8cfcaa2171905b71ecd7"
+        },
+        {
+          "checkout_sha256": "0f8694500e03d752297caf6cbc9bdd689c7aaa8e9fb5f3ce839c5a67130f845b",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremFUnitPhaseExtension",
+          "file": "ExoticCCR/TheoremFExtensionMultiplicity.lean",
+          "line": 27,
+          "source_sha256": "fb4ad62550a9f4a3e3d47940b06812491539605e02ca756627f84ce1b3d7f33e"
+        },
+        {
+          "checkout_sha256": "0f8694500e03d752297caf6cbc9bdd689c7aaa8e9fb5f3ce839c5a67130f845b",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremFUnitPhaseExtension_injective",
+          "file": "ExoticCCR/TheoremFExtensionMultiplicity.lean",
+          "line": 33,
+          "source_sha256": "fb4ad62550a9f4a3e3d47940b06812491539605e02ca756627f84ce1b3d7f33e"
+        }
+      ],
+      "scope_note": "SelfAdjointExtension has one operator field and proof fields. SelfAdjointExtension.ext_op ensures witness equality tracks operator equality. The existing injection gives distinct operators, not merely different proof certificates."
+    },
+    {
+      "claim": "Corollary: continuum-sized lower family",
+      "coverage_class": "CONTINUUM_LOWER_BOUND_SOURCE_CANDIDATE_UNCOMPILED_NOT_ACCEPTED",
+      "declarations": [
+        {
+          "checkout_sha256": "0f8694500e03d752297caf6cbc9bdd689c7aaa8e9fb5f3ce839c5a67130f845b",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremFUnitPhaseExtension_injective",
+          "file": "ExoticCCR/TheoremFExtensionMultiplicity.lean",
+          "line": 33,
+          "source_sha256": "fb4ad62550a9f4a3e3d47940b06812491539605e02ca756627f84ce1b3d7f33e"
+        },
+        {
+          "checkout_sha256": "00889b2ffb65d8d2ed0d204dc99a0d867087e56311209274cfe8f47e9f4396a5",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.SelfAdjointExtension.ext_op",
+          "file": "ExoticCCR/TheoremFVonNeumannClassification.lean",
+          "line": 563,
+          "source_sha256": "2af0bb01f86b3183da26026370dcaaeb8fa871a74b5f8cfcaa2171905b71ecd7"
+        },
+        {
+          "declaration": "ExoticCCR.mk_circle_eq_continuum",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremFContinuum.lean",
+          "line": 9,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "8ccc8ecb456027a5a7e4b016cfd3ae4f46f2d325e017b86ffae3dbf9ea1b619f"
+        },
+        {
+          "declaration": "ExoticCCR.circleToUnitary",
+          "declaration_kind": "def",
+          "file": "ExoticCCR/TheoremFContinuum.lean",
+          "line": 14,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "8ccc8ecb456027a5a7e4b016cfd3ae4f46f2d325e017b86ffae3dbf9ea1b619f"
+        },
+        {
+          "declaration": "ExoticCCR.circleToUnitary_injective",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremFContinuum.lean",
+          "line": 20,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "8ccc8ecb456027a5a7e4b016cfd3ae4f46f2d325e017b86ffae3dbf9ea1b619f"
+        },
+        {
+          "declaration": "ExoticCCR.mk_unitary_complex_eq_continuum",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremFContinuum.lean",
+          "line": 26,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "8ccc8ecb456027a5a7e4b016cfd3ae4f46f2d325e017b86ffae3dbf9ea1b619f"
+        },
+        {
+          "declaration": "ExoticCCR.theoremF_continuum_le_selfAdjointExtensions",
+          "declaration_kind": "theorem",
+          "file": "ExoticCCR/TheoremFContinuum.lean",
+          "line": 37,
+          "source_origin": "frozen_working_tree_lf",
+          "source_sha256": "8ccc8ecb456027a5a7e4b016cfd3ae4f46f2d325e017b86ffae3dbf9ea1b619f"
+        }
+      ],
+      "scope_note": "The frozen source candidate proves the circle and unitary-complex parameter types have continuum cardinality, then applies the unchanged theoremFUnitPhaseExtension_injective to state Cardinal.continuum <= Cardinal.mk (SelfAdjointExtension H_X1_min). Exact whole-extension cardinality is neither needed nor asserted. Source presence is not proof acceptance; admitted CPU build, exact type/transitive-axiom audit and independent review remain pending."
+    },
+    {
+      "claim": "Supporting forward-wall and reconstruction geometry",
+      "coverage_class": "FORMAL_INGREDIENTS_WITH_SCOPE_LIMITS",
+      "declarations": [
+        {
+          "checkout_sha256": "a2018a8c349a372f66c9c5b153a54a6503965a1bd6acc1076c7da48ff823b74f",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.exists_forwardWallBeta_germ",
+          "file": "ExoticCCR/TheoremFForwardWall.lean",
+          "line": 81,
+          "source_sha256": "655b7c6e7ae850ddb1feff3805b069868a35fd06df9d49697331837fc005cb8d"
+        },
+        {
+          "checkout_sha256": "8aacb40a0a9199a63fabf1ea7f452a140287856d281cc84d95d5539f7386f0df",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.exists_forwardBranchOpen",
+          "file": "ExoticCCR/TheoremFForwardBranch.lean",
+          "line": 429,
+          "source_sha256": "384953f9bce8d928bf78069454198a66b15ff264c1ba343446f9ba54a39452bd"
+        },
+        {
+          "checkout_sha256": "8aacb40a0a9199a63fabf1ea7f452a140287856d281cc84d95d5539f7386f0df",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.ForwardBranchOpen.tendsto_norm_branchMap_at_base",
+          "file": "ExoticCCR/TheoremFForwardBranch.lean",
+          "line": 596,
+          "source_sha256": "384953f9bce8d928bf78069454198a66b15ff264c1ba343446f9ba54a39452bd"
+        },
+        {
+          "checkout_sha256": "7cceff811e6771a07f2c9fe677cab3f8b5eb6d2f5cfb507e246e0bb4b5ee0ef2",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.det_fderiv_evalMap_F",
+          "file": "ExoticCCR/TheoremFJacobianFDeriv.lean",
+          "line": 103,
+          "source_sha256": "a7e62131d17e24127cf3a742ce52243f6dd4503387d7e4e7c114ef69b54eb4fa"
+        }
+      ],
+      "scope_note": "The formal sufficient ingredients support the deficiency route. Do not relabel a base-point branch escape limit as a uniform quantitative escape estimate over every transverse point."
+    },
+    {
+      "claim": "Supporting saturated maximal sheet and measure",
+      "coverage_class": "FORMAL_INGREDIENTS_NOT_NAMED_GLOBAL_DIFFEO_OR_INVARIANCE",
+      "declarations": [
+        {
+          "checkout_sha256": "7b0778f1ac67d3a9f03a592def4e0e575d388be6da4ceb0773fb0c95782e1b4e",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.ForwardBranchOpen.exists_forwardMaximalSheet",
+          "file": "ExoticCCR/TheoremFMaximalSheet.lean",
+          "line": 200,
+          "source_sha256": "769fd999f09635ac17d9cf555b847a5e63f27f9a4db7f6a4c08caa47d2cb3085"
+        },
+        {
+          "checkout_sha256": "7b0778f1ac67d3a9f03a592def4e0e575d388be6da4ceb0773fb0c95782e1b4e",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.ForwardMaximalSheet.evalMap_Psi",
+          "file": "ExoticCCR/TheoremFMaximalSheet.lean",
+          "line": 126,
+          "source_sha256": "769fd999f09635ac17d9cf555b847a5e63f27f9a4db7f6a4c08caa47d2cb3085"
+        },
+        {
+          "checkout_sha256": "7b0778f1ac67d3a9f03a592def4e0e575d388be6da4ceb0773fb0c95782e1b4e",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.ForwardMaximalSheet.injOn_Psi",
+          "file": "ExoticCCR/TheoremFMaximalSheet.lean",
+          "line": 138,
+          "source_sha256": "769fd999f09635ac17d9cf555b847a5e63f27f9a4db7f6a4c08caa47d2cb3085"
+        },
+        {
+          "checkout_sha256": "de56e8fed10cc8b24d94d5427fc215e3b5269422fe25c079c35471b4ff6bd0fb",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.ForwardMaximalSheet.abs_det_fderiv_PsiFin3",
+          "file": "ExoticCCR/TheoremFMaximalSheetDensity.lean",
+          "line": 205,
+          "source_sha256": "c4b6fddd84cb9290cc33950fea14f13454387899bcddbeaebaea95539c74f5e8"
+        },
+        {
+          "checkout_sha256": "de56e8fed10cc8b24d94d5427fc215e3b5269422fe25c079c35471b4ff6bd0fb",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.ForwardMaximalSheet.measurableEmbedding_PsiFin3",
+          "file": "ExoticCCR/TheoremFMaximalSheetDensity.lean",
+          "line": 240,
+          "source_sha256": "c4b6fddd84cb9290cc33950fea14f13454387899bcddbeaebaea95539c74f5e8"
+        },
+        {
+          "checkout_sha256": "de56e8fed10cc8b24d94d5427fc215e3b5269422fe25c079c35471b4ff6bd0fb",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.ForwardMaximalSheet.isOpen_image_Psi",
+          "file": "ExoticCCR/TheoremFMaximalSheetDensity.lean",
+          "line": 612,
+          "source_sha256": "c4b6fddd84cb9290cc33950fea14f13454387899bcddbeaebaea95539c74f5e8"
+        }
+      ],
+      "scope_note": "Paper explicitly discloses that the global C-infinity diffeomorphism and flow-invariance formulation is not packaged as a named theorem. These are lower-priority correspondence tasks, not part of the three recommendations."
+    },
+    {
+      "claim": "Supporting deficiency construction and infinite dimension",
+      "coverage_class": "EXACT_REQUIRED_CONCLUSION_VIA_ALTERNATIVE_FORMAL_ROUTE",
+      "declarations": [
+        {
+          "checkout_sha256": "de56e8fed10cc8b24d94d5427fc215e3b5269422fe25c079c35471b4ff6bd0fb",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.ForwardMaximalSheet.exists_nonzero_L2_uMinus",
+          "file": "ExoticCCR/TheoremFMaximalSheetDensity.lean",
+          "line": 587,
+          "source_sha256": "c4b6fddd84cb9290cc33950fea14f13454387899bcddbeaebaea95539c74f5e8"
+        },
+        {
+          "checkout_sha256": "05a9b9ef799007179e4e44a5e461091a609dae588c65e612d265822115e2950d",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.representative_integral_identity",
+          "file": "ExoticCCR/TheoremEForwardIBP.lean",
+          "line": 1098,
+          "source_sha256": "19686f06319bf2c4a6cbd9a389f8c223c7a694a481fb5b0482c148f2f147e85e"
+        },
+        {
+          "checkout_sha256": "aeb24ed2d5bf98a086c4069380b8fd6673c770cccfc706ab3b6d9d85d20f6b32",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.ForwardMaximalSheet.nonzero_weakAdjointEigenvector_uMinus",
+          "file": "ExoticCCR/TheoremFWeakDeficiency.lean",
+          "line": 26,
+          "source_sha256": "9c9ac15af92e22307522861ea6cfd3a2da0e1e7b14ae8dff0149b3fe6bd48ab1"
+        },
+        {
+          "checkout_sha256": "1cc19496cc3efb14f4be49e6bca674e67761ddd7e86fab744cbea178044f29ed",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.exists_finite_weakAdjointEigenvector_negI_family",
+          "file": "ExoticCCR/TheoremFFiniteDeficiency.lean",
+          "line": 220,
+          "source_sha256": "ed601fbaf62b6d7af3ae6c7fde3cc629dca80755e4c8715acf29dbb3fc9bb7d5"
+        }
+      ],
+      "scope_note": "Lean constructs arbitrary finite independent families from disjoint transverse cutoffs. The paper norm identity and uniform lower-bound constant for a bundled cutoff map are not exported; no interior s cutoff may be inserted."
+    },
+    {
+      "claim": "Supporting sign transport",
+      "coverage_class": "EXACT_OPERATOR_TRANSPORT_ROUTE",
+      "declarations": [
+        {
+          "checkout_sha256": "8ab8caad80222319475bb2e1d6a63d34aaed9053b37a04424eaf05cd8614ecb3",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.measurePreserving_sigmaMap",
+          "file": "ExoticCCR/TheoremFSigmaSymmetry.lean",
+          "line": 102,
+          "source_sha256": "63fd3d13e84f2f3659801e2f07b70706488237d1c4dfee47aaaa2674c871a29a"
+        },
+        {
+          "checkout_sha256": "304459176caf35553f79751925ffec7f407ff296781006aeda001b4599b87a2f",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.transportAction_sigmaTest",
+          "file": "ExoticCCR/TheoremFPlusITransport.lean",
+          "line": 170,
+          "source_sha256": "ee7a0d2e09f064cd9a401d0ca175a6350afaee53fe2ede9dd04550f650104b84"
+        },
+        {
+          "checkout_sha256": "304459176caf35553f79751925ffec7f407ff296781006aeda001b4599b87a2f",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.weakAdjointEigenvector_sigmaL2",
+          "file": "ExoticCCR/TheoremFPlusITransport.lean",
+          "line": 218,
+          "source_sha256": "ee7a0d2e09f064cd9a401d0ca175a6350afaee53fe2ede9dd04550f650104b84"
+        },
+        {
+          "checkout_sha256": "00889b2ffb65d8d2ed0d204dc99a0d867087e56311209274cfe8f47e9f4396a5",
+          "checkout_transform": "LF_TO_CRLF_ONLY_VERIFIED",
+          "declaration": "ExoticCCR.theoremFDeficiencySigmaEquiv",
+          "file": "ExoticCCR/TheoremFVonNeumannClassification.lean",
+          "line": 687,
+          "source_sha256": "2af0bb01f86b3183da26026370dcaaeb8fa871a74b5f8cfcaa2171905b71ecd7"
+        }
+      ],
+      "scope_note": "This is the active +i proof route. The independent backward-wall proposition remains outside the cited Lean corollary and is not a prerequisite for the certified F conclusion."
+    }
+  ],
+  "created_utc": "2026-11-11T01:56:21.683468+00:00",
+  "implementation_targets": {
+    "all_j_commutator": {
+      "candidate_domain_exports": [
+        "ExoticCCR.M_F_min_domain",
+        "ExoticCCR.H_j_min_domain",
+        "ExoticCCR.H_j_min_preserves_common_core",
+        "ExoticCCR.M_F_min_preserves_common_core"
+      ],
+      "candidate_export": "ExoticCCR.theoremC_commonCore_commutator",
+      "existing_ingredients": [
+        "dualField_F",
+        "dualVectorField",
+        "minimalTransportExpression",
+        "testFunctionToL2_injective",
+        "minimalTransportCore_apply",
+        "hasCompactSupport_minimalTransportExpression"
+      ],
+      "reject_as_insufficient": [
+        "Only dualField_F or algebraic theoremCPsi_qp",
+        "A formal derivative identity without both composition domains",
+        "Treating unbounded polynomial multiplication as a bounded operator on every L2 vector",
+        "A weak pairing identity with no bridge to the stated common-core commutator"
+      ],
+      "remaining_acceptance": "Exact admitted CPU build, elaborated types/transitive axioms, old-core preservation and independent review.",
+      "required_domain_evidence": [
+        "Multiplication by evaluated F_i maps CcinftyR3 into itself",
+        "The smooth polynomial-coefficient transport H_j maps CcinftyR3 into itself",
+        "Both compositions therefore lie in the intended common domain",
+        "testFunctionToL2 transports the pointwise/common-core identity to the existing minimalTransportCore action"
+      ],
+      "required_statement": "For every i,j : Fin 3 and phi : CcinftyR3, M_Fi(H_j phi) - H_j(M_Fi phi) = Complex.I * delta_ij * phi on the common compactly supported smooth core, and the equality agrees with the canonical L2 core actions."
+    },
+    "all_j_symmetry": {
+      "candidate_bridges": {
+        "canonical_symmetry": "ExoticCCR.H_j_min_isFormalAdjoint",
+        "field_identity": "ExoticCCR.analyticDualField_eq_dualVectorField",
+        "pairing": "ExoticCCR.transportAction_testFunction_pairing",
+        "polynomial_to_analytic_divergence": "ExoticCCR.analyticDivergence_analyticDualField_eq_zero",
+        "smoothness": "ExoticCCR.contDiff_analyticDualField"
+      },
+      "existing_ingredients": [
+        "dualFieldDivergence_eq_zero",
+        "hasFDerivAt_eval_mvPolynomial",
+        "integral_transport_derivative_eq_neg_of_analyticDivergence_eq_zero",
+        "minimalTransportCore_isFormalAdjoint_of_testFunctionPairing"
+      ],
+      "historical_missing_bridges": [
+        "Smoothness of dualVectorField j for all j",
+        "Analytic divergence of dualVectorField j equals evaluated polynomial divergence",
+        "All-j test-function inner-product pairing and canonical-core specialization"
+      ],
+      "remaining_acceptance": "Exact admitted CPU build, elaborated types/transitive axioms, old-core preservation and independent review.",
+      "required_statement": "For every j : Fin 3, the canonical minimalTransportCore for dualVectorField j is its own formal adjoint on its domain, which equals LinearMap.range testFunctionToL2."
+    },
+    "continuum": {
+      "avoid": [
+        "Exact cardinality of all extensions",
+        "A new arbitrary-operator classification theorem",
+        "Changing the existing canonical core or phase family"
+      ],
+      "candidate_export": "ExoticCCR.theoremF_continuum_le_selfAdjointExtensions",
+      "minimal_required_statement": "Cardinal.continuum <= Cardinal.mk (SelfAdjointExtension H_X1_min)",
+      "remaining_acceptance": "Exact admitted CPU build, elaborated types/transitive axioms, old-core preservation and independent review.",
+      "required_inputs": [
+        "Existing theoremFUnitPhaseExtension_injective",
+        "Proved cardinality of unitary C (or a continuum-domain embedding into it)"
+      ]
+    }
+  },
+  "inventory_validation": {
+    "new_candidate_elaboration_verified": false,
+    "new_candidate_names_and_lines_validated": true,
+    "qualified_names_and_lines_validated": true,
+    "source_only_no_elaboration": true
+  },
+  "lean_freeze": "2e40c4cab86a1ef97cb3334497d10081dfe33867",
+  "mathematical_mismatches_to_avoid": [
+    "Root-namespace not_injective_unit_jacobian_char_ne_two is not an exact F noninjectivity export.",
+    "Hilbert dimension aleph0 is not Hamel rank aleph0.",
+    "Strong/exponentiated CCR is not the compact-core multiplication commutator.",
+    "All-j symmetry does not prove essential self-adjointness or deficiency indices for H0/H2.",
+    "A cardinal lower bound does not identify the entire extension family cardinality.",
+    "Backward-wall geometry is not the active positive-deficiency route."
+  ],
+  "paper_release": "001035470f8ebfa180c840e507796aec560284b8",
+  "recommendation_status": {
+    "R1_durable_replay": "UNCOMPILED_NOT_ACCEPTED",
+    "R2_continuum_lower_bound": "UNCOMPILED_NOT_ACCEPTED",
+    "R3_all_j_symmetry_and_commutator": "UNCOMPILED_NOT_ACCEPTED"
+  },
+  "schema": "jw-claim-map-v1",
+  "scope": "Claim-to-declaration map for immutable historical sources plus explicitly identified frozen working-tree candidates; source inventory and dependency audit do not certify all manuscript arguments.",
+  "source_byte_policy": "source_sha256 is the exact canonical LF byte identity. Historical entries without source_origin are frozen Git LF blobs. New entries with source_origin=frozen_working_tree_lf are explicitly uncommitted candidate bytes. checkout_sha256, when present, is a separately verified exact CRLF checkout byte identity. Accept only these explicit hashes; never normalize captured bytes. A source hash match is not proof acceptance or a commit claim.",
+  "source_repositories": {
+    "lean": "https://github.com/Quantyra/exotic-ccr-lean",
+    "paper": "https://github.com/Quantyra/jacobian-weyl-quantum-phase-space"
+  },
+  "status": "UNCOMPILED_NOT_ACCEPTED"
+}

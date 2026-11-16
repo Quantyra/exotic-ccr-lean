@@ -1,0 +1,17 @@
+JW_AUTHOR_PACKET
+Task: author Lean code for the missing complex phase cardinality bridge, no compilation claim. Lean4.33.0-rc1, pinned Mathlib79d0395a. Output Lean code only, no markdown or explanations. Namespace ExoticCCR. Existing imports may include Mathlib.Analysis.Complex.Basic, Mathlib.Analysis.SpecialFunctions.Complex.Circle, Mathlib.Analysis.Complex.Cardinality, Mathlib.Algebra.Star.Unitary. Use these exact library declarations:
+Circle : Type is Submonoid.unitSphere C, coercion to C.
+Circle.norm_coe (z : Circle) : norm (z:C) = 1
+Circle.coe_injective : Function.Injective ((up) : Circle -> C)
+Circle.argEquiv : Circle equiv Set.Ioc (-Real.pi) Real.pi
+Cardinal.mk_congr (e : A equiv B) : Cardinal.mk A = Cardinal.mk B
+Cardinal.mk_Ioc_real {a b : R} (h : a < b) : Cardinal.mk (Set.Ioc a b) = Cardinal.continuum
+Real.pi_pos : 0 < Real.pi
+unitary C has membership: star z * z = 1 AND z * star z = 1
+Unitary.mem_iff gives that conjunction
+Complex.conj_mul' (z:C) : conj z * z = (norm z)^2
+Complex.mul_conj' (z:C) : z * conj z = (norm z)^2
+Complex.star_def changes star to conjugation.
+Cardinal.mk_le_of_injective accepts proof of injectivity.
+Cardinal.mk_complex : Cardinal.mk C = Cardinal.continuum
+Generate (1) def circleUnitary (z : Circle) : unitary C retaining its complex value, (2) theorem circleUnitary_injective, (3) theorem mk_circle_eq_continuum, (4) theorem mk_unitary_complex_eq_continuum using lower bound via circleUnitary and upper bound via subtype coercion to C. Use actual Lean symbols ? ? ? ? ? ?; the ASCII explanatory names above are not constants. Imports and namespace wrapper required. No sorry/admit/custom axiom. Do not introduce any extra hypothesis.

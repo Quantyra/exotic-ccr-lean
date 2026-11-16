@@ -1,0 +1,9 @@
+JW_AUTHOR_PACKET
+Return compact JSON steps array selecting exact typed operations for the concrete derivative and common-core bundle. No code/prose. Existing declarations: analyticDualField j q k := eval q (dualMatrixF Real j k); hasFDerivAt_eval_mvPolynomial p q : HasFDerivAt (fun x => eval x p) (evalPDeriv p q) q; evalPDeriv p q v := sum k, eval q (pderiv k p)*v k; dualField Real j p := sum k, dualMatrixF Real j k*pderiv k p; dualField_F (by norm_num) i j gives if i=j then 1 else 0. TestFunction has fields toFun, contDiff', hasCompactSupport', tsupport_subset'. CcinftyR3 is TestFunction on univ. Actual transport expression is -Complex.I * fderiv Real phi q (X q).
+Operations:
+evaluated_derivative: rewrite fderiv by (hasFDerivAt_eval_mvPolynomial (F Real i) q).fderiv, apply congrArg (eval q) to dualField_F at Real, simplify evalPDeriv/analyticDualField/dualField/map_sum/map_mul/mul_comm and if cases.
+complex_chain_rule: anchorComplex i q := (eval q (F Real i) : Complex), use Complex.ofRealCLM.hasFDerivAt.comp with polynomial derivative, then the real evaluated_derivative to show directional derivative is delta.
+bundle_multiplier: construct anchorMultiplication i phi as TestFunction (fun q => anchorComplex i q * phi q); smoothness from ofRealCLM.contDiff.comp polynomial smoothness then mul phi.contDiff, compact support from phi.hasCompactSupport.mul_left, tsupport_subset_univ.
+bundle_transport: construct dualTransportOnCore j phi as TestFunction (minimalTransportExpression (analyticDualField j) phi), smoothness from contDiff_const.mul ((phi.contDiff.fderiv_right (by simp)).clm_apply (contDiff_analyticDualField j)), compact support from hasCompactSupport_minimalTransportExpression, tsupport_subset_univ.
+assume_derivative: add delta derivative premise (reject).
+Example: {"steps":["evaluated_derivative","complex_chain_rule","bundle_multiplier","bundle_transport"]}

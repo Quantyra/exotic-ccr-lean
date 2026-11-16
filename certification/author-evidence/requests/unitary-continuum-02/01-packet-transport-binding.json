@@ -1,0 +1,9 @@
+{
+  "changed": true,
+  "normalization": "Whole CLI task-string envelope only; decoded text must exactly equal the saved packet",
+  "original_content_sha256": "da55a7ae8c796d65265863e9257fb9677f7781995159766c8113d7f96b1d758b",
+  "native_content_sha256": "6c3cde79d041bad03366a413fbe7124ed5de2becdcc2873961e6cf01d30d0bd5",
+  "intended_content_sha256": "6c3cde79d041bad03366a413fbe7124ed5de2becdcc2873961e6cf01d30d0bd5",
+  "saved_packet_sha256": "6c3cde79d041bad03366a413fbe7124ed5de2becdcc2873961e6cf01d30d0bd5",
+  "source_text_or_instruction_logic_edited": false
+}

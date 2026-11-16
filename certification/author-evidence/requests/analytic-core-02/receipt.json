@@ -1,0 +1,95 @@
+{
+  "utc": "2026-11-15T07:38:59.665586+00:00",
+  "status": "RESPONSE_RECEIVED",
+  "http_status": 200,
+  "content_type": "application/json",
+  "elapsed_seconds": 80.481,
+  "request_sha256": "bbf4726ae42934748b8d5524959a038c52e79a27fe48d5a72b34501aa29b541e",
+  "model": "m-a-p/OProver-32B",
+  "input_tokens": 955,
+  "context_limit": 2048,
+  "output_cap": 480,
+  "finish_reason": "length",
+  "usage": {
+    "prompt_tokens": 955,
+    "total_tokens": 1435,
+    "completion_tokens": 480,
+    "prompt_tokens_details": null
+  },
+  "preflight": {
+    "telemetry": {
+      "sample": 74670,
+      "age_seconds": 4.327,
+      "faults": [],
+      "boards": [
+        {
+          "bus_id": "0000:c1:00.0",
+          "power_w": 168.0,
+          "temp_c": 46.5,
+          "current_a": 59.0,
+          "uncorrected_errors": 0
+        },
+        {
+          "bus_id": "0000:01:00.0",
+          "power_w": 169.0,
+          "temp_c": 46.3,
+          "current_a": 60.0,
+          "uncorrected_errors": 0
+        },
+        {
+          "bus_id": "0000:41:00.0",
+          "power_w": 169.0,
+          "temp_c": 46.5,
+          "current_a": 60.0,
+          "uncorrected_errors": 0
+        },
+        {
+          "bus_id": "0000:42:00.0",
+          "power_w": 171.0,
+          "temp_c": 46.8,
+          "current_a": 61.0,
+          "uncorrected_errors": 0
+        }
+      ]
+    },
+    "running": 0.0,
+    "waiting": 0.0
+  },
+  "postflight_telemetry": {
+    "sample": 74685,
+    "age_seconds": 3.614,
+    "faults": [],
+    "boards": [
+      {
+        "bus_id": "0000:c1:00.0",
+        "power_w": 177.0,
+        "temp_c": 46.5,
+        "current_a": 62.0,
+        "uncorrected_errors": 0
+      },
+      {
+        "bus_id": "0000:01:00.0",
+        "power_w": 190.0,
+        "temp_c": 46.7,
+        "current_a": 60.0,
+        "uncorrected_errors": 0
+      },
+      {
+        "bus_id": "0000:41:00.0",
+        "power_w": 168.0,
+        "temp_c": 46.8,
+        "current_a": 62.0,
+        "uncorrected_errors": 0
+      },
+      {
+        "bus_id": "0000:42:00.0",
+        "power_w": 168.0,
+        "temp_c": 47.0,
+        "current_a": 68.0,
+        "uncorrected_errors": 0
+      }
+    ]
+  },
+  "monitor_abort_after": false,
+  "answer_characters": 1675
+}

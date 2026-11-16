@@ -1,0 +1,14 @@
+JW_AUTHOR_PACKET
+Return compact JSON steps array selecting exact template operations for all-j symmetry. No prose. Templates use retained checked source TheoremFSymmetricCore.lean SHAab38a04d5222e6a1d1decb4212b4deb4a98354b09febe0aa0e5930a108b1c537.
+Target: every j : Fin 3 has a symmetric canonical minimal operator, without supplied symmetry or divergence assumptions.
+Available checked lemmas: contDiff_eval_mvPolynomial, dualFieldDivergence_eq_zero (j), generic integral_transport_derivative_eq_neg_of_analyticDivergence_eq_zero X hX hDiv, minimalTransportCore_isFormalAdjoint_of_testFunctionPairing X hXcontinuous hPair.
+Existing analyticDivergence_X1_eq_zero proof translates polynomial row1 derivatives to analytic divergence via fderiv_pi and evaluated pderiv, then the sum_pderiv_dualMatrixF_row_one identity. Generalize row1 to j; the sum identity becomes the definitional dualFieldDivergence_eq_zero j.
+Existing transportAction_X1_testFunction_pairing proof uses only X1, contDiff_X1, analyticDivergence_X1_eq_zero plus generic L2 integration identities. Generalize those to X, hX, hDiv; add these explicit binders. Then instantiate actual polynomial row fields to discharge all hypotheses.
+Operations:
+define_eval_row_j: analyticDualField j q k := MvPolynomial.eval q (dualMatrixF ? j k).
+smooth_pi_eval: contDiff_pi plus existing contDiff_eval_mvPolynomial.
+divergence_row_j: preserve the derivative-translation proof with row1?j and the general polynomial divergence certificate.
+generic_pairing_substitution: replace the three X1-specific names by X/hX/hDiv in the exact existing pairing proof and bind X/hX/hDiv.
+instantiate_all_j: minimalTransportCore of analyticDualField j, with derived continuity and divergence, then generic pairing and formal-adjoint bridge.
+assume_symmetry: add an arbitrary symmetry premise instead (reject).
+Example format: {"steps":["define_eval_row_j","smooth_pi_eval","divergence_row_j","generic_pairing_substitution","instantiate_all_j"]}.

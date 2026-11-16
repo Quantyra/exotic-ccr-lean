@@ -1,5 +1,11 @@
 # Theorem F synchronized artifact provenance
 
+**Historical freeze record.** The 2026-11-10 [certification maintenance](certification/README.md)
+tracks a separate exact-freeze replay and proposed additions. The original CI
+artifact/log links below no longer supply accessible raw evidence. Their
+historical success record is preserved; new verification has not yet passed.
+This file does not assign the maintenance branch a new publication freeze.
+
 > **A001 CLOSED.** This provenance record pins the audited Lean freeze.
 > Science is published (`v0.3.9-referee-revision` / `0010354`; Zenodo
 > `10.5281/zenodo.21715479`; no arXiv id — VIPN6B only). Lean freeze itself

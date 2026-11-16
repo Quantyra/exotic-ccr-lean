@@ -1,0 +1,48 @@
+{
+  "terminal_cli_exit_code": 0,
+  "inference_forwarded": true,
+  "decision": "accepted candidate node selection; first rendering suffered Windows Unicode transport corruption, preserved then repaired; superseded by exact corrected-context selection unitary-continuum-02",
+  "native_finish": [
+    "stop"
+  ],
+  "calls": [
+    {
+      "utc": "2026-11-11T02:12:38.333002+00:00",
+      "model": "m-a-p/OProver-32B",
+      "tool_count": 0,
+      "tool_names": [],
+      "tool_choice": "none",
+      "stream": true,
+      "forwarded": true,
+      "packet_transport": {
+        "changed": true,
+        "normalization": "Whole CLI task-string envelope only; decoded text must exactly equal the saved packet",
+        "original_content_sha256": "a8fee16da4f1e8670d7bcda112de07c4416f823c09933aace04c13c307ac5507",
+        "native_content_sha256": "78752d416bfa48794d13415d5918e76d8847abab76888a537482d5df8aa1000c",
+        "intended_content_sha256": "78752d416bfa48794d13415d5918e76d8847abab76888a537482d5df8aa1000c",
+        "saved_packet_sha256": "78752d416bfa48794d13415d5918e76d8847abab76888a537482d5df8aa1000c",
+        "source_text_or_instruction_logic_edited": false
+      },
+      "tokenizer": {
+        "count": 377,
+        "max_model_len": 2048,
+        "monitor_sample": 7205,
+        "faults": []
+      },
+      "output_cap": 128,
+      "admission": "FORWARDED_ONCE",
+      "dispatch_started": true,
+      "remote": {
+        "idle_before": {
+          "running": 0.0,
+          "waiting": 0.0
+        },
+        "request_sha256": "3f0f53a26b786280b8d9beca8d40f55f194a619ec747595f3c0a48da7edf1e77",
+        "http_status": 200,
+        "content_type": "text/event-stream; charset=utf-8",
+        "elapsed_seconds": 4.693349361419678,
+        "guard_abort_after": false
+      }
+    }
+  ]
+}

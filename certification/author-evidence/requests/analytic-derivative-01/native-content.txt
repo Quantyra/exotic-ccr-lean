@@ -1,0 +1,1 @@
+{"code":"by simp [dualField_F, analyticDualField, evalPDeriv, hasFDerivAt_eval_mvPolynomial]"}

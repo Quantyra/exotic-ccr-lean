@@ -1,0 +1,12 @@
+JW_AUTHOR_PACKET
+Return JSON with code string containing only the Lean proof body beginning `by`. Prove exactly the theorem below, not a changed statement. Available checked declarations in namespace ExoticCCR:
+R3 := Fin 3 -> Real.
+analyticDualField j q k := MvPolynomial.eval q (dualMatrixF Real j k).
+evalPDeriv p q v := sum k : Fin 3, MvPolynomial.eval q (MvPolynomial.pderiv k p) * v k.
+hasFDerivAt_eval_mvPolynomial p q : HasFDerivAt (fun x => MvPolynomial.eval x p) (evalPDeriv p q) q.
+dualField Real j p := sum k : Fin 3, dualMatrixF Real j k * MvPolynomial.pderiv k p.
+dualField_F (h2 : (2 : Real) != 0) (i j : Fin 3) : dualField Real j (F Real i) = if i = j then 1 else 0.
+Use evaluated dualField_F and the existing derivative, commuting scalar products. No sorry, no new assumptions. Open MvPolynomial.
+Goal:
+theorem fderiv_anchor_on_dual (i j : Fin 3) (q : R3) :
+ fderiv Real (fun x : R3 => MvPolynomial.eval x (F Real i)) q (analyticDualField j q) = if i = j then 1 else 0 := by

@@ -1,0 +1,122 @@
+
+/-- Multiplication is linear on its invariant compact smooth domain. -/
+def anchorMultiplicationMap (i : Fin 3) : CcinftyR3 →ₗ[Complex] CcinftyR3 where
+  toFun := anchorMultiplication i
+  map_add' phi psi := by
+    ext q
+    change anchorComplex i q * (phi q + psi q) =
+      anchorComplex i q * phi q + anchorComplex i q * psi q
+    ring
+  map_smul' c phi := by
+    ext q
+    change anchorComplex i q * (c * phi q) = c * (anchorComplex i q * phi q)
+    ring
+
+/-- Graph map for polynomial multiplication on the canonical embedded core. -/
+def anchorMultiplicationGraphMap (i : Fin 3) : CcinftyR3 →ₗ[Complex] L2R3 × L2R3 :=
+  testFunctionToL2.prod (testFunctionToL2.comp (anchorMultiplicationMap i))
+
+theorem anchorMultiplicationGraph_functional (i : Fin 3) :
+    forall (x : L2R3 × L2R3), x ∈ LinearMap.range (anchorMultiplicationGraphMap i) ->
+      x.fst = 0 -> x.snd = 0 := by
+  rintro _ ⟨phi, rfl⟩ hphi
+  have : phi = 0 := testFunctionToL2_injective
+    (by simpa [anchorMultiplicationGraphMap] using hphi)
+  subst phi
+  simp [anchorMultiplicationGraphMap]
+
+/-- Actual polynomial multiplication as a partial L2 operator on the common core. -/
+def M_F_min (i : Fin 3) : L2R3 →ₗ.[Complex] L2R3 :=
+  (LinearMap.range (anchorMultiplicationGraphMap i)).toLinearPMap
+
+theorem M_F_min_domain (i : Fin 3) :
+    (M_F_min i).domain = LinearMap.range testFunctionToL2 := by
+  ext u
+  simp [M_F_min, anchorMultiplicationGraphMap, Submodule.toLinearPMap_domain,
+    LinearMap.mem_range]
+
+theorem M_F_min_mem_domain (i : Fin 3) (phi : CcinftyR3) :
+    testFunctionToL2 phi ∈ (M_F_min i).domain := by
+  rw [M_F_min_domain]
+  exact LinearMap.mem_range_self testFunctionToL2 phi
+
+theorem M_F_min_apply (i : Fin 3) (phi : CcinftyR3) :
+    M_F_min i ⟨testFunctionToL2 phi, M_F_min_mem_domain i phi⟩ =
+      testFunctionToL2 (anchorMultiplication i phi) := by
+  symm
+  rw [LinearPMap.image_iff]
+  unfold M_F_min
+  rw [Submodule.toLinearPMap_graph_eq _ (anchorMultiplicationGraph_functional i)]
+  exact LinearMap.mem_range_self (anchorMultiplicationGraphMap i) phi
+
+/-- The newly bundled smooth transport and old L2 action have identical representatives. -/
+theorem testFunctionToL2_dualTransportOnCore (j : Fin 3) (phi : CcinftyR3) :
+    testFunctionToL2 (dualTransportOnCore j phi) =
+      transportAction (analyticDualField j) (contDiff_analyticDualField j).continuous phi := rfl
+
+theorem H_j_min_domain (j : Fin 3) :
+    (H_j_min j).domain = LinearMap.range testFunctionToL2 :=
+  minimalTransportCore_domain (analyticDualField j) (contDiff_analyticDualField j).continuous
+
+theorem H_j_min_mem_domain (j : Fin 3) (phi : CcinftyR3) :
+    testFunctionToL2 phi ∈ (H_j_min j).domain := by
+  rw [H_j_min_domain]
+  exact LinearMap.mem_range_self testFunctionToL2 phi
+
+theorem H_j_min_apply (j : Fin 3) (phi : CcinftyR3) :
+    H_j_min j ⟨testFunctionToL2 phi, H_j_min_mem_domain j phi⟩ =
+      testFunctionToL2 (dualTransportOnCore j phi) := by
+  rw [testFunctionToL2_dualTransportOnCore]
+  exact minimalTransportCore_apply (analyticDualField j)
+    (contDiff_analyticDualField j).continuous phi
+
+/-- The actual H action lies in the multiplication domain. -/
+theorem H_j_min_preserves_common_core (i j : Fin 3) (phi : CcinftyR3) :
+    H_j_min j ⟨testFunctionToL2 phi, H_j_min_mem_domain j phi⟩ ∈ (M_F_min i).domain := by
+  rw [H_j_min_apply]
+  exact M_F_min_mem_domain i (dualTransportOnCore j phi)
+
+/-- The actual multiplication action lies in the H domain. -/
+theorem M_F_min_preserves_common_core (i j : Fin 3) (phi : CcinftyR3) :
+    M_F_min i ⟨testFunctionToL2 phi, M_F_min_mem_domain i phi⟩ ∈ (H_j_min j).domain := by
+  rw [M_F_min_apply]
+  exact H_j_min_mem_domain j (anchorMultiplication i phi)
+
+/-- Product-rule commutator of the two actual operators on compact smooth functions. -/
+theorem commonCore_commutator (i j : Fin 3) (phi : CcinftyR3) :
+    anchorMultiplication i (dualTransportOnCore j phi) -
+      dualTransportOnCore j (anchorMultiplication i phi) =
+        (if i = j then Complex.I else 0) • phi := by
+  ext q
+  change anchorComplex i q *
+      (-Complex.I * fderiv Real (phi : R3 -> Complex) q (analyticDualField j q)) -
+    (-Complex.I * fderiv Real (fun x : R3 => anchorComplex i x * phi x) q
+      (analyticDualField j q)) = (if i = j then Complex.I else 0) * phi q
+  rw [fderiv_mul ((contDiff_anchorComplex i).differentiable (by simp)).differentiableAt
+    (phi.contDiff.differentiable (by simp)).differentiableAt]
+  simp only [ContinuousLinearMap.add_apply, ContinuousLinearMap.smul_apply, smul_eq_mul]
+  rw [fderiv_anchorComplex_on_dual]
+  split_ifs <;> ring
+
+/-- The all-index CCR is an equality of the actual partial-L2 compositions on the common core. -/
+theorem theoremC_commonCore_commutator (i j : Fin 3) (phi : CcinftyR3) :
+    M_F_min i ⟨H_j_min j ⟨testFunctionToL2 phi, H_j_min_mem_domain j phi⟩,
+        H_j_min_preserves_common_core i j phi⟩ -
+      H_j_min j ⟨M_F_min i ⟨testFunctionToL2 phi, M_F_min_mem_domain i phi⟩,
+        M_F_min_preserves_common_core i j phi⟩ =
+      (if i = j then Complex.I else 0) • testFunctionToL2 phi := by
+  have h := congrArg testFunctionToL2 (commonCore_commutator i j phi)
+  simp only [map_sub, map_smul] at h
+  simpa only [H_j_min_apply, M_F_min_apply] using h
+
+/-- The evaluated all-index field is the existing canonical polynomial field. -/
+theorem analyticDualField_eq_dualVectorField (j : Fin 3) :
+    analyticDualField j = dualVectorField j := rfl
+
+/-- The all-index package retains exactly the previous canonical escaping operator. -/
+theorem H_j_min_one_eq_H_X1_min : H_j_min 1 = H_X1_min := rfl
+
+/-- The common domain is dense in the ambient L2 space. -/
+theorem H_j_min_dense_domain (j : Fin 3) : Dense ((H_j_min j).domain : Set L2R3) := by
+  rw [H_j_min_domain]
+  exact testFunctionL2_dense

@@ -1,0 +1,28 @@
+{
+  "kind": "ORCHESTRATION_WINDOWS_ENCODING_FAILURE_REPAIRED",
+  "rejected_sha256": "817b6cf0c7caf45534f0a08d2fbd988c13201a186f859f2230462275b77b7c08",
+  "repaired_sha256": "8ccc8ecb456027a5a7e4b016cfd3ae4f46f2d325e017b86ffae3dbf9ea1b619f",
+  "native_generation_failure": false,
+  "source": ".\\ExoticCCR\\TheoremFContinuum.lean",
+  "replacements": {
+    "unitary ?": "unitary \u2102",
+    "(z : ?)": "(z : \u2102)",
+    "(u : ?)": "(u : \u2102)",
+    "  ?(z :": "  \u27e8(z :",
+    "Circle.norm_coe]?": "Circle.norm_coe]\u27e9",
+    "  ? simpa": "  \u00b7 simpa",
+    "  ? rw": "  \u00b7 rw",
+    "[? mk_": "[\u2190 mk_",
+    "Cardinal.continuum ? Cardinal.mk": "Cardinal.continuum \u2264 Cardinal.mk"
+  },
+  "scope": "Restore the intended Unicode symbols in the typed-node renderer; no new lemma, statement, proof rule, or semantic change. Pending CPU verification.",
+  "literal_question_marks_after": 0,
+  "unicode_codepoints_after": [
+    "0x2102",
+    "0x2190",
+    "0x2264",
+    "0x27e8",
+    "0x27e9",
+    "0xb7"
+  ]
+}

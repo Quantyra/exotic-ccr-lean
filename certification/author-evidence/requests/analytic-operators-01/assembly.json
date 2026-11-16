@@ -1,0 +1,20 @@
+{
+  "source": ".\\ExoticCCR\\TheoremCAnalytic.lean",
+  "sha256": "bace2558f3ae54025f860df533b941b74d5aab8a536030819f3ada72d5428a30",
+  "predecessor_sha256": "22720ccaa4c85e65dfeb4cbaad82544df1ca58da7cb908981f67a27df91a1637",
+  "native_selection": {
+    "steps": [
+      "multiplier_linear",
+      "multiplier_partial_template",
+      "transport_embedding",
+      "leibniz_commutator",
+      "common_core_closure",
+      "actual_L2_composition",
+      "original_X1_correspondence"
+    ]
+  },
+  "rendering": "Selected typed nodes rendered by orchestration; partial multiplication graph/domain/apply copied from existing TransportCore templates with concrete linear action substitution. Leibniz proof follows selected primitive rewrites. All candidate only.",
+  "template_sha256": "ae2ea1a6207e2428063b2b3d606d354e35cdbcbf413d5f074babd28c8a7304b4",
+  "free_bytes_prewrite": 243609600,
+  "source_bytes": 13230
+}
